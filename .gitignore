@@ -1,0 +1,61 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Flask instance folder
+instance/
+
+# Database
+*.db
+*.sqlite3
+
+# Environment variables
+.env
+.flaskenv
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# Flask stuff
+.webassets-cache
+flask_session/
+
+# Jupyter notebook
+.ipynb_checkpoints
+
+# Local development settings
+.env.local

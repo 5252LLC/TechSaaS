@@ -1,0 +1,225 @@
+/**
+ * TechSaaS - Responsive CSS
+ * 
+ * This file contains responsive design rules that ensure the application
+ * works well on all devices from mobile phones to large desktop screens.
+ */
+
+/* Base responsive rules */
+body {
+  overflow-x: hidden;
+}
+
+/* Make all images, videos, and iframes responsive */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables */
+.table-responsive {
+  overflow-x: auto;
+  /* Use standard properties for smooth scrolling that work across browsers */
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+
+/* Make pre tags responsive for code display */
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Make video containers responsive with proper aspect ratio */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive export links and buttons */
+.export-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* General responsive content container */
+.content-container {
+  width: 100%;
+  padding: 15px;
+}
+
+/* Responsive form controls */
+.form-control {
+  max-width: 100%;
+}
+
+/* Small devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+  .hide-xs {
+    display: none !important;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  /* Adjust padding for smaller screens */
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* Make form inputs larger for touch */
+  input, select, button {
+    min-height: 44px;
+  }
+  
+  /* Adjust card padding */
+  .card-body {
+    padding: 1rem;
+  }
+  
+  /* Stack buttons on small screens */
+  .btn-group {
+    flex-direction: column;
+  }
+  
+  /* Adjust table font size */
+  table {
+    font-size: 0.9rem;
+  }
+}
+
+/* Medium devices (tablets, 576px to 991.98px) */
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .hide-md {
+    display: none !important;
+  }
+  
+  /* Adjust grid for tablet layout */
+  .col-tablet-6 {
+    width: 50% !important;
+  }
+  
+  /* Adjust heading sizes */
+  h1 {
+    font-size: 2.2rem;
+  }
+  
+  /* Make sure padding isn't too tight */
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .hide-lg {
+    display: none !important;
+  }
+  
+  /* Allow more content on larger screens */
+  .container-wide {
+    max-width: 90%;
+  }
+  
+  /* Adjust card layouts for desktop */
+  .card-deck {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .card-deck .card {
+    flex: 1 0 0%;
+    margin-right: 15px;
+    margin-left: 15px;
+  }
+}
+
+/* Extra utilities for content display */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive data containers */
+.data-display {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Responsive scraper results */
+.scraped-content {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Responsive crypto dashboard */
+.crypto-card {
+  height: 100%;
+  transition: transform 0.3s;
+}
+
+.crypto-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Fix for Bootstrap modal issues on mobile */
+.modal-dialog {
+  margin: 1.75rem auto;
+}
+
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+}
+
+/* Responsive footer */
+@media (max-width: 767.98px) {
+  footer h5 {
+    margin-top: 1.5rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  /* Hide navigation and footer for print */
+  header, footer, .no-print {
+    display: none !important;
+  }
+  
+  /* Expand the main content for print */
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Ensure text is black for better print quality */
+  body {
+    color: #000 !important;
+  }
+}

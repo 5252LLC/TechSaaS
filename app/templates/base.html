@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Responsive viewport meta tag -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ brand.COMPANY_NAME }}{% endblock %} - {{ brand.COMPANY_TAGLINE }}</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="{{ brand.COMPANY_DESCRIPTION }}">
+    <meta name="keywords" content="web scraping, data analysis, crypto, AI, TechSaaS">
+    <meta name="author" content="{{ brand.COMPANY_NAME }}">
+    
+    <!-- Open Graph tags for social sharing -->
+    <meta property="og:title" content="{{ brand.COMPANY_NAME }} - {{ brand.COMPANY_TAGLINE }}">
+    <meta property="og:description" content="{{ brand.COMPANY_DESCRIPTION }}">
+    <meta property="og:url" content="{{ brand.FULL_URL }}">
+    <meta property="og:image" content="{{ brand.FULL_URL }}{{ brand.LOGO_PATH }}">
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="{{ brand.TWITTER_HANDLE }}">
+    <meta name="twitter:title" content="{{ brand.COMPANY_NAME }} - {{ brand.COMPANY_TAGLINE }}">
+    <meta name="twitter:description" content="{{ brand.COMPANY_DESCRIPTION }}">
+    <meta name="twitter:image" content="{{ brand.FULL_URL }}{{ brand.LOGO_PATH }}">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    
+    <!-- Custom brand-specific styles -->
+    <style>
+        :root {
+            --primary-color: {{ brand.PRIMARY_COLOR }};
+            --secondary-color: {{ brand.SECONDARY_COLOR }};
+            --accent-color: {{ brand.ACCENT_COLOR }};
+            --text-color: {{ brand.TEXT_COLOR }};
+            --bg-color: {{ brand.BACKGROUND_COLOR }};
+        }
+    </style>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('main.home') }}">
+                    <img src="{{ url_for('static', filename=brand.LOGO_PATH[1:]) }}" alt="{{ brand.COMPANY_NAME }}" width="{{ brand.LOGO_WIDTH }}" height="{{ brand.LOGO_HEIGHT }}" class="img-fluid">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.home') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('scraper.index') }}">Scraper</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('video.index') }}">Videos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('crypto.index') }}">Crypto</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('agent.index') }}">Eliza AI</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        {% if current_user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ current_user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">Profile</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container py-4">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Main content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>{{ brand.COMPANY_NAME }}</h5>
+                    <p>{{ brand.COMPANY_TAGLINE }}</p>
+                    <p>&copy; {{ now.year }} {{ brand.COMPANY_NAME }}. All rights reserved.</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.home') }}" class="text-white">Home</a></li>
+                        <li><a href="{{ url_for('main.about') }}" class="text-white">About</a></li>
+                        <li><a href="{{ url_for('main.contact') }}" class="text-white">Contact</a></li>
+                        <li><a href="{{ url_for('main.privacy') }}" class="text-white">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('main.terms') }}" class="text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Connect</h5>
+                    <div class="d-flex mb-3">
+                        <a href="https://twitter.com/{{ brand.TWITTER_HANDLE[1:] }}" class="text-white me-3" target="_blank" rel="noopener" title="Follow us on Twitter">
+                            <i class="fab fa-twitter fa-lg"></i>
+                        </a>
+                        <a href="https://github.com/{{ brand.GITHUB_USERNAME }}" class="text-white me-3" target="_blank" rel="noopener" title="View our GitHub projects">
+                            <i class="fab fa-github fa-lg"></i>
+                        </a>
+                        <a href="mailto:{{ brand.EMAIL }}" class="text-white" title="Email us">
+                            <i class="fas fa-envelope fa-lg"></i>
+                        </a>
+                    </div>
+                    <p>
+                        <a href="https://{{ brand.DOMAIN }}" class="text-white" target="_blank" rel="noopener">{{ brand.DOMAIN }}</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

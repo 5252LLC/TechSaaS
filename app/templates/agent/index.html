@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Eliza AI Assistant</h3>
+                </div>
+                <div class="card-body">
+                    <div class="chat-container" id="chatContainer" style="height: 400px; overflow-y: auto;">
+                        <div class="text-center p-4">
+                            <p class="lead">Welcome to the Eliza AI Assistant!</p>
+                            <p>Ask me anything related to web scraping, data analysis, or cryptocurrency.</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <form id="chatForm" class="d-flex">
+                            <input type="text" id="userMessage" class="form-control me-2" placeholder="Type your message...">
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('chatForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const userMessage = document.getElementById('userMessage').value;
+    if (!userMessage.trim()) return;
+    
+    // Add user message to chat
+    appendMessage('You', userMessage);
+    
+    // Clear input
+    document.getElementById('userMessage').value = '';
+    
+    // Simulate AI response (would be replaced with actual API call)
+    setTimeout(() => {
+        appendMessage('Eliza', `This is a simulated response to: "${userMessage}"`);
+    }, 500);
+});
+
+function appendMessage(sender, message) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'p-2 mb-2';
+    messageDiv.style.borderRadius = '10px';
+    
+    if (sender === 'You') {
+        messageDiv.className += ' bg-light text-end';
+    } else {
+        messageDiv.className += ' bg-primary text-white';
+    }
+    
+    messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+</script>
+{% endblock %}

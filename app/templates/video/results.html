@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Video Extraction Results{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Videos Extracted from <a href="{{ url }}" target="_blank" class="text-break">{{ url }}</a></h2>
+            <p>Found {{ videos|length }} videos</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for video in videos %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ video.title }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-primary">{{ video.platform }}</span>
+                    </p>
+                    <a href="{{ video.url }}" target="_blank" class="btn btn-primary mt-2">Watch Video</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <a href="{{ url_for('video.index') }}" class="btn btn-outline-primary">Extract More Videos</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
