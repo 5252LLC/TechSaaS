@@ -3,28 +3,28 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<section class="hero py-5 bg-primary text-white text-center">
+<section class="hero py-5 bg-dark text-white text-center">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <h1 class="display-4 fw-bold mb-3">{{ brand.COMPANY_NAME }}</h1>
                 <p class="lead mb-4">{{ brand.COMPANY_TAGLINE }}</p>
                 <p class="mb-5">{{ brand.COMPANY_DESCRIPTION }}</p>
-                <a href="{{ brand.CTA_URL }}" class="btn btn-light btn-lg px-5">{{ brand.CTA_TEXT }}</a>
+                <a href="{{ brand.CTA_URL }}" class="btn btn-primary btn-lg px-5">{{ brand.CTA_TEXT }}</a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="features py-5 bg-light">
+<section class="features py-5 bg-dark text-light">
     <div class="container">
         <h2 class="text-center mb-5">Features</h2>
         <div class="row g-4">
             {% for feature in brand.FEATURES %}
             <div class="col-lg-3 col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm bg-dark text-light border-secondary">
                     <div class="card-body text-center">
-                        <i class="fas {{ feature.icon }} fa-3x mb-3 accent"></i>
+                        <i class="fas {{ feature.icon }} fa-3x mb-3 text-warning"></i>
                         <h5 class="card-title">{{ feature.title }}</h5>
                         <p class="card-text">{{ feature.description }}</p>
                     </div>
@@ -35,11 +35,11 @@
     </div>
 </section>
 
-<section class="py-5 text-white" style="background-color: {{ brand.PRIMARY_COLOR }};">
+<section class="py-5 text-white section-dark">
     <div class="container text-center">
         <h2 class="mb-4">Ready to get started?</h2>
         <p class="lead mb-4">Start scraping, analyzing, and extracting data today.</p>
-        <a href="{{ url_for('scraper.index') }}" class="btn btn-light btn-lg px-5">Try Scraper Now</a>
+        <a href="{{ url_for('scraper.index') }}" class="btn btn-warning btn-lg px-5">Try Scraper Now</a>
     </div>
 </section>
 {% endblock %}

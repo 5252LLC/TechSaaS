@@ -52,6 +52,25 @@ a:hover {
   border-color: var(--primary-color);
 }
 
+/* Logo styling */
+.navbar-brand img, 
+.techsaas-logo {
+  height: auto;
+  width: 180px;
+  max-width: 100%;
+}
+
+/* Make the logo more prominent */
+.navbar-brand {
+  padding: 0.25rem 0;
+}
+
+.footer-logo {
+  width: 140px;
+  height: auto;
+}
+
+/* Button styles */
 .btn-secondary {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
@@ -80,10 +99,6 @@ a:hover {
 }
 
 /* Header and navigation */
-.navbar-brand img {
-  max-height: 50px;
-}
-
 .navbar-dark .navbar-nav .nav-link {
   color: rgba(255, 255, 255, 0.8);
 }
@@ -274,6 +289,72 @@ a:hover {
 
 .bg-accent-light {
   background-color: rgba(245, 166, 35, 0.1);
+}
+
+/* Index page styles */
+.index-page {
+  background-color: #f9f9f9;
+  padding: 5rem 0;
+}
+
+.index-page .hero {
+  padding: 5rem 0;
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+}
+
+.index-page .hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.index-page .hero p {
+  font-size: 1.25rem;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+}
+
+/* Agent page styles */
+.agent-page {
+  background-color: #f9f9f9;
+  padding: 5rem 0;
+}
+
+.agent-page .chat-container {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+.agent-page .dark-theme .chat-container {
+  background-color: #343a40;
+  border-color: #495057;
+  color: #f8f9fa;
+}
+
+.agent-page .chat-message {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+.agent-page .user-message {
+  background-color: #e9ecef;
+  text-align: right;
+}
+
+.agent-page .bot-message {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.agent-page .dark-theme .user-message {
+  background-color: #495057;
 }
 
 /* Footer customization */

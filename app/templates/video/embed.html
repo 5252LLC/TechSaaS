@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title or "Video Embed" }} - TechSaaS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-12">
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{{ title or "Video Embed" }}</h3>
+                    <span class="badge {% if video_type == 'youtube' %}bg-danger{% elif video_type == 'vimeo' %}bg-info{% else %}bg-secondary{% endif %}">
+                        {% if video_type == 'youtube' %}
+                            <i class="fab fa-youtube me-1"></i> YouTube
+                        {% elif video_type == 'vimeo' %}
+                            <i class="fab fa-vimeo-v me-1"></i> Vimeo
+                        {% else %}
+                            <i class="fas fa-video me-1"></i> Video
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="video-container mb-4">
+                        {{ embed_code|safe }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="embedCode" class="form-label">Embed Code</label>
+                                <div class="input-group mb-3">
+                                    <textarea id="embedCode" class="form-control bg-dark text-light" rows="5" readonly>{{ embed_code }}</textarea>
+                                    <button class="btn btn-outline-light" type="button" id="copyEmbedBtn" aria-label="Copy embed code" title="Copy to clipboard">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('video.index') }}" class="btn btn-outline-light">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Extractor
+                        </a>
+                        
+                        <a href="{{ video_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" aria-label="Open video in original site">
+                            <i class="fas fa-external-link-alt me-1"></i> Open Original
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const copyEmbedBtn = document.getElementById('copyEmbedBtn');
+        const embedCode = document.getElementById('embedCode');
+        
+        copyEmbedBtn.addEventListener('click', function() {
+            embedCode.select();
+            navigator.clipboard.writeText(embedCode.value)
+                .then(() => {
+                    const originalHTML = copyEmbedBtn.innerHTML;
+                    copyEmbedBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        copyEmbedBtn.innerHTML = originalHTML;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+        });
+    });
+</script>
+{% endblock %}

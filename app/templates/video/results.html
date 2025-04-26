@@ -1,36 +1,195 @@
 {% extends "base.html" %}
 
-{% block title %}Video Extraction Results{% endblock %}
+{% block title %}Video Extraction Results - TechSaaS{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col-12">
-            <h2>Videos Extracted from <a href="{{ url }}" target="_blank" class="text-break">{{ url }}</a></h2>
-            <p>Found {{ videos|length }} videos</p>
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h2 class="text-primary mb-2">Videos Extracted</h2>
+                    <p class="lead">
+                        From <a href="{{ url }}" target="_blank" class="text-break" rel="noopener noreferrer">{{ url }}</a>
+                    </p>
+                    <p class="badge bg-primary">Found {{ videos|length }} videos</p>
+                </div>
+                <div class="mt-2 mt-md-0">
+                    <a href="{{ url_for('video.index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-1"></i> Extract More
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     
+    {% if videos %}
     <div class="row g-4">
         {% for video in videos %}
-        <div class="col-lg-4 col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">{{ video.title }}</h5>
-                    <p class="card-text">
-                        <span class="badge bg-primary">{{ video.platform }}</span>
-                    </p>
-                    <a href="{{ video.url }}" target="_blank" class="btn btn-primary mt-2">Watch Video</a>
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 bg-dark text-light border-secondary">
+                {% if video.type == 'youtube' %}
+                <div class="card-img-top video-thumbnail-container">
+                    <img src="{{ video.thumbnail }}" alt="{{ video.title }}" class="img-fluid"
+                         onerror="this.onerror=null; this.src='/static/images/video-placeholder.png';">
+                    <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" rel="noopener noreferrer" 
+                       class="video-play-button" aria-label="Play YouTube video: {{ video.title }}">
+                        <i class="fas fa-play-circle fa-3x"></i>
+                    </a>
                 </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="{{ video.title }}">{{ video.title }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-danger text-white">
+                            <i class="fab fa-youtube me-1"></i> YouTube
+                        </span>
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <button class="btn btn-sm btn-outline-light copy-embed" data-embed="{{ video.embed_code }}">
+                        <i class="fas fa-code me-1"></i> Copy Embed
+                    </button>
+                    <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-danger">
+                        <i class="fas fa-external-link-alt me-1"></i> Watch
+                    </a>
+                </div>
+                
+                {% elif video.type == 'vimeo' %}
+                <div class="card-img-top video-thumbnail-container">
+                    <img src="{{ video.thumbnail }}" alt="{{ video.title }}" class="img-fluid"
+                         onerror="this.onerror=null; this.src='/static/images/video-placeholder.png';">
+                    <a href="https://vimeo.com/{{ video.video_id }}" target="_blank" rel="noopener noreferrer" 
+                       class="video-play-button" aria-label="Play Vimeo video: {{ video.title }}">
+                        <i class="fas fa-play-circle fa-3x"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="{{ video.title }}">{{ video.title }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-info text-white">
+                            <i class="fab fa-vimeo-v me-1"></i> Vimeo
+                        </span>
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <button class="btn btn-sm btn-outline-light copy-embed" data-embed="{{ video.embed_code }}">
+                        <i class="fas fa-code me-1"></i> Copy Embed
+                    </button>
+                    <a href="https://vimeo.com/{{ video.video_id }}" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-info">
+                        <i class="fas fa-external-link-alt me-1"></i> Watch
+                    </a>
+                </div>
+                
+                {% elif video.type == 'html5' %}
+                <div class="card-img-top video-thumbnail-container">
+                    {% if video.poster %}
+                    <img src="{{ video.poster }}" alt="Video Thumbnail" class="img-fluid"
+                         onerror="this.onerror=null; this.src='/static/images/video-placeholder.png';">
+                    {% else %}
+                    <img src="/static/images/video-placeholder.png" alt="Video Thumbnail" class="img-fluid">
+                    {% endif %}
+                    <a href="{{ video.sources[0].src }}" target="_blank" rel="noopener noreferrer" 
+                       class="video-play-button" aria-label="Play HTML5 video">
+                        <i class="fas fa-play-circle fa-3x"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="{{ video.title or 'HTML5 Video' }}">{{ video.title or 'HTML5 Video' }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-film me-1"></i> HTML5
+                        </span>
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="#" class="btn btn-sm btn-outline-light disabled" aria-label="No embed code available">
+                        <i class="fas fa-code me-1"></i> No Embed
+                    </a>
+                    <a href="{{ video.sources[0].src }}" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-warning text-dark">
+                        <i class="fas fa-download me-1"></i> Download
+                    </a>
+                </div>
+                
+                {% else %}
+                <div class="card-img-top video-thumbnail-container">
+                    <img src="/static/images/video-placeholder.png" alt="Video" class="img-fluid">
+                    <a href="{{ video.embed_url }}" target="_blank" rel="noopener noreferrer" 
+                       class="video-play-button" aria-label="Open embedded video">
+                        <i class="fas fa-play-circle fa-3x"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="{{ video.title or 'Embedded Video' }}">{{ video.title or 'Embedded Video' }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-secondary">
+                            <i class="fas fa-video me-1"></i> Video
+                        </span>
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    {% if video.embed_code %}
+                    <button class="btn btn-sm btn-outline-light copy-embed" data-embed="{{ video.embed_code }}">
+                        <i class="fas fa-code me-1"></i> Copy Embed
+                    </button>
+                    {% else %}
+                    <a href="#" class="btn btn-sm btn-outline-light disabled" aria-label="No embed code available">
+                        <i class="fas fa-code me-1"></i> No Embed
+                    </a>
+                    {% endif %}
+                    <a href="{{ video.embed_url }}" target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-secondary">
+                        <i class="fas fa-external-link-alt me-1"></i> Open
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
     </div>
-    
-    <div class="row mt-5">
+    {% else %}
+    <div class="row">
         <div class="col-12">
-            <a href="{{ url_for('video.index') }}" class="btn btn-outline-primary">Extract More Videos</a>
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-video-slash fa-4x mb-3 text-muted"></i>
+                    <h3>No Videos Found</h3>
+                    <p class="lead">We couldn't find any videos on the provided URL.</p>
+                    <a href="{{ url_for('video.index') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-search me-1"></i> Try Another URL
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle copy embed code buttons
+        const copyButtons = document.querySelectorAll('.copy-embed');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const embedCode = this.getAttribute('data-embed');
+                navigator.clipboard.writeText(embedCode)
+                    .then(() => {
+                        // Change button text temporarily
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy embed code: ', err);
+                    });
+            });
+        });
+    });
+</script>
 {% endblock %}

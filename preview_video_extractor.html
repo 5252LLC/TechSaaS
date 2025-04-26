@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSaaS - Video Extraction Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="preview_styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">TechSaaS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-expanded="false" aria-label="Toggle navigation" title="Toggle navigation menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Video Extractor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Web Scraper</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Crypto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Eliza AI</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Video Extraction Form -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">Extract Videos from URL</h3>
+                        <p class="card-text mt-2 mb-0">Find and extract embedded videos from any webpage</p>
+                    </div>
+                    <div class="card-body">
+                        <form action="#" method="POST" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label for="url" class="form-label">Website URL</label>
+                                <input type="url" class="form-control" id="url" name="url" 
+                                       placeholder="https://example.com" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid URL including http:// or https://
+                                </div>
+                                <div class="form-text text-light-50">Enter the URL of a webpage containing videos to extract</div>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="proxy_enabled" name="proxy_enabled" checked>
+                                <label class="form-check-label" for="proxy_enabled">Use Proxy Rotation</label>
+                                <div class="form-text text-light-50">Helps avoid detection and IP-based restrictions</div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-primary btn-lg" id="simulateExtract">
+                                    <i class="fas fa-video me-2"></i>Extract Videos
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <div class="small">
+                            <i class="fas fa-info-circle me-1"></i> Supports YouTube, Vimeo, HTML5 videos, and other popular video platforms.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Video Extraction Features</h4>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-dark text-light">
+                            <i class="fab fa-youtube me-2 text-danger"></i> <strong>YouTube Videos</strong> - Extract embedded and linked YouTube videos
+                        </li>
+                        <li class="list-group-item bg-dark text-light">
+                            <i class="fab fa-vimeo-v me-2 text-info"></i> <strong>Vimeo Content</strong> - Find and extract Vimeo videos
+                        </li>
+                        <li class="list-group-item bg-dark text-light">
+                            <i class="fas fa-film me-2 text-warning"></i> <strong>HTML5 Videos</strong> - Extract native video elements
+                        </li>
+                        <li class="list-group-item bg-dark text-light">
+                            <i class="fas fa-code me-2 text-success"></i> <strong>Embed Codes</strong> - Get ready-to-use embed codes for all videos
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section (initially hidden) -->
+    <div class="container py-3 hidden-section" id="resultsSection">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2 class="text-primary mb-2">Videos Extracted</h2>
+                        <p class="lead">
+                            From <a href="https://example.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" class="text-break">https://example.com/watch?v=dQw4w9WgXcQ</a>
+                        </p>
+                        <p class="badge bg-primary">Found 3 videos</p>
+                    </div>
+                    <div class="mt-2 mt-md-0">
+                        <a href="#" class="btn btn-outline-primary" id="extractMore">
+                            <i class="fas fa-search me-1"></i> Extract More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- YouTube Video Example -->
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100">
+                    <div class="card-img-top video-thumbnail-container">
+                        <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Rick Astley - Never Gonna Give You Up (Official Music Video)" class="img-fluid">
+                        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" 
+                           class="video-play-button" aria-label="Play YouTube video: Rick Astley - Never Gonna Give You Up">
+                            <i class="fas fa-play-circle fa-3x"></i>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate" title="Rick Astley - Never Gonna Give You Up (Official Music Video)">Rick Astley - Never Gonna Give You Up (Official Music Video)</h5>
+                        <p class="card-text">
+                            <span class="badge bg-danger text-white">
+                                <i class="fab fa-youtube me-1"></i> YouTube
+                            </span>
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <button class="btn btn-sm btn-outline-light copy-embed" data-embed="<iframe width='560' height='315' src='https://www.youtube.com/embed/dQw4w9WgXcQ' frameborder='0' allowfullscreen></iframe>">
+                            <i class="fas fa-code me-1"></i> Copy Embed
+                        </button>
+                        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" 
+                           class="btn btn-sm btn-danger">
+                            <i class="fas fa-external-link-alt me-1"></i> Watch
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vimeo Video Example -->
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100">
+                    <div class="card-img-top video-thumbnail-container">
+                        <img src="https://i.vimeocdn.com/video/665726.jpg" alt="Vimeo Video Example" class="img-fluid">
+                        <a href="https://vimeo.com/76979871" target="_blank" rel="noopener noreferrer" 
+                           class="video-play-button" aria-label="Play Vimeo video: Vimeo Example">
+                            <i class="fas fa-play-circle fa-3x"></i>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate" title="Vimeo Staff Picks - Best of the Year">Vimeo Staff Picks - Best of the Year</h5>
+                        <p class="card-text">
+                            <span class="badge bg-info text-white">
+                                <i class="fab fa-vimeo-v me-1"></i> Vimeo
+                            </span>
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <button class="btn btn-sm btn-outline-light copy-embed" data-embed="<iframe src='https://player.vimeo.com/video/76979871' width='640' height='360' frameborder='0' allowfullscreen></iframe>">
+                            <i class="fas fa-code me-1"></i> Copy Embed
+                        </button>
+                        <a href="https://vimeo.com/76979871" target="_blank" rel="noopener noreferrer" 
+                           class="btn btn-sm btn-info">
+                            <i class="fas fa-external-link-alt me-1"></i> Watch
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HTML5 Video Example -->
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card h-100">
+                    <div class="card-img-top video-thumbnail-container">
+                        <img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg" alt="HTML5 Video Example" class="img-fluid">
+                        <a href="#" target="_blank" rel="noopener noreferrer" 
+                           class="video-play-button" aria-label="Play HTML5 video">
+                            <i class="fas fa-play-circle fa-3x"></i>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate" title="Embedded HTML5 Video">Embedded HTML5 Video</h5>
+                        <p class="card-text">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-film me-1"></i> HTML5
+                            </span>
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="#" class="btn btn-sm btn-outline-light disabled" aria-label="No embed code available">
+                            <i class="fas fa-code me-1"></i> No Embed
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer" 
+                           class="btn btn-sm btn-warning text-dark">
+                            <i class="fas fa-download me-1"></i> Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single Video Embed View -->
+    <div class="container py-5 hidden-section" id="singleVideoSection">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">Rick Astley - Never Gonna Give You Up</h3>
+                        <span class="badge bg-danger">
+                            <i class="fab fa-youtube me-1"></i> YouTube
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="video-container mb-4">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
+                                    gyroscope; picture-in-picture" allowfullscreen title="Rick Astley - Never Gonna Give You Up (Official Music Video)"></iframe>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="embedCode" class="form-label">Embed Code</label>
+                                    <div class="input-group mb-3">
+                                        <textarea id="embedCode" class="form-control bg-dark text-light" rows="5" readonly><iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></textarea>
+                                        <button class="btn btn-outline-light" type="button" id="copyEmbedBtn" aria-label="Copy embed code" title="Copy to clipboard">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-light" id="backToResults">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Results
+                            </button>
+                            
+                            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-1"></i> Open Original
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>TechSaaS</h5>
+                    <p>Your all-in-one platform for web scraping, video extraction, and data analysis.</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> TechSaaS52@proton.me</li>
+                        <li><i class="fab fa-twitter me-2"></i> @525277x</li>
+                        <li><i class="fab fa-github me-2"></i> 525277x</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Terms of Service</a></li>
+                        <li><a href="#" class="text-light">Privacy Policy</a></li>
+                        <li><a href="#" class="text-light">Documentation</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 TechSaaS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Interactive elements
+            const extractBtn = document.getElementById('simulateExtract');
+            const resultsSection = document.getElementById('resultsSection');
+            const extractMoreBtn = document.getElementById('extractMore');
+            const copyEmbedBtns = document.querySelectorAll('.copy-embed');
+            const singleVideoSection = document.getElementById('singleVideoSection');
+            const backToResultsBtn = document.getElementById('backToResults');
+            const copyEmbedBtn = document.getElementById('copyEmbedBtn');
+            const embedCode = document.getElementById('embedCode');
+            
+            // Simulate extraction
+            extractBtn.addEventListener('click', function() {
+                const url = document.getElementById('url').value;
+                if (!url) {
+                    alert('Please enter a URL to extract videos from.');
+                    return;
+                }
+                
+                // Show loading state
+                extractBtn.disabled = true;
+                extractBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Extracting...';
+                
+                // Simulate processing delay
+                setTimeout(function() {
+                    extractBtn.disabled = false;
+                    extractBtn.innerHTML = '<i class="fas fa-video me-2"></i>Extract Videos';
+                    
+                    // Show results
+                    resultsSection.classList.remove('hidden-section');
+                    document.querySelector('.container.py-5').classList.add('hidden-section');
+                    
+                    // Scroll to results
+                    resultsSection.scrollIntoView({behavior: 'smooth'});
+                }, 2000);
+            });
+            
+            // Extract more button
+            extractMoreBtn.addEventListener('click', function() {
+                resultsSection.classList.add('hidden-section');
+                document.querySelector('.container.py-5').classList.remove('hidden-section');
+                singleVideoSection.classList.add('hidden-section');
+                
+                // Clear form
+                document.getElementById('url').value = '';
+                
+                // Scroll to form
+                document.querySelector('.container.py-5').scrollIntoView({behavior: 'smooth'});
+            });
+            
+            // Copy embed buttons
+            copyEmbedBtns.forEach(button => {
+                button.addEventListener('click', function() {
+                    const embedCode = this.getAttribute('data-embed');
+                    navigator.clipboard.writeText(embedCode)
+                        .then(() => {
+                            // Change button text temporarily
+                            const originalText = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy embed code: ', err);
+                        });
+                });
+            });
+            
+            // View single video (first result only for demo)
+            const playButtons = document.querySelectorAll('.video-play-button');
+            if (playButtons.length > 0) {
+                playButtons[0].addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resultsSection.classList.add('hidden-section');
+                    singleVideoSection.classList.remove('hidden-section');
+                    
+                    // Scroll to video
+                    singleVideoSection.scrollIntoView({behavior: 'smooth'});
+                });
+            }
+            
+            // Back to results
+            backToResultsBtn.addEventListener('click', function() {
+                singleVideoSection.classList.add('hidden-section');
+                resultsSection.classList.remove('hidden-section');
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({behavior: 'smooth'});
+            });
+            
+            // Copy embed code in single view
+            copyEmbedBtn.addEventListener('click', function() {
+                embedCode.select();
+                navigator.clipboard.writeText(embedCode.value)
+                    .then(() => {
+                        const originalHTML = copyEmbedBtn.innerHTML;
+                        copyEmbedBtn.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => {
+                            copyEmbedBtn.innerHTML = originalHTML;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

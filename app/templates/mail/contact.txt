@@ -1,0 +1,14 @@
+New Contact Form Submission
+
+You have received a new message from the TechSaaS contact form.
+
+From: {{ name }} ({{ email }})
+
+Message:
+{{ message }}
+
+You can reply directly to this email to respond to the sender.
+
+--
+TechSaaS.Tech
+https://techsaas.tech

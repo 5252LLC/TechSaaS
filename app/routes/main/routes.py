@@ -13,6 +13,7 @@ from wtforms.validators import DataRequired, Email, Length
 
 from app.routes.main import main_bp
 from app.services.mail_service import send_contact_email
+import logging
 
 class ContactForm(FlaskForm):
     """
@@ -112,3 +113,9 @@ def test_eliza():
     response = eliza.generate_text("Hello, I'm testing the connection to Eliza. Are you working properly?")
     
     return render_template('test_eliza.html', response=response)
+
+@main_bp.route('/test')
+def test():
+    """Simple test route to verify the application is working."""
+    logging.info("Test route accessed - basic connectivity check")
+    return "TechSaaS API is running! Basic connectivity test passed."

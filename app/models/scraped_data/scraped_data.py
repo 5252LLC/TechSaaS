@@ -8,6 +8,7 @@ from datetime import datetime
 import json
 from bs4 import BeautifulSoup
 from app import db
+from urllib.parse import urljoin, urlparse
 
 class ScrapedData(db.Model):
     """
@@ -109,9 +110,17 @@ class ScrapedData(db.Model):
         soup = BeautifulSoup(self.html_content, 'html.parser')
         images = []
         
+        base_url = self.url
+        
         for img in soup.find_all('img', src=True):
+            src = img['src']
+            
+            # Convert relative URLs to absolute URLs
+            if not bool(urlparse(src).netloc):
+                src = urljoin(base_url, src)
+            
             images.append({
-                'src': img['src'],
+                'src': src,
                 'alt': img.get('alt', ''),
                 'title': img.get('title', ''),
                 'width': img.get('width', ''),

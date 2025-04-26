@@ -1,26 +1,95 @@
 {% extends "base.html" %}
 
-{% block title %}Web Scraper{% endblock %}
+{% block title %}Web Scraper - TechSaaS{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow bg-dark text-light border-secondary">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Web Scraper</h3>
+                    <h3 class="mb-0">Advanced Web Scraper</h3>
+                    <p class="card-text mt-2 mb-0">Extract data from websites with ban avoidance techniques</p>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('scraper.scrape') }}">
+                    <form method="POST" action="{{ url_for('scraper.scrape') }}" class="needs-validation" novalidate>
+                        {{ form.csrf_token }}
+                        
                         <div class="mb-3">
                             <label for="url" class="form-label">Website URL</label>
-                            <input type="url" class="form-control" id="url" name="url" 
-                                   placeholder="https://example.com" required>
-                            <div class="form-text">Enter the URL of a webpage to scrape</div>
+                            {{ form.url(class="form-control", placeholder="https://example.com", id="url") }}
+                            <div class="invalid-feedback">
+                                Please enter a valid URL including http:// or https://
+                            </div>
+                            <div class="form-text text-light-50">Enter the full URL of a webpage to scrape</div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Scrape Website</button>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="max_depth" class="form-label">Crawl Depth</label>
+                                {{ form.max_depth(class="form-control", id="max_depth", min="0", max="3", value="0") }}
+                                <div class="form-text text-light-50">0 = single page, 1-3 = follow links</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cache_duration" class="form-label">Cache Duration (seconds)</label>
+                                {{ form.cache_duration(class="form-control", id="cache_duration", min="60", max="86400", value="3600") }}
+                                <div class="form-text text-light-50">How long to keep cached results</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="form-check form-switch">
+                                    {{ form.proxy_enabled(class="form-check-input", id="proxy_enabled", checked="checked") }}
+                                    <label class="form-check-label" for="proxy_enabled">Use Proxy Rotation</label>
+                                </div>
+                                <div class="form-text text-light-50">Helps avoid IP-based bans</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    {{ form.respect_robots(class="form-check-input", id="respect_robots", checked="checked") }}
+                                    <label class="form-check-label" for="respect_robots">Respect robots.txt</label>
+                                </div>
+                                <div class="form-text text-light-50">Follow website crawling rules</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="form-check form-switch">
+                                    {{ form.use_cache(class="form-check-input", id="use_cache", checked="checked") }}
+                                    <label class="form-check-label" for="use_cache">Use Cached Results</label>
+                                </div>
+                                <div class="form-text text-light-50">Use cached data when available</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="export_format" class="form-label">Export Format</label>
+                                {{ form.export_format(class="form-select", id="export_format") }}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Start Scraping</button>
+                        </div>
                     </form>
                 </div>
+                <div class="card-footer bg-dark text-light border-secondary">
+                    <div class="small">
+                        <i class="fas fa-info-circle me-1"></i> This scraper includes proxy rotation, user-agent randomization, and rate limiting to avoid detection.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4 bg-dark text-light border-secondary">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Features</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark text-light border-secondary"><i class="fas fa-random me-2"></i> <strong>Proxy Rotation</strong> - Automatically rotate between multiple proxies</li>
+                    <li class="list-group-item bg-dark text-light border-secondary"><i class="fas fa-user-secret me-2"></i> <strong>User-Agent Switching</strong> - Rotate between different browsers</li>
+                    <li class="list-group-item bg-dark text-light border-secondary"><i class="fas fa-clock me-2"></i> <strong>Rate Limiting</strong> - Prevent being blocked by too many requests</li>
+                    <li class="list-group-item bg-dark text-light border-secondary"><i class="fas fa-file-export me-2"></i> <strong>Multiple Export Formats</strong> - Save data in various formats</li>
+                </ul>
             </div>
         </div>
     </div>

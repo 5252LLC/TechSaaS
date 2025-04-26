@@ -20,7 +20,7 @@ built with Flask and enhanced with AI capabilities via Eliza AI.
 # Social media and contact
 TWITTER_HANDLE = "@525277x"
 GITHUB_USERNAME = "5252LLC" 
-CONTACT_EMAIL = "contact@techsaas.tech"
+CONTACT_EMAIL = "TechSaaS52@proton.me"  # Primary contact email
 
 # Brand colors (hex values)
 PRIMARY_COLOR = "#4A90E2"  # Blue
@@ -37,7 +37,7 @@ FAVICON_PATH = "/static/images/favicon.ico"
 
 # Call to action
 CTA_TEXT = "Start Scraping Now"
-CTA_URL = "/register"
+CTA_URL = "/auth/register"
 
 # Feature highlights (for landing page)
 FEATURES = [
@@ -64,29 +64,32 @@ FEATURES = [
 ]
 
 # Email configuration
+# NOTE: Currently using ProtonMail personal account (TechSaaS52@proton.me)
+# Future enhancement: Set up custom domain emails when ProtonMail account is upgraded
 EMAIL_ADDRESSES = {
-    'CONTACT': 'contact@techsaas.tech',  # For contact form
-    'SUPPORT': 'support@techsaas.tech',  # For support requests
-    'NOREPLY': 'noreply@techsaas.tech',  # For automated emails
-    'ADMIN': 'admin@techsaas.tech',      # For admin notifications
-    'TEMPORARY': '525277x@gmail.com'     # Temporary email until custom mail server is set up
+    'CONTACT': 'TechSaaS52@proton.me',  # Primary contact email
+    'SUPPORT': 'TechSaaS52@proton.me',  # For support requests
+    'NOREPLY': 'TechSaaS52@proton.me',  # For automated emails
+    'ADMIN': 'TechSaaS52@proton.me',    # For admin notifications
+    'PROTONMAIL': 'TechSaaS52@proton.me' # ProtonMail address
 }
 
-# ProtonMail configuration
+# Future ProtonMail custom domain configuration
+# Will be implemented when ProtonMail is upgraded to support custom domains
 PROTONMAIL_ADDRESSES = {
-    'CONTACT': 'contact@techsaas.tech',  # For contact form
-    'SUPPORT': 'support@techsaas.tech',  # For support requests
-    'NOREPLY': 'noreply@techsaas.tech',  # For automated emails
-    'ADMIN': 'admin@techsaas.tech',      # For admin notifications
+    'CONTACT': 'contact@techsaas.tech',  # Not yet active
+    'SUPPORT': 'support@techsaas.tech',  # Not yet active
+    'NOREPLY': 'noreply@techsaas.tech',  # Not yet active
+    'ADMIN': 'admin@techsaas.tech',      # Not yet active
 }
 
 # Which email provider to use (GMAIL, PROTONMAIL, CUSTOM)
-EMAIL_PROVIDER = 'GMAIL'  # Change to 'PROTONMAIL' after setup
+EMAIL_PROVIDER = 'PROTONMAIL'
 
 # Email to use based on provider
 if EMAIL_PROVIDER == 'GMAIL':
-    ACTIVE_EMAIL = EMAIL_ADDRESSES['TEMPORARY']
+    ACTIVE_EMAIL = EMAIL_ADDRESSES['CONTACT']
 elif EMAIL_PROVIDER == 'PROTONMAIL':
-    ACTIVE_EMAIL = PROTONMAIL_ADDRESSES['CONTACT']
+    ACTIVE_EMAIL = EMAIL_ADDRESSES['PROTONMAIL']
 else:  # CUSTOM
     ACTIVE_EMAIL = EMAIL_ADDRESSES['CONTACT']

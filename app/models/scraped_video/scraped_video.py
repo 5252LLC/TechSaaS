@@ -37,7 +37,7 @@ class ScrapedVideo(db.Model):
     video_id = db.Column(db.String(64))  # Platform-specific ID
     
     # Additional metadata stored as JSON
-    metadata = db.Column(db.Text)  # Additional platform-specific metadata
+    video_metadata = db.Column(db.Text)  # Additional platform-specific metadata
     
     # Timestamps and user association
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -153,13 +153,13 @@ class ScrapedVideo(db.Model):
     @property
     def metadata_dict(self):
         """Get metadata as a dictionary"""
-        if not self.metadata:
+        if not self.video_metadata:
             return {}
-        return json.loads(self.metadata)
+        return json.loads(self.video_metadata)
     
     def set_metadata(self, metadata_dict):
         """Set metadata from a dictionary"""
-        self.metadata = json.dumps(metadata_dict)
+        self.video_metadata = json.dumps(metadata_dict)
     
     def to_dict(self):
         """Convert model to dictionary for API responses and exports"""
@@ -184,7 +184,7 @@ class ScrapedVideo(db.Model):
         full_dict = self.to_dict()
         
         # Add metadata if available
-        if self.metadata:
+        if self.video_metadata:
             full_dict['metadata'] = self.metadata_dict
         
         return full_dict

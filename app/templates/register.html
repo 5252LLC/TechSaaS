@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">Create an Account</h1>
+                </div>
+                <div class="card-body">
+                    <p class="lead mb-4">Join {{ brand.COMPANY_NAME }} and unlock powerful web scraping and data analysis tools.</p>
+                    
+                    <form id="register-form" method="POST" action="{{ url_for('auth.register') }}">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            {{ form.username(class="form-control", placeholder="Choose a username") }}
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ form.email(class="form-control", placeholder="Your email address") }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            {{ form.password(class="form-control", placeholder="Create a strong password") }}
+                            {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password2" class="form-label">Confirm Password</label>
+                            {{ form.password2(class="form-control", placeholder="Confirm your password") }}
+                            {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password2.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.agree_terms(class="form-check-input") }}
+                            <label class="form-check-label" for="agree_terms">
+                                I agree to the <a href="{{ url_for('main.terms') }}">Terms of Service</a> and <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
+                            </label>
+                            {% if form.agree_terms.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.agree_terms.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-plus-fill me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="mb-0">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

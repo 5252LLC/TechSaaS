@@ -199,9 +199,124 @@ pre {
 }
 
 /* Responsive footer */
+footer {
+  width: 100%;
+  margin-top: 2rem;
+}
+
 @media (max-width: 767.98px) {
   footer h5 {
     margin-top: 1.5rem;
+  }
+}
+
+/* Additional scraper styles */
+.sidebar-sticky {
+  top: 80px;
+  position: sticky;
+}
+
+.text-content {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.img-container {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.img-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.table-cell-truncate {
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Make agent chat interface responsive */
+.chat-container {
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+.chat-message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.user-message {
+  background-color: rgba(0, 123, 255, 0.1);
+  margin-left: 20%;
+  border-top-right-radius: 0;
+}
+
+.agent-message {
+  background-color: rgba(52, 58, 64, 0.1);
+  margin-right: 20%;
+  border-top-left-radius: 0;
+}
+
+/* Profile form responsive styles */
+.profile-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-picture {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Responsive utility classes */
+.overflow-auto {
+  overflow: auto !important;
+}
+
+.text-break {
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+}
+
+/* Media query adjustments for scraper results */
+@media (max-width: 767.98px) {
+  .sidebar-sticky {
+    position: static;
+    margin-bottom: 2rem;
+  }
+  
+  .img-container {
+    height: 150px;
+  }
+  
+  .user-message, .agent-message {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .img-container {
+    height: 120px;
+  }
+  
+  .profile-picture {
+    width: 100px;
+    height: 100px;
   }
 }
 

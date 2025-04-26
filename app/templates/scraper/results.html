@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Scraping Results - TechSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar with metadata -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card bg-dark text-light border-secondary sidebar-sticky">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Scraped Info</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5 class="text-primary">Source</h5>
+                        <p class="text-truncate mb-1">
+                            <a href="{{ data.url }}" target="_blank" class="text-break">{{ data.url }}</a>
+                        </p>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i> {{ data.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5 class="text-primary">Stats</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-link me-2"></i> {{ data.links|length }} links</li>
+                            <li><i class="fas fa-image me-2"></i> {{ data.images|length }} images</li>
+                            <li><i class="fas fa-table me-2"></i> {{ data.tables|length }} tables</li>
+                            <li><i class="fas fa-file-alt me-2"></i> {{ (data.text_content|length / 1000)|round(1) }}KB text</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h5 class="text-primary">Export</h5>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('scraper.export', id=data.id, format='json') }}" target="_blank" class="btn btn-sm btn-outline-light">
+                                <i class="fas fa-file-code me-1"></i> JSON
+                            </a>
+                            <a href="{{ url_for('scraper.export', id=data.id, format='csv') }}" target="_blank" class="btn btn-sm btn-outline-light">
+                                <i class="fas fa-file-csv me-1"></i> CSV
+                            </a>
+                            <a href="{{ url_for('scraper.export', id=data.id, format='html') }}" target="_blank" class="btn btn-sm btn-outline-light">
+                                <i class="fas fa-file-code me-1"></i> HTML
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('scraper.index') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i> New Scrape
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main content area -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Title section -->
+            <div class="card bg-dark text-light border-secondary mb-4">
+                <div class="card-body">
+                    <h2 class="text-primary mb-0">{{ data.title or 'Untitled Page' }}</h2>
+                </div>
+            </div>
+            
+            <!-- Tabs for different content types -->
+            <ul class="nav nav-tabs mb-4" id="contentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">
+                        <i class="fas fa-file-alt me-1"></i> Text
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="links-tab" data-bs-toggle="tab" data-bs-target="#links" type="button" role="tab">
+                        <i class="fas fa-link me-1"></i> Links
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images" type="button" role="tab">
+                        <i class="fas fa-image me-1"></i> Images
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tables-tab" data-bs-toggle="tab" data-bs-target="#tables" type="button" role="tab">
+                        <i class="fas fa-table me-1"></i> Tables
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Tab content -->
+            <div class="tab-content" id="contentTabsContent">
+                <!-- Text Content Tab -->
+                <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
+                    <div class="card bg-dark text-light border-secondary">
+                        <div class="card-body">
+                            <div class="text-content overflow-y-auto max-height-70vh">
+                                <pre class="text-light bg-dark border-0 w-100">{{ data.text_content }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Links Tab -->
+                <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="links-tab">
+                    <div class="card bg-dark text-light border-secondary">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Text</th>
+                                            <th scope="col">URL</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for link in data.links %}
+                                        <tr>
+                                            <td>{{ link.text or '(No text)' }}</td>
+                                            <td class="table-cell-truncate">
+                                                <span title="{{ link.href }}">{{ link.href }}</span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ link.href }}" target="_blank" class="btn btn-sm btn-outline-light" aria-label="Open link in new tab">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="3" class="text-center">No links found</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Images Tab -->
+                <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+                    <div class="card bg-dark text-light border-secondary">
+                        <div class="card-body">
+                            <div class="row">
+                                {% for image in data.images %}
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                    <div class="card bg-dark border-secondary h-100">
+                                        <div class="img-container">
+                                            <img src="{{ image.src }}" alt="{{ image.alt }}" class="img-fluid" 
+                                                 onerror="this.onerror=null; this.src='/static/images/image-placeholder.svg'; this.classList.add('broken-img');">
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text small text-truncate" title="{{ image.alt }}">
+                                                {{ image.alt or '(No alt text)' }}
+                                            </p>
+                                            <a href="{{ image.src }}" target="_blank" class="btn btn-sm btn-outline-light">
+                                                <i class="fas fa-external-link-alt me-1"></i> View
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-info ms-1 copy-url-btn" data-url="{{ image.src }}">
+                                                <i class="fas fa-copy me-1"></i> Copy URL
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="col-12">
+                                    <p class="text-center">No images found</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tables Tab -->
+                <div class="tab-pane fade" id="tables" role="tabpanel" aria-labelledby="tables-tab">
+                    <div class="card bg-dark text-light border-secondary">
+                        <div class="card-body">
+                            {% if data.tables %}
+                                {% for table in data.tables %}
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-dark table-bordered table-hover">
+                                        {% if table.headers %}
+                                        <thead>
+                                            <tr>
+                                                {% for header in table.headers %}
+                                                <th>{{ header }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        {% endif %}
+                                        <tbody>
+                                            {% for row in table.rows %}
+                                            <tr>
+                                                {% for cell in row %}
+                                                <td>{{ cell }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-center">No tables found</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap tabs
+        var tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+        tabEls.forEach(function(tabEl) {
+            tabEl.addEventListener('click', function (event) {
+                event.preventDefault();
+                var target = document.querySelector(this.getAttribute('data-bs-target'));
+                
+                // Hide all tab panes
+                document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                    pane.classList.remove('show', 'active');
+                });
+                
+                // Show the target tab pane
+                target.classList.add('show', 'active');
+                
+                // Update the active state of the tabs
+                document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function(tab) {
+                    tab.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Improved Copy URL functionality
+        document.querySelectorAll('.copy-url-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var url = this.getAttribute('data-url');
+                var btn = this; // Store reference to button
+                var originalText = btn.innerHTML;
+                
+                // Use clipboard API with proper fallback
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url)
+                        .then(function() {
+                            // Success - show confirmation
+                            btn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                            btn.classList.add('btn-success');
+                            btn.classList.remove('btn-outline-info');
+                            
+                            // Reset after 2 seconds
+                            setTimeout(function() {
+                                btn.innerHTML = originalText;
+                                btn.classList.remove('btn-success');
+                                btn.classList.add('btn-outline-info');
+                            }, 2000);
+                        })
+                        .catch(function(err) {
+                            console.error('Failed to copy: ', err);
+                            // Show error to user
+                            btn.innerHTML = '<i class="fas fa-times me-1"></i> Failed!';
+                            btn.classList.add('btn-danger');
+                            btn.classList.remove('btn-outline-info');
+                            
+                            // Reset after 2 seconds
+                            setTimeout(function() {
+                                btn.innerHTML = originalText;
+                                btn.classList.remove('btn-danger');
+                                btn.classList.add('btn-outline-info');
+                            }, 2000);
+                        });
+                } else {
+                    // Fallback for browsers without clipboard API
+                    var textArea = document.createElement("textarea");
+                    textArea.value = url;
+                    textArea.style.position = "fixed";  // Avoid scrolling to bottom
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        var successful = document.execCommand('copy');
+                        if (successful) {
+                            btn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                            btn.classList.add('btn-success');
+                            btn.classList.remove('btn-outline-info');
+                        } else {
+                            btn.innerHTML = '<i class="fas fa-times me-1"></i> Failed!';
+                            btn.classList.add('btn-danger');
+                            btn.classList.remove('btn-outline-info');
+                        }
+                    } catch (err) {
+                        console.error('Failed to copy with execCommand: ', err);
+                        btn.innerHTML = '<i class="fas fa-times me-1"></i> Failed!';
+                        btn.classList.add('btn-danger');
+                        btn.classList.remove('btn-outline-info');
+                    }
+                    
+                    document.body.removeChild(textArea);
+                    
+                    // Reset after 2 seconds
+                    setTimeout(function() {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove('btn-success', 'btn-danger');
+                        btn.classList.add('btn-outline-info');
+                    }, 2000);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

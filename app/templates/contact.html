@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">Contact {{ brand.COMPANY_NAME }}</h1>
+                </div>
+                <div class="card-body">
+                    <p class="lead">We'd love to hear from you. Please fill out the form below and we'll get back to you as soon as possible.</p>
+                    
+                    <form id="contact-form" method="POST" action="{{ url_for('main.contact') }}" class="mt-4">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            {{ form.name(class="form-control", placeholder="Your name") }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.name.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ form.email(class="form-control", placeholder="Your email address") }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            {{ form.subject(class="form-control", placeholder="What is your message about?") }}
+                            {% if form.subject.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.subject.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            {{ form.message(class="form-control", rows=5, placeholder="How can we help you?") }}
+                            {% if form.message.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.message.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Contact Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h3 class="h5"><i class="bi bi-envelope me-2"></i>Email</h3>
+                        <p><a href="mailto:{{ brand.EMAIL }}">{{ brand.EMAIL }}</a></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h3 class="h5"><i class="bi bi-twitter me-2"></i>Twitter</h3>
+                        <p><a href="https://twitter.com/{{ brand.TWITTER_HANDLE[1:] }}" target="_blank" rel="noopener noreferrer">{{ brand.TWITTER_HANDLE }}</a></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h3 class="h5"><i class="bi bi-github me-2"></i>GitHub</h3>
+                        <p><a href="https://github.com/{{ brand.GITHUB_USERNAME }}" target="_blank" rel="noopener noreferrer">{{ brand.GITHUB_USERNAME }}</a></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h3 class="h5"><i class="bi bi-globe me-2"></i>Website</h3>
+                        <p><a href="{{ brand.FULL_URL }}" target="_blank" rel="noopener noreferrer">{{ brand.DOMAIN }}</a></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">FAQs</h2>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="faqOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    How quickly will I get a response?
+                                </button>
+                            </h3>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    We typically respond to all inquiries within 24 hours during business days.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="faqTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Do you offer technical support?
+                                </button>
+                            </h3>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes, we provide technical support for all our services. Premium users receive priority support.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="faqThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Can I request a custom feature?
+                                </button>
+                            </h3>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Absolutely! We welcome feature requests from our users. Please describe your needs in detail when contacting us.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

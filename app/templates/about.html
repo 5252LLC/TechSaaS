@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">About {{ brand.COMPANY_NAME }}</h1>
+                </div>
+                <div class="card-body">
+                    <h2 class="h4">Our Mission</h2>
+                    <p>
+                        At {{ brand.COMPANY_NAME }}, we are dedicated to providing researchers, data analysts, and businesses with
+                        powerful tools for web data extraction and analysis. Our platform combines cutting-edge technology with
+                        user-friendly interfaces to make data collection and analysis accessible to everyone.
+                    </p>
+
+                    <h2 class="h4 mt-4">What Sets Us Apart</h2>
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <div class="feature-icon text-primary me-3">
+                                    <i class="bi bi-shield-check fs-2"></i>
+                                </div>
+                                <div>
+                                    <h3 class="h5">Ethical Scraping</h3>
+                                    <p>We prioritize ethical data collection practices, respecting robots.txt directives and website terms of service.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <div class="feature-icon text-primary me-3">
+                                    <i class="bi bi-speedometer2 fs-2"></i>
+                                </div>
+                                <div>
+                                    <h3 class="h5">Advanced Performance</h3>
+                                    <p>Our distributed scraping system handles high-volume data collection efficiently and reliably.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <div class="feature-icon text-primary me-3">
+                                    <i class="bi bi-graph-up fs-2"></i>
+                                </div>
+                                <div>
+                                    <h3 class="h5">Insightful Analytics</h3>
+                                    <p>Transform raw data into actionable insights with our built-in analysis tools and visualizations.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <div class="feature-icon text-primary me-3">
+                                    <i class="bi bi-shield-lock fs-2"></i>
+                                </div>
+                                <div>
+                                    <h3 class="h5">Secure Data Handling</h3>
+                                    <p>Your data security is our priority, with end-to-end encryption and strict privacy controls.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="h4 mt-4">Our Team</h2>
+                    <p>
+                        {{ brand.COMPANY_NAME }} was founded by a dedicated team of data scientists, engineers, and researchers 
+                        who understand the challenges of modern data collection. Our diverse team brings experience from
+                        various industries, ensuring our platform meets the needs of different sectors.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Contact Us</h2>
+                </div>
+                <div class="card-body">
+                    <p>Have questions about our services or need technical support?</p>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-primary">Get in Touch</a>
+                    
+                    <div class="mt-4">
+                        <h3 class="h5">Connect With Us</h3>
+                        <div class="social-links mt-3">
+                            <a href="https://twitter.com/{{ brand.TWITTER_HANDLE[1:] }}" class="me-3 text-decoration-none" title="Follow us on Twitter" rel="noopener noreferrer" target="_blank">
+                                <i class="bi bi-twitter fs-4"></i>
+                                <span class="visually-hidden">Twitter</span>
+                            </a>
+                            <a href="https://github.com/{{ brand.GITHUB_USERNAME }}" class="me-3 text-decoration-none" title="View our GitHub projects" rel="noopener noreferrer" target="_blank">
+                                <i class="bi bi-github fs-4"></i>
+                                <span class="visually-hidden">GitHub</span>
+                            </a>
+                            <a href="mailto:{{ brand.EMAIL }}" class="text-decoration-none" title="Email us">
+                                <i class="bi bi-envelope fs-4"></i>
+                                <span class="visually-hidden">Email</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Our Technologies</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="bi bi-hdd-rack me-3 fs-4 text-primary"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Distributed Crawling</h3>
+                                <small class="text-muted">High-performance infrastructure</small>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="bi bi-robot me-3 fs-4 text-primary"></i>
+                            <div>
+                                <h3 class="h6 mb-1">AI-Powered Parsing</h3>
+                                <small class="text-muted">Intelligent content extraction</small>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="bi bi-database-check me-3 fs-4 text-primary"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Advanced Data Storage</h3>
+                                <small class="text-muted">Optimized for big data</small>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="bi bi-window-desktop me-3 fs-4 text-primary"></i>
+                            <div>
+                                <h3 class="h6 mb-1">Responsive UI</h3>
+                                <small class="text-muted">Works on all devices</small>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

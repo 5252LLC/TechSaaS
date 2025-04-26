@@ -48,6 +48,10 @@ class User(UserMixin, db.Model):
     
     def __init__(self, **kwargs):
         """Initialize a new user and generate API key"""
+        # Handle is_active conversion to active
+        if 'is_active' in kwargs:
+            kwargs['active'] = kwargs.pop('is_active')
+            
         super(User, self).__init__(**kwargs)
         if self.api_key is None:
             self.api_key = self.generate_api_key()
@@ -89,6 +93,26 @@ class User(UserMixin, db.Model):
     def is_moderator(self):
         """Check if the user has moderator role"""
         return self.role == 'moderator' or self.is_admin
+    
+    @property
+    def is_active(self):
+        """Check if the user account is active"""
+        return self.active
+        
+    # Flask-Login required methods
+    def get_id(self):
+        """Return unique identifier for Flask-Login"""
+        return str(self.id)
+        
+    @property
+    def is_authenticated(self):
+        """Return True if the user is authenticated"""
+        return True
+        
+    @property
+    def is_anonymous(self):
+        """Return False as we don't support anonymous users"""
+        return False
     
     @property
     def full_name(self):

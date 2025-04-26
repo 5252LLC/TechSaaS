@@ -1,0 +1,132 @@
+/* 
+   Dark Theme for TechSaaS Platform
+   Provides a dark mode experience to reduce eye strain
+*/
+
+:root {
+    --bg-dark: #121212;
+    --bg-darker: #0a0a0a;
+    --bg-card: #1e1e1e;
+    --bg-input: #2d2d2d;
+    --text-light: #f8f9fa;
+    --text-muted: #adb5bd;
+    --border-dark: #343a40;
+    --primary-dark: #0d6efd;
+    --primary-darker: #0a58ca;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+}
+
+.card {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-dark) !important;
+    color: var(--text-light) !important;
+}
+
+.card-header, .card-footer {
+    background-color: var(--bg-darker) !important;
+    border-color: var(--border-dark) !important;
+    color: var(--text-light) !important;
+}
+
+.form-control, .form-select {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border-dark) !important;
+    color: var(--text-light) !important;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-input) !important;
+    color: var(--text-light) !important;
+    border-color: var(--primary-dark) !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.form-text {
+    color: var(--text-muted) !important;
+}
+
+.table {
+    color: var(--text-light) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.navbar {
+    background-color: var(--bg-darker) !important;
+}
+
+.dropdown-menu {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-dark) !important;
+}
+
+.dropdown-item {
+    color: var(--text-light) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-input) !important;
+}
+
+.accordion-button, .accordion-body {
+    background-color: var(--bg-card) !important;
+    color: var(--text-light) !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--bg-darker) !important;
+    color: var(--text-light) !important;
+}
+
+.alert {
+    border-color: var(--border-dark) !important;
+}
+
+.modal-content {
+    background-color: var(--bg-card) !important;
+    color: var(--text-light) !important;
+    border-color: var(--border-dark) !important;
+}
+
+/* Fix for Flask debug toolbar */
+.flDebugPanel {
+    background-color: var(--bg-card) !important;
+    color: var(--text-light) !important;
+}
+
+/* Fix for error pages */
+.debugger {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-light) !important;
+}
+
+.debugger h1, .debugger h2, .debugger h3, 
+.debugger h4, .debugger h5, .debugger h6,
+.debugger pre, .debugger code {
+    color: var(--text-light) !important;
+}
+
+.debugger .detail {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-dark) !important;
+}
+
+/* Preserve syntax highlighting in error pages */
+.debugger .source .line {
+    color: #d0d0d0 !important;
+}
+
+.debugger .errormsg {
+    color: #ff6b6b !important;
+}
+
+/* Make forms more readable */
+label {
+    color: var(--text-light) !important;
+}

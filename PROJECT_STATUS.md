@@ -52,6 +52,7 @@
 - GitHub username is 5252LLC (update all references)
 - Email setup with ProtonMail is a critical priority
 - All templates must be responsive with mobile-first design
+- Fixed SQLAlchemy DetachedInstanceError in development mode auto-login (April 26, 2025)
 
 ## 🔗 Important Resources
 - [GitHub Repository](https://github.com/5252LLC/TechSaaS)

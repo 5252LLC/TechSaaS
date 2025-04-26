@@ -3,7 +3,7 @@
 {% block title %}AI Assistant{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5 agent-page">
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card shadow">
@@ -11,7 +11,7 @@
                     <h3 class="mb-0">Eliza AI Assistant</h3>
                 </div>
                 <div class="card-body">
-                    <div class="chat-container" id="chatContainer" style="height: 400px; overflow-y: auto;">
+                    <div class="chat-container" id="chatContainer">
                         <div class="text-center p-4">
                             <p class="lead">Welcome to the Eliza AI Assistant!</p>
                             <p>Ask me anything related to web scraping, data analysis, or cryptocurrency.</p>
@@ -50,18 +50,28 @@ document.getElementById('chatForm').addEventListener('submit', function(e) {
 function appendMessage(sender, message) {
     const chatContainer = document.getElementById('chatContainer');
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'p-2 mb-2';
-    messageDiv.style.borderRadius = '10px';
-    
-    if (sender === 'You') {
-        messageDiv.className += ' bg-light text-end';
-    } else {
-        messageDiv.className += ' bg-primary text-white';
-    }
+    messageDiv.className = sender === 'You' ? 'chat-message user-message p-2 mb-2' : 'chat-message bot-message p-2 mb-2';
     
     messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
     chatContainer.appendChild(messageDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 </script>
+<style>
+    .chat-container {
+        height: 400px;
+        overflow-y: auto;
+    }
+    .chat-message {
+        border-radius: 10px;
+    }
+    .user-message {
+        background-color: #f0f0f0;
+        text-align: right;
+    }
+    .bot-message {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+</style>
 {% endblock %}
