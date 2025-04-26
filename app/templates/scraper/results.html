@@ -158,9 +158,9 @@
                                             <a href="{{ image.src }}" target="_blank" class="btn btn-sm btn-outline-light">
                                                 <i class="fas fa-external-link-alt me-1"></i> View
                                             </a>
-                                            <button class="btn btn-sm btn-outline-info ms-1 copy-url-btn" data-url="{{ image.src }}">
-                                                <i class="fas fa-copy me-1"></i> Copy URL
-                                            </button>
+                                            <a href="{{ image.src }}" download class="btn btn-sm btn-outline-primary ms-1">
+                                                <i class="fas fa-download me-1"></i> Download
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -238,82 +238,6 @@
                     tab.classList.remove('active');
                 });
                 this.classList.add('active');
-            });
-        });
-        
-        // Improved Copy URL functionality
-        document.querySelectorAll('.copy-url-btn').forEach(function(button) {
-            button.addEventListener('click', function() {
-                var url = this.getAttribute('data-url');
-                var btn = this; // Store reference to button
-                var originalText = btn.innerHTML;
-                
-                // Use clipboard API with proper fallback
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(url)
-                        .then(function() {
-                            // Success - show confirmation
-                            btn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
-                            btn.classList.add('btn-success');
-                            btn.classList.remove('btn-outline-info');
-                            
-                            // Reset after 2 seconds
-                            setTimeout(function() {
-                                btn.innerHTML = originalText;
-                                btn.classList.remove('btn-success');
-                                btn.classList.add('btn-outline-info');
-                            }, 2000);
-                        })
-                        .catch(function(err) {
-                            console.error('Failed to copy: ', err);
-                            // Show error to user
-                            btn.innerHTML = '<i class="fas fa-times me-1"></i> Failed!';
-                            btn.classList.add('btn-danger');
-                            btn.classList.remove('btn-outline-info');
-                            
-                            // Reset after 2 seconds
-                            setTimeout(function() {
-                                btn.innerHTML = originalText;
-                                btn.classList.remove('btn-danger');
-                                btn.classList.add('btn-outline-info');
-                            }, 2000);
-                        });
-                } else {
-                    // Fallback for browsers without clipboard API
-                    var textArea = document.createElement("textarea");
-                    textArea.value = url;
-                    textArea.style.position = "fixed";  // Avoid scrolling to bottom
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    
-                    try {
-                        var successful = document.execCommand('copy');
-                        if (successful) {
-                            btn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
-                            btn.classList.add('btn-success');
-                            btn.classList.remove('btn-outline-info');
-                        } else {
-                            btn.innerHTML = '<i class="fas fa-times me-1"></i> Failed!';
-                            btn.classList.add('btn-danger');
-                            btn.classList.remove('btn-outline-info');
-                        }
-                    } catch (err) {
-                        console.error('Failed to copy with execCommand: ', err);
-                        btn.innerHTML = '<i class="fas fa-times me-1"></i> Failed!';
-                        btn.classList.add('btn-danger');
-                        btn.classList.remove('btn-outline-info');
-                    }
-                    
-                    document.body.removeChild(textArea);
-                    
-                    // Reset after 2 seconds
-                    setTimeout(function() {
-                        btn.innerHTML = originalText;
-                        btn.classList.remove('btn-success', 'btn-danger');
-                        btn.classList.add('btn-outline-info');
-                    }, 2000);
-                }
             });
         });
     });

@@ -97,7 +97,7 @@ class User(UserMixin, db.Model):
     @property
     def is_active(self):
         """Check if the user account is active"""
-        return self.active
+        return self.active and self.confirmed
         
     # Flask-Login required methods
     def get_id(self):

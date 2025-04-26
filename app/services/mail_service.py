@@ -57,7 +57,6 @@ def send_contact_email(name, email, subject, message):
             template='mail/contact',
             name=name,
             email=email,
-            subject=subject,
             message=message
         )
         

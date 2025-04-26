@@ -29,9 +29,10 @@ def login():
             # Update last login time
             user.update_last_login()
             
-            # Ensure user is marked as active
-            if not user.active:
+            # Ensure user is marked as active and confirmed
+            if not user.active or not user.confirmed:
                 user.active = True
+                user.confirmed = True
                 db.session.commit()
                 
             # Log in user and remember if requested
@@ -74,7 +75,7 @@ def register():
             email=form.email.data,
             username=form.username.data,
             password=form.password.data,
-            is_active=True,
+            active=True,
             confirmed=True
         )
         
