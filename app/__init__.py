@@ -66,79 +66,6 @@ def create_app(config_name=None):
     def load_user(user_id):
         return User.query.get(int(user_id))
     
-    # Development backdoor (automatically creates and logs in a test admin user)
-    # This is only for testing and will be removed in production
-    if app.config.get('ENV') == 'development' and app.config.get('WTF_CSRF_ENABLED') is False:
-        # Override the login_required decorator for development
-        from flask_login import login_required, current_user
-        from functools import wraps
-        from flask import g
-        
-        # Create a backdoor for testing that bypasses all authentication
-        def development_login_required(func):
-            @wraps(func)
-            def decorated_view(*args, **kwargs):
-                # Always allow access in development mode
-                return func(*args, **kwargs)
-            return decorated_view
-        
-        # Replace the real login_required with our dummy version
-        import flask_login
-        flask_login.login_required = development_login_required
-        
-        # Create a test admin user if not exists
-        with app.app_context():
-            from app.models.user.role import Role
-            from werkzeug.security import generate_password_hash
-            
-            # Create admin role if it doesn't exist
-            admin_role = Role.query.filter_by(name='admin').first()
-            if not admin_role:
-                admin_role = Role(name='admin', description='Administrator')
-                db.session.add(admin_role)
-                db.session.commit()
-            
-            # Create test admin user if it doesn't exist
-            test_admin = User.query.filter_by(username='admin').first()
-            if not test_admin:
-                test_admin = User(
-                    username='admin',
-                    email='admin@example.com',
-                    password_hash=generate_password_hash('password'),
-                    active=True,
-                    role=admin_role.id
-                )
-                db.session.add(test_admin)
-                db.session.commit()
-            else:
-                # Make sure it has the admin role
-                if test_admin.role != admin_role.id:
-                    test_admin.role = admin_role.id
-                    db.session.commit()
-            
-            # Auto-login the test admin user for all requests
-            from flask import request, session
-            
-            @app.before_request
-            def auto_login_dev_user():
-                # Make sure we have a valid request context
-                if not hasattr(request, 'endpoint'):
-                    return
-                
-                # Query for admin user inside the request to ensure it's session-bound
-                from app.models.user import User
-                current_admin = User.query.filter_by(username='admin').first()
-                if current_admin:
-                    # Store the admin.id in the session
-                    if 'user_id' not in session:
-                        session['user_id'] = current_admin.id
-                        
-                    # Make flask_login think we're logged in
-                    app.login_manager._update_request_context_with_user(current_admin)
-            
-            # Log this to console
-            app.logger.warning('▶️ DEVELOPMENT BACKDOOR ENABLED: All authentication bypassed for testing')
-    
     # Fix for when behind proxy server
     if app.config.get('SSL_REDIRECT', False):
         app.wsgi_app = ProxyFix(app.wsgi_app)
@@ -165,19 +92,23 @@ def register_blueprints(app):
     """Register Flask blueprints"""
     # Import blueprints
     from app.routes.main import main_bp
-    from app.routes.scraper import scraper_bp
-    from app.routes.video import video_bp
-    from app.routes.crypto import crypto_bp
-    from app.routes.agent import agent_bp
     from app.routes.auth import auth_bp
+    from app.routes.scraper import scraper_bp
+    from app.routes.agent import agent_bp
+    from app.routes.agent.eliza_admin import eliza_admin_bp
+    from app.routes.video import video_bp
+    from app.routes.pentest import pentest_bp
+    from app.routes.crypto import crypto_bp
     
     # Register blueprints
     app.register_blueprint(main_bp)
-    app.register_blueprint(scraper_bp, url_prefix='/scraper')
-    app.register_blueprint(video_bp, url_prefix='/video')
-    app.register_blueprint(crypto_bp, url_prefix='/crypto')
-    app.register_blueprint(agent_bp, url_prefix='/agent')
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(scraper_bp, url_prefix='/scraper')
+    app.register_blueprint(agent_bp, url_prefix='/agent')
+    app.register_blueprint(eliza_admin_bp)  # URL prefix already in blueprint
+    app.register_blueprint(video_bp, url_prefix='/video')
+    app.register_blueprint(pentest_bp, url_prefix='/pentest')
+    app.register_blueprint(crypto_bp, url_prefix='/crypto')
 
 def register_error_handlers(app):
     """Register custom error handlers"""
