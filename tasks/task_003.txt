@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Create Video Scraper Flask API
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Develop a Flask API wrapper to expose Hitomi-Downloader functionality via REST endpoints.
+# Details:
+Implement Flask app in video-scraper/api/app.py as outlined in the PRD. Create endpoints for listing supported sites, extracting video info, and downloading videos. Implement proper error handling and response formatting. Configure the service to run on port 5500 as specified in the architecture.
+
+# Test Strategy:
+Test each API endpoint individually. Verify correct responses for valid inputs. Test error handling with invalid inputs. Confirm the API can extract information from test URLs.

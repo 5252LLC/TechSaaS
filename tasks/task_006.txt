@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement LangChain Base Components
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Create the core LangChain components for AI functionality.
+# Details:
+Implement the LangChainService class as specified in the PRD. Create methods for initializing the service with Ollama models, creating chains with templates, generating responses, switching models, and managing conversation memory. Set up the prompt templates for different tasks including video analysis, web scraping, social media analysis, crypto analysis, and general chat.
+
+# Test Strategy:
+Test each method of the LangChainService class. Verify chains can be created with different templates. Test response generation with sample inputs. Confirm model switching and memory management work correctly.

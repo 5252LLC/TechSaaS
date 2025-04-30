@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSaaS Platform</title>
+    <style>
+        :root {
+            --primary-bg: #12131a;
+            --secondary-bg: #1a1c25;
+            --card-bg: #232530;
+            --accent-color: #4a6cf7;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2c35;
+            --success-color: #4CAF50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Main Content Styles */
+        main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--accent-color);
+            background-color: rgba(74, 108, 247, 0.1);
+        }
+
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Browser Interface */
+        .browser-interface {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .browser-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--card-bg);
+            gap: 12px;
+        }
+
+        .url-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background-color: var(--primary-bg);
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+
+        .url-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            margin-left: 8px;
+        }
+
+        .browser-content {
+            flex: 1;
+            background-color: white;
+            position: relative;
+        }
+
+        .empty-state {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--secondary-bg);
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* Results Interface */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .media-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .media-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .media-thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: var(--primary-bg);
+            position: relative;
+        }
+
+        .media-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-details {
+            padding: 16px;
+        }
+
+        .media-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-source {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .media-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Search Interface */
+        .search-container {
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 6px 0 0 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 0 20px;
+            border-radius: 0 6px 6px 0;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Video Info Panel */
+        .video-info-panel {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .video-info-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .video-info-body {
+            display: flex;
+            padding: 16px;
+        }
+
+        .video-preview {
+            width: 320px;
+            height: 180px;
+            background-color: var(--primary-bg);
+            margin-right: 16px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .video-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-details {
+            flex: 1;
+        }
+
+        .video-detail-item {
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .quality-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .quality-option {
+            padding: 8px 12px;
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .quality-option.selected {
+            border-color: var(--accent-color);
+            background-color: rgba(74, 108, 247, 0.1);
+        }
+
+        .download-progress {
+            margin-top: 16px;
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            height: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 35%;
+            background-color: var(--accent-color);
+        }
+
+        /* Dark mode toggle */
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            position: relative;
+            width: 44px;
+            height: 22px;
+            margin-left: 8px;
+        }
+
+        .theme-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--card-bg);
+            border-radius: 22px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* Media Grid */
+        .loading-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            width: 100%;
+            color: var(--text-secondary);
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <a href="#" class="logo">Tech<span>SaaS</span></a>
+            <div class="header-controls">
+                <div class="toggle-wrapper">
+                    <span>Dark</span>
+                    <label class="theme-toggle">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button class="btn btn-outline">Settings</button>
+                <button class="btn btn-primary">Create</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <div class="tab active">Web Browser</div>
+                <div class="tab">Video Scraper</div>
+                <div class="tab">Downloads</div>
+                <div class="tab">History</div>
+            </div>
+
+            <!-- Browser Interface -->
+            <div class="browser-interface">
+                <div class="browser-toolbar">
+                    <button class="btn btn-outline">
+                        <span class="icon">←</span>
+                    </button>
+                    <button class="btn btn-outline">
+                        <span class="icon">→</span>
+                    </button>
+                    <button class="btn btn-outline">
+                        <span class="icon">↻</span>
+                    </button>
+                    <div class="url-bar">
+                        <span class="icon">🔒</span>
+                        <input type="text" placeholder="Enter URL or search query">
+                    </div>
+                    <button class="btn btn-primary">Go</button>
+                </div>
+                <div class="browser-content">
+                    <div class="empty-state">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="#a0a0a0" stroke-width="2"/>
+                            <path d="M12 7V12L15 15" stroke="#a0a0a0" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h3>Start Browsing</h3>
+                        <p>Enter a URL in the address bar above or search for content to begin</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Detection Panel -->
+            <div class="video-info-panel" style="display:none;">
+                <div class="video-info-header">
+                    <h3>Video Detected</h3>
+                </div>
+                <div class="video-info-body">
+                    <div class="video-preview">
+                        <img src="https://via.placeholder.com/320x180" alt="Video thumbnail">
+                    </div>
+                    <div class="video-details">
+                        <div class="video-detail-item">
+                            <div class="detail-label">TITLE</div>
+                            <div class="detail-value">Sample Video Title - Extended Version (2025)</div>
+                        </div>
+                        <div class="video-detail-item">
+                            <div class="detail-label">SOURCE</div>
+                            <div class="detail-value">example.com</div>
+                        </div>
+                        <div class="video-detail-item">
+                            <div class="detail-label">QUALITY OPTIONS</div>
+                            <div class="quality-selector">
+                                <div class="quality-option">360p</div>
+                                <div class="quality-option">480p</div>
+                                <div class="quality-option selected">720p</div>
+                                <div class="quality-option">1080p</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">Download Now</button>
+                        <div class="download-progress">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="search-container" style="display:none;">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search for videos..." value="example search">
+                    <button class="search-btn">Search</button>
+                </div>
+                
+                <h3>Search Results</h3>
+                
+                <div class="media-grid">
+                    <div class="media-card">
+                        <div class="media-thumbnail">
+                            <img src="https://via.placeholder.com/300x169" alt="Video 1">
+                        </div>
+                        <div class="media-details">
+                            <h3 class="media-title">Sample Video Title 1</h3>
+                            <div class="media-source">youtube.com</div>
+                            <div class="media-actions">
+                                <button class="btn btn-outline">Preview</button>
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="media-card">
+                        <div class="media-thumbnail">
+                            <img src="https://via.placeholder.com/300x169" alt="Video 2">
+                        </div>
+                        <div class="media-details">
+                            <h3 class="media-title">Sample Video Title 2 with a much longer name that might overflow</h3>
+                            <div class="media-source">vimeo.com</div>
+                            <div class="media-actions">
+                                <button class="btn btn-outline">Preview</button>
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="media-card">
+                        <div class="media-thumbnail">
+                            <img src="https://via.placeholder.com/300x169" alt="Video 3">
+                        </div>
+                        <div class="media-details">
+                            <h3 class="media-title">Sample Video Title 3</h3>
+                            <div class="media-source">dailymotion.com</div>
+                            <div class="media-actions">
+                                <button class="btn btn-outline">Preview</button>
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="media-card">
+                        <div class="media-thumbnail">
+                            <img src="https://via.placeholder.com/300x169" alt="Video 4">
+                        </div>
+                        <div class="media-details">
+                            <h3 class="media-title">Sample Video Title 4</h3>
+                            <div class="media-source">twitch.tv</div>
+                            <div class="media-actions">
+                                <button class="btn btn-outline">Preview</button>
+                                <button class="btn btn-primary">Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="loading-placeholder">
+                    <div class="loading-spinner"></div>
+                    <span>Loading more results...</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // This would be expanded in the actual implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Just for demo purposes - show different views based on tab
+                    const tabText = this.textContent;
+                    const browserInterface = document.querySelector('.browser-interface');
+                    const videoInfoPanel = document.querySelector('.video-info-panel');
+                    const searchContainer = document.querySelector('.search-container');
+                    
+                    browserInterface.style.display = tabText === 'Web Browser' ? 'flex' : 'none';
+                    videoInfoPanel.style.display = tabText === 'Video Scraper' ? 'block' : 'none';
+                    searchContainer.style.display = tabText === 'Video Scraper' ? 'block' : 'none';
+                });
+            });
+            
+            // URL bar interaction
+            const urlInput = document.querySelector('.url-bar input');
+            const goButton = document.querySelector('.browser-toolbar .btn-primary');
+            
+            goButton.addEventListener('click', function() {
+                navigateToUrl(urlInput.value);
+            });
+            
+            urlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    navigateToUrl(urlInput.value);
+                }
+            });
+            
+            // Simulated navigation function
+            function navigateToUrl(url) {
+                if (!url) return;
+                
+                // Add http if not present
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                
+                // For demo purposes, we'll just log the URL
+                console.log('Navigating to:', url);
+                alert('Would navigate to: ' + url);
+                
+                // In a real implementation, this would load the URL in the browser frame
+                // or redirect to the search results
+            }
+        });
+    </script>
+</body>
+</html>

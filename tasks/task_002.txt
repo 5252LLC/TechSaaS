@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Integrate Hitomi-Downloader
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Set up and integrate Hitomi-Downloader as the primary video scraping engine for the platform.
+# Details:
+Clone the Hitomi-Downloader repository. Identify core Python modules for scraping functionality. Create a wrapper that can call these modules programmatically. Configure for programmatic access according to section 4.1.4 of the PRD. Ensure proper setup for later API integration.
+
+# Test Strategy:
+Verify Hitomi-Downloader installation is complete. Test basic functionality of the downloader. Confirm the wrapper can access core Hitomi functions.
