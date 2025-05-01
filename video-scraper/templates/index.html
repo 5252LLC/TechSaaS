@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSaaS - Video Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <a href="/" class="logo">Tech<span>SaaS</span></a>
+            <div class="header-controls">
+                <div class="toggle-wrapper">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle">
+                    <label for="theme-toggle" class="toggle-label"></label>
+                </div>
+                <button class="btn btn-outline">Documentation</button>
+                <button class="btn btn-primary">Sign In</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <a href="/" class="tab">Home</a>
+                <a href="/browser" class="tab">Web Browser</a>
+                <a href="/video-scraper" class="tab active">Video Scraper</a>
+                <a href="#" class="tab">Downloads</a>
+            </div>
+
+            <div class="scraper-container">
+                <div class="intro-section">
+                    <h1>Video <span class="accent-text">Scraper</span></h1>
+                    <p>Extract videos from websites using Hitomi-Downloader integration</p>
+                </div>
+
+                <div class="tab-container">
+                    <div id="url-tab" class="tab active" onclick="showTab('url-tab')">URL Input</div>
+                    <div id="search-tab" class="tab" onclick="showTab('search-tab')">Search</div>
+                    <div id="batch-tab" class="tab" onclick="showTab('batch-tab')">Batch Mode</div>
+                </div>
+
+                <div id="url-content" class="tab-content active">
+                    <div class="input-group">
+                        <label for="video-url">Video URL</label>
+                        <input type="text" id="video-url" placeholder="Enter video URL...">
+                    </div>
+                    <div class="input-group">
+                        <label for="quality">Quality</label>
+                        <select id="quality">
+                            <option value="best">Best</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                            <option value="360p">360p</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="output-dir">Output Directory</label>
+                        <input type="text" id="output-dir" value="downloads">
+                    </div>
+                    <button id="extract-btn" class="btn btn-primary">Extract Video</button>
+                </div>
+
+                <div id="search-content" class="tab-content">
+                    <div class="input-group">
+                        <label for="search-query">Search Query</label>
+                        <input type="text" id="search-query" placeholder="Enter search query...">
+                    </div>
+                    <div class="input-group">
+                        <label for="platform">Platform</label>
+                        <select id="platform">
+                            <option value="youtube">YouTube</option>
+                            <option value="vimeo">Vimeo</option>
+                            <option value="dailymotion">Dailymotion</option>
+                            <option value="all">All Platforms</option>
+                        </select>
+                    </div>
+                    <button id="search-btn" class="btn btn-primary">Search</button>
+                </div>
+
+                <div id="batch-content" class="tab-content">
+                    <div class="input-group">
+                        <label for="url-list">URL List</label>
+                        <textarea id="url-list" placeholder="Enter one URL per line..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="batch-quality">Quality</label>
+                        <select id="batch-quality">
+                            <option value="best">Best</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                            <option value="360p">360p</option>
+                        </select>
+                    </div>
+                    <button id="batch-extract-btn" class="btn btn-primary">Extract All</button>
+                </div>
+            </div>
+
+            <div id="results-container" class="results-container" style="display: none;">
+                <div class="results-header">
+                    <h2>Results</h2>
+                    <button id="clear-results" class="btn btn-outline">Clear</button>
+                </div>
+                <div id="results-list" class="results-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing your request...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
