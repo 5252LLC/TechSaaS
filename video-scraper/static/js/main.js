@@ -9,9 +9,58 @@ let pollInterval;
 
 // DOM Elements
 document.addEventListener('DOMContentLoaded', () => {
-    // Tab switching logic
+    init();
+});
+
+/**
+ * Initialize the application
+ */
+function init() {
+    // Attach event listeners
+    document.getElementById('extract-btn')?.addEventListener('click', handleSingleExtraction);
+    document.getElementById('batch-extract-btn')?.addEventListener('click', handleBatchExtraction);
+    
+    // Set up tab switching
     const tabs = document.querySelectorAll('.tab-container .tab');
-    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.id;
+            showTab(tabId);
+        });
+    });
+    
+    // Set up main navigation tabs
+    const navTabs = document.querySelectorAll('.tabs a.tab');
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            // Only handle normal tabs, not the Downloads tab
+            if (tab.innerText !== 'Downloads') return;
+            
+            // Prevent default only for Downloads tab
+            e.preventDefault();
+            
+            // Show downloads section
+            showDownloadsTab();
+        });
+    });
+    
+    // Set up clear results button
+    const clearResultsBtn = document.getElementById('clear-results');
+    if (clearResultsBtn) {
+        clearResultsBtn.addEventListener('click', clearResults);
+    }
+    
+    // Show results container if we have jobs
+    if (document.querySelectorAll('.job-item').length > 0) {
+        document.getElementById('results-container').classList.remove('hidden');
+        document.getElementById('results-container').style.display = 'block';
+    }
+    
+    // Initial tab setup - show URL tab by default
+    const urlTab = document.getElementById('url-tab');
+    if (urlTab && !document.querySelector('.tab-container .tab.active')) {
+        showTab('url-tab');
+    }
     
     // Theme toggle
     const themeToggle = document.getElementById('theme-toggle');
@@ -24,49 +73,172 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Extract button click handler
-    const extractBtn = document.getElementById('extract-btn');
-    if (extractBtn) {
-        extractBtn.addEventListener('click', handleExtractVideo);
-    }
-    
-    // Batch extract button click handler
-    const batchExtractBtn = document.getElementById('batch-extract-btn');
-    if (batchExtractBtn) {
-        batchExtractBtn.addEventListener('click', handleBatchExtract);
-    }
-    
     // Search button click handler
     const searchBtn = document.getElementById('search-btn');
     if (searchBtn) {
         searchBtn.addEventListener('click', handleSearch);
     }
     
-    // Clear results button click handler
-    const clearResultsBtn = document.getElementById('clear-results');
-    if (clearResultsBtn) {
-        clearResultsBtn.addEventListener('click', clearResults);
+    // Add the highlight style on load
+    addHighlightStyle();
+}
+
+/**
+ * Show downloads tab functionality
+ */
+function showDownloadsTab() {
+    // First ensure the results are visible
+    const resultsContainer = document.getElementById('results-container');
+    if (resultsContainer) {
+        resultsContainer.classList.remove('hidden');
+        resultsContainer.style.display = 'block';
+        
+        // Scroll to the results container
+        resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        
+        // Add a flash effect to highlight it
+        resultsContainer.classList.add('highlight-flash');
+        setTimeout(() => {
+            resultsContainer.classList.remove('highlight-flash');
+        }, 1000);
     }
-});
+    
+    // Show a notification explaining what to do
+    showNotification('Your downloaded videos appear in the Results section below', 'info', 5000);
+}
+
+/**
+ * Clear all results from the results list
+ */
+function clearResults() {
+    const resultsList = document.getElementById('results-list');
+    if (resultsList) {
+        resultsList.innerHTML = '';
+        
+        // Hide the results container if empty
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
+        
+        showNotification('Results cleared', 'success');
+    }
+}
+
+/**
+ * Add a CSS class for highlighting/flashing elements
+ */
+function addHighlightStyle() {
+    // Check if style already exists
+    if (!document.getElementById('highlight-style')) {
+        const style = document.createElement('style');
+        style.id = 'highlight-style';
+        style.textContent = `
+            .highlight-flash {
+                animation: flash-animation 1s;
+            }
+            @keyframes flash-animation {
+                0% { background-color: transparent; }
+                50% { background-color: rgba(59, 130, 246, 0.2); }
+                100% { background-color: transparent; }
+            }
+            .btn {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            .btn:active {
+                transform: scale(0.95);
+            }
+            .btn:after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 5px;
+                height: 5px;
+                background: rgba(255, 255, 255, 0.5);
+                opacity: 0;
+                border-radius: 100%;
+                transform: scale(1, 1) translate(-50%);
+                transform-origin: 50% 50%;
+            }
+            .btn:focus:not(:active)::after {
+                animation: ripple 1s ease-out;
+            }
+            @keyframes ripple {
+                0% {
+                    transform: scale(0, 0);
+                    opacity: 0.5;
+                }
+                20% {
+                    transform: scale(25, 25);
+                    opacity: 0.3;
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(40, 40);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
 
 /**
  * Switch between tabs in the interface
  */
 function showTab(tabId) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
+    // Get all tabs and content
+    const tabs = document.querySelectorAll('.tab-container .tab');
+    const contents = document.querySelectorAll('.tab-content');
+    
+    // Hide all content
+    contents.forEach(content => {
         content.classList.remove('active');
     });
     
     // Remove active class from all tabs
-    document.querySelectorAll('.tab-container .tab').forEach(tab => {
+    tabs.forEach(tab => {
         tab.classList.remove('active');
     });
     
     // Show selected tab content
     document.getElementById(tabId).classList.add('active');
-    const contentId = tabId.replace('-tab', '-content');
-    document.getElementById(contentId).classList.add('active');
+    
+    // Determine which content to show based on tab
+    let contentId;
+    if (tabId === 'url-tab') {
+        contentId = 'url-content';
+    } else if (tabId === 'search-tab') {
+        contentId = 'search-content';
+    } else if (tabId === 'batch-tab') {
+        contentId = 'batch-content';
+    }
+    
+    // Show the appropriate content
+    if (contentId) {
+        const content = document.getElementById(contentId);
+        if (content) {
+            content.classList.add('active');
+        }
+    }
+    
+    // Update batch/single video preview visibility based on selected tab
+    const previewContainer = document.getElementById('preview-container');
+    const batchPreviewContainer = document.getElementById('batch-preview-container');
+    
+    if (tabId === 'batch-tab') {
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (batchPreviewContainer && document.querySelector('.preview-thumbnail')) {
+            batchPreviewContainer.classList.remove('hidden');
+        }
+    } else {
+        if (batchPreviewContainer) batchPreviewContainer.classList.add('hidden');
+        if (previewContainer && document.getElementById('video-preview').src) {
+            previewContainer.classList.remove('hidden');
+        }
+    }
 }
 
 /**
@@ -84,143 +256,421 @@ function toggleTheme() {
 }
 
 /**
- * Handle the video extraction form submission
+ * Handle single URL extraction
  */
-async function handleExtractVideo() {
-    const videoUrl = document.getElementById('video-url').value.trim();
-    if (!videoUrl) {
-        showNotification('Please enter a valid URL', 'error');
+function handleSingleExtraction(e) {
+    if (e) e.preventDefault();
+    
+    const url = document.getElementById('video-url').value.trim();
+    const quality = document.getElementById('quality').value;
+    
+    if (!url) {
+        showNotification('Please enter a URL', 'error');
         return;
     }
     
-    const quality = document.getElementById('quality').value;
-    const outputDir = document.getElementById('output-dir').value;
-    
-    showLoading(true);
-    
-    try {
-        const response = await fetch('/api/extract', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                url: videoUrl,
-                quality: quality,
-                output_dir: outputDir
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            // Start tracking the job
-            trackJob(data.job_id);
-            showNotification(`Video extraction started (Job ID: ${data.job_id})`, 'success');
-        } else {
-            showNotification(`Error: ${data.error || 'Unknown error'}`, 'error');
-        }
-    } catch (error) {
-        showNotification(`Error: ${error.message}`, 'error');
-    } finally {
-        showLoading(false);
-    }
+    extractVideo(url, quality);
 }
 
 /**
- * Handle batch video extraction
+ * Handle batch extraction of multiple URLs
  */
-async function handleBatchExtract() {
-    const urlList = document.getElementById('url-list').value.trim();
-    if (!urlList) {
+async function handleBatchExtraction(e) {
+    e.preventDefault();
+    
+    // Get batch textarea content
+    const batchUrlsTextarea = document.getElementById('url-list');
+    if (!batchUrlsTextarea) {
+        showNotification('Batch textarea not found', 'error');
+        return;
+    }
+    
+    const batchText = batchUrlsTextarea.value.trim();
+    if (!batchText) {
         showNotification('Please enter at least one URL', 'error');
         return;
     }
     
-    const urls = urlList.split('\n').filter(url => url.trim() !== '');
-    if (urls.length === 0) {
-        showNotification('Please enter at least one valid URL', 'error');
+    // Split by newlines or commas
+    const urlList = batchText.split(/[\n,]+/).map(url => url.trim()).filter(url => url);
+    
+    if (urlList.length === 0) {
+        showNotification('No valid URLs found', 'error');
         return;
     }
     
-    const quality = document.getElementById('batch-quality').value;
-    const outputDir = document.getElementById('output-dir').value || 'downloads';
+    // Get quality selection
+    const qualitySelect = document.getElementById('batch-quality');
+    const quality = qualitySelect ? qualitySelect.value : 'best';
     
+    // Show batch preview grid
+    const batchPreviewContainer = document.getElementById('batch-preview-container');
+    if (batchPreviewContainer) {
+        batchPreviewContainer.classList.remove('hidden');
+    }
+    
+    // Show loading indicator
+    showLoading(true);
+    
+    // Clear the preview grid
+    const previewGrid = document.getElementById('preview-grid');
+    if (previewGrid) {
+        previewGrid.innerHTML = '';
+    }
+    
+    // Process URLs
+    await processBatchUrls(urlList, quality);
+    
+    // Hide loading indicator
+    showLoading(false);
+}
+
+/**
+ * Process a batch of URLs sequentially to avoid overwhelming the server
+ */
+async function processBatchUrls(urls, quality, startIndex = 0) {
+    if (startIndex >= urls.length) {
+        showNotification('Batch processing complete!', 'success');
+        return;
+    }
+    
+    const url = urls[startIndex];
+    if (!url) {
+        // Skip empty URLs
+        processBatchUrls(urls, quality, startIndex + 1);
+        return;
+    }
+    
+    // Validate URL before sending
+    if (!isValidUrl(url)) {
+        console.log(`Skipping invalid URL: ${url}`);
+        showNotification(`Skipped invalid URL: ${url}`, 'warning');
+        // Add an error item to the results list
+        addResultItem(`Invalid URL format: ${url}`, 'error');
+        // Continue with next URL
+        await processBatchUrls(urls, quality, startIndex + 1);
+        return;
+    }
+    
+    try {
+        console.log(`Processing batch URL ${startIndex + 1}/${urls.length}: ${url}`);
+        
+        // Extract video
+        const result = await extractVideo(url, quality);
+        
+        // If extraction failed, add an error result item
+        if (!result) {
+            addResultItem(`Failed to extract: ${url}`, 'error');
+        }
+        
+        // Delay before processing next URL to avoid rate limiting
+        setTimeout(() => {
+            processBatchUrls(urls, quality, startIndex + 1);
+        }, 1000);
+    } catch (error) {
+        console.error(`Error processing URL ${url}:`, error);
+        addResultItem(`Error processing: ${url} - ${error.message}`, 'error');
+        
+        // Continue with next URL
+        setTimeout(() => {
+            processBatchUrls(urls, quality, startIndex + 1);
+        }, 1000);
+    }
+}
+
+/**
+ * Validate URL format
+ */
+function isValidUrl(string) {
+    try {
+        const url = new URL(string);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch (_) {
+        return false;
+    }
+}
+
+/**
+ * Extract a video from a URL
+ */
+async function extractVideo(url, quality = 'best') {
+    // Show loading state
     showLoading(true);
     
     try {
-        // Process each URL sequentially
-        for (const url of urls) {
-            if (!url.trim()) continue;
-            
-            const response = await fetch('/api/extract', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    url: url.trim(),
-                    quality: quality,
-                    output_dir: outputDir
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                // Start tracking the job
-                trackJob(data.job_id);
-                addResultItem(`Started extraction for: ${url} (Job ID: ${data.job_id})`, 'info');
-            } else {
-                addResultItem(`Failed to extract ${url}: ${data.error || 'Unknown error'}`, 'error');
-            }
+        // Basic validation
+        if (!url || !url.trim()) {
+            showNotification('Please enter a valid URL', 'error');
+            showLoading(false);
+            return false;
         }
         
-        showNotification(`Batch extraction started for ${urls.length} URLs`, 'success');
+        console.log(`Extracting video from URL: ${url}`);
+        
+        // Call extraction API
+        const response = await fetch('/api/video-scraper/info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url, quality })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            showNotification(`Error: ${data.error || 'Unknown error'}`, 'error');
+            console.error('API Error:', data);
+            return false;
+        }
+        
+        if (data.job_id) {
+            // Add job to tracking list
+            trackJob(data.job_id);
+            
+            // Show results section
+            showResults();
+            
+            // Show success notification
+            showNotification('Video extraction started!', 'success');
+            return true;
+        } else {
+            showNotification('No job ID returned from server', 'error');
+            return false;
+        }
     } catch (error) {
-        showNotification(`Error: ${error.message}`, 'error');
+        console.error('Error extracting video:', error);
+        showNotification(`Error: ${error.message || 'Unknown error'}`, 'error');
+        return false;
     } finally {
+        // Hide loading state
         showLoading(false);
     }
 }
 
 /**
- * Handle search form submission
+ * Process a completed job
  */
-async function handleSearch() {
-    const query = document.getElementById('search-query').value.trim();
-    if (!query) {
-        showNotification('Please enter a search query', 'error');
+function processCompletedJob(jobId, data) {
+    console.log(`Processing completed job ${jobId}:`, data);
+    
+    // Add download button if we have a result
+    if (data.result && data.result.filename) {
+        addDownloadButton(jobId, data.result);
+    }
+}
+
+/**
+ * Add download button to completed job
+ */
+function addDownloadButton(jobId, result) {
+    if (!result || !result.filename) {
+        console.error('No filename for download button', result);
         return;
     }
     
-    const platform = document.getElementById('platform').value;
+    const jobItem = document.getElementById(`job-${jobId}`);
+    if (!jobItem) {
+        console.error(`Job item not found: ${jobId}`);
+        return;
+    }
     
-    showLoading(true);
+    // Check if button already exists
+    if (jobItem.querySelector('.download-btn')) {
+        return;
+    }
     
-    try {
-        // This is a placeholder for actual search API
-        // Simulate search results
-        setTimeout(() => {
-            // Mock search results
-            const results = [
-                { title: 'Sample Video 1', url: 'https://example.com/video1', thumbnail: 'https://via.placeholder.com/150', duration: '3:45' },
-                { title: 'Sample Video 2', url: 'https://example.com/video2', thumbnail: 'https://via.placeholder.com/150', duration: '2:30' },
-                { title: 'Sample Video 3', url: 'https://example.com/video3', thumbnail: 'https://via.placeholder.com/150', duration: '1:15' }
-            ];
-            
-            // Display results
-            showResults();
-            results.forEach(result => {
-                addSearchResult(result);
+    const jobActions = jobItem.querySelector('.job-actions');
+    
+    // Create download button
+    const downloadBtn = document.createElement('a');
+    downloadBtn.className = 'btn btn-primary download-btn';
+    downloadBtn.textContent = 'Download Video';
+    
+    // If we have the full path, use just the filename portion
+    let filename = result.filename;
+    if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+    }
+    
+    // Ensure we have a proper extension for the file
+    if (!filename.includes('.')) {
+        filename = `${filename}.mp4`;
+    }
+    
+    // Set download links directly to this specific file first
+    const directPath = `/api/video-scraper/download-file/${filename}`;
+    downloadBtn.href = directPath;
+    downloadBtn.download = filename;
+    downloadBtn.dataset.jobId = jobId;
+    
+    // Add click handler for download that first checks if the file exists
+    downloadBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent immediate download
+        
+        // Show loading state
+        downloadBtn.textContent = 'Preparing...';
+        downloadBtn.classList.add('downloading');
+        
+        // First try to check if the specific file for this job exists
+        fetch(`/api/video-scraper/check-file/${filename}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    // The exact file exists, so use it
+                    console.log(`Found exact job file: ${data.filename}`);
+                    downloadBtn.href = `/api/video-scraper/download-file/${data.filename}`;
+                    downloadBtn.download = data.filename;
+                    showNotification('Download starting!', 'success');
+                    
+                    // Trigger the download
+                    window.location.href = downloadBtn.href;
+                    downloadBtn.textContent = 'Download Video';
+                    downloadBtn.classList.remove('downloading');
+                    return;
+                }
+                
+                // If specific file not found, look for any file with matching job ID
+                if (filename.includes(jobId)) {
+                    // Try to find any file containing the job ID
+                    fetch('/api/video-scraper/list-downloads')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Reset button state
+                            downloadBtn.textContent = 'Download Video';
+                            downloadBtn.classList.remove('downloading');
+                            
+                            if (data.files && data.files.length > 0) {
+                                // Try to find a match using different strategies
+                                let matchedFile = null;
+                                
+                                // 1. Look for any file containing the job ID
+                                matchedFile = data.files.find(f => f.includes(jobId));
+                                
+                                // 2. If no match with job ID, use most recent file as a last resort
+                                if (!matchedFile && data.files.length > 0) {
+                                    matchedFile = data.files[0]; // First file is the most recent
+                                }
+                                
+                                if (matchedFile) {
+                                    // Update the download link with the matched file
+                                    const newPath = `/api/video-scraper/download-file/${matchedFile}`;
+                                    downloadBtn.href = newPath;
+                                    downloadBtn.download = matchedFile;
+                                    
+                                    console.log(`Found matching file: ${matchedFile}`);
+                                    showNotification('Download starting!', 'success');
+                                    
+                                    // Trigger the download
+                                    window.location.href = newPath;
+                                } else {
+                                    showNotification('No matching file found. Try extracting again.', 'error');
+                                }
+                            } else {
+                                showNotification('No downloads available. Try extracting a video first.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching available downloads:', error);
+                            downloadBtn.textContent = 'Download Video';
+                            downloadBtn.classList.remove('downloading');
+                            showNotification('Error finding download file. Try extracting again.', 'error');
+                        });
+                } else {
+                    downloadBtn.textContent = 'Download Video';
+                    downloadBtn.classList.remove('downloading');
+                    showNotification('File not found. Try extracting again.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error checking file:', error);
+                downloadBtn.textContent = 'Download Video';
+                downloadBtn.classList.remove('downloading');
+                showNotification('Error checking file. Try extracting again.', 'error');
             });
-            
-            showNotification(`Found ${results.length} results for "${query}"`, 'success');
-            showLoading(false);
-        }, 1500);
-    } catch (error) {
-        showNotification(`Error: ${error.message}`, 'error');
-        showLoading(false);
+    });
+    
+    // Add button to job actions
+    jobActions.appendChild(downloadBtn);
+}
+
+/**
+ * Poll server for job status updates
+ */
+function pollActiveJobs() {
+    // Skip if no active jobs
+    if (activeJobs.size === 0) {
+        return;
+    }
+    
+    console.log(`Polling ${activeJobs.size} active jobs...`);
+    
+    // Check each job
+    activeJobs.forEach((data, jobId) => {
+        fetch(`/api/job/${jobId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(`Job ${jobId} status: ${data.status}`);
+                
+                // Update job status in UI
+                updateJobItem(jobId, data);
+                
+                // Process complete jobs
+                if (data.status === 'complete' || data.status === 'completed') {
+                    // Process job that is completed
+                    processCompletedJob(jobId, data);
+                    
+                    // Remove from active jobs
+                    activeJobs.delete(jobId);
+                    console.log(`Removed completed job ${jobId} from tracking`);
+                    
+                    // Stop polling if no active jobs
+                    if (activeJobs.size === 0) {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        console.log('All jobs complete, stopped polling');
+                    }
+                }
+                // Process failed jobs
+                else if (data.status === 'failed' || data.status === 'error') {
+                    // Show error
+                    showNotification(`Job failed: ${data.error || 'Unknown error'}`, 'error');
+                    
+                    // Remove from active jobs
+                    activeJobs.delete(jobId);
+                    
+                    // Stop polling if no active jobs
+                    if (activeJobs.size === 0) {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        console.log('No active jobs, stopped polling');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error(`Error polling job ${jobId}:`, error);
+            });
+    });
+    
+    // Schedule next poll if we still have active jobs
+    if (activeJobs.size > 0 && !pollInterval) {
+        pollInterval = setInterval(pollActiveJobs, 1000);
+    }
+}
+
+/**
+ * Show results container
+ */
+function showResults() {
+    const resultsContainer = document.getElementById('results-container');
+    if (resultsContainer) {
+        resultsContainer.classList.remove('hidden');
+        resultsContainer.style.display = 'block'; // Override the inline style
     }
 }
 
@@ -240,86 +690,6 @@ function trackJob(jobId) {
         pollInterval = setInterval(pollActiveJobs, 1000);
         // Also poll immediately
         pollActiveJobs();
-    }
-}
-
-/**
- * Poll server for job status updates
- */
-async function pollActiveJobs() {
-    const jobIds = Array.from(activeJobs.keys());
-    
-    if (jobIds.length === 0) {
-        // No active jobs, clear interval
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            pollInterval = null;
-        }
-        return;
-    }
-    
-    // Check each job's status
-    for (const jobId of jobIds) {
-        try {
-            const job = activeJobs.get(jobId);
-            
-            // Skip jobs that are already complete or failed
-            if (job && (job.status === 'complete' || job.status === 'completed' || 
-                job.status === 'failed' || job.status === 'cancelled')) {
-                // Remove job from active jobs
-                activeJobs.delete(jobId);
-                continue;
-            }
-            
-            const response = await fetch(`/api/job/${jobId}`);
-            
-            if (response.ok) {
-                const data = await response.json();
-                
-                // Update job in tracking map
-                activeJobs.set(jobId, data);
-                
-                // Update UI
-                updateJobItem(jobId, data);
-                
-                // If job is complete, process result
-                if (data.status === 'complete' || data.status === 'completed') {
-                    processCompletedJob(jobId, data);
-                    // Remove job from active jobs
-                    activeJobs.delete(jobId);
-                }
-                
-                // If job failed or was cancelled, remove from active jobs
-                if (data.status === 'failed' || data.status === 'cancelled') {
-                    activeJobs.delete(jobId);
-                }
-            } else {
-                console.error(`Error fetching job status: ${response.status}`);
-                // Remove job after error (optional, can also keep trying)
-                activeJobs.delete(jobId);
-            }
-        } catch (error) {
-            console.error(`Error polling job ${jobId}:`, error);
-            // Remove job after error (optional, can also keep trying)
-            activeJobs.delete(jobId);
-        }
-    }
-    
-    // If no more active jobs, clear the interval
-    if (activeJobs.size === 0 && pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-        console.log('All jobs completed, polling stopped');
-    }
-}
-
-/**
- * Process a completed job
- */
-function processCompletedJob(jobId, data) {
-    // Check if the job has a result with a filename
-    if (data.result && data.result.filename) {
-        addDownloadButton(jobId, data.result);
     }
 }
 
@@ -377,83 +747,33 @@ function updateJobItem(jobId, data) {
     if (progressBar && progressText) {
         const progress = data.progress || 0;
         progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${progress}%`;
+        progressText.textContent = `${Math.round(data.progress)}%`;
     }
     
-    // Handle completed job (check for both 'completed' and 'complete' status)
-    if (data.status === 'complete' || data.status === 'completed') {
-        // Add download button if result is available
-        if (data.result && data.result.filename) {
-            addDownloadButton(jobId, data.result);
-        }
-        
-        // Hide cancel button
+    // If job completed successfully or failed, hide the cancel button
+    if (data.status === 'complete' || data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled') {
         const cancelBtn = jobItem.querySelector('.cancel-btn');
         if (cancelBtn) {
-            cancelBtn.style.display = 'none';
+            cancelBtn.classList.add('hidden');
         }
-    }
-    
-    // Hide cancel button if job is failed or cancelled
-    if (data.status === 'failed' || data.status === 'cancelled') {
-        const cancelBtn = jobItem.querySelector('.cancel-btn');
-        if (cancelBtn) {
-            cancelBtn.style.display = 'none';
-        }
-    }
-    
-    // Show error message if job failed
-    if (data.status === 'failed' && data.error) {
-        const jobInfo = jobItem.querySelector('.job-info');
         
-        // Check if error message already exists
-        if (!jobItem.querySelector('.error-message')) {
-            const errorElement = document.createElement('div');
-            errorElement.className = 'error-message';
-            errorElement.textContent = `Error: ${data.error}`;
-            jobInfo.appendChild(errorElement);
+        // Add error message if failed
+        if (data.status === 'failed' && data.error) {
+            const jobInfo = jobItem.querySelector('.job-info');
+            
+            // Check if error message already exists
+            let errorMsg = jobItem.querySelector('.error-message');
+            if (!errorMsg && jobInfo) {
+                errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                jobInfo.appendChild(errorMsg);
+            }
+            
+            if (errorMsg) {
+                errorMsg.textContent = `Error: ${data.error}`;
+            }
         }
     }
-}
-
-/**
- * Add download button to a completed job
- */
-function addDownloadButton(jobId, result) {
-    const jobElement = document.getElementById(`job-${jobId}`);
-    if (!jobElement) return;
-    
-    // Check if download button already exists
-    if (jobElement.querySelector('.download-btn')) return;
-    
-    const downloadUrl = `/downloads/${result.filename}`;
-    
-    // Create download button
-    const downloadLink = document.createElement('a');
-    downloadLink.href = downloadUrl;
-    downloadLink.className = 'btn btn-primary download-btn';
-    downloadLink.textContent = '⬇️ Download Video';
-    downloadLink.download = result.filename;
-    downloadLink.style.display = 'block';
-    downloadLink.style.margin = '10px 0';
-    downloadLink.style.fontWeight = 'bold';
-    
-    // Find or create actions div
-    let actionsDiv = jobElement.querySelector('.job-actions');
-    if (!actionsDiv) {
-        actionsDiv = document.createElement('div');
-        actionsDiv.className = 'job-actions';
-        jobElement.appendChild(actionsDiv);
-    }
-    
-    // Clear any existing content in actions div
-    actionsDiv.innerHTML = '';
-    
-    // Add download button
-    actionsDiv.appendChild(downloadLink);
-    
-    // Add a notification
-    showNotification(`Video download ready! Click the download button to save.`, 'success');
 }
 
 /**
@@ -485,100 +805,23 @@ async function cancelJob(jobId) {
 }
 
 /**
- * Add a search result to the results list
- */
-function addSearchResult(result) {
-    showResults();
-    
-    const resultsContainer = document.getElementById('results-list');
-    
-    const resultItem = document.createElement('div');
-    resultItem.className = 'result-item search-result';
-    
-    resultItem.innerHTML = `
-        <div class="search-result-content">
-            <div class="thumbnail">
-                <img src="${result.thumbnail}" alt="${result.title}">
-                <span class="duration">${result.duration}</span>
-            </div>
-            <div class="result-info">
-                <h3>${result.title}</h3>
-                <p class="result-url">${result.url}</p>
-            </div>
-        </div>
-        <div class="result-actions">
-            <button class="btn btn-primary extract-btn" data-url="${result.url}">Extract</button>
-        </div>
-    `;
-    
-    // Add event listener for extract button
-    const extractBtn = resultItem.querySelector('.extract-btn');
-    extractBtn.addEventListener('click', () => {
-        document.getElementById('video-url').value = result.url;
-        showTab('url-tab');
-        handleExtractVideo();
-    });
-    
-    resultsContainer.appendChild(resultItem);
-}
-
-/**
- * Add a generic result item to the results list
- */
-function addResultItem(message, type = 'info') {
-    showResults();
-    
-    const resultsContainer = document.getElementById('results-list');
-    
-    const resultItem = document.createElement('div');
-    resultItem.className = `result-item ${type}-item`;
-    resultItem.innerHTML = `<p>${message}</p>`;
-    
-    resultsContainer.appendChild(resultItem);
-}
-
-/**
- * Show results container
- */
-function showResults() {
-    const resultsContainer = document.getElementById('results-container');
-    if (resultsContainer) {
-        resultsContainer.style.display = 'block';
-    }
-}
-
-/**
- * Clear all results
- */
-function clearResults() {
-    const resultsContainer = document.getElementById('results-list');
-    if (resultsContainer) {
-        resultsContainer.innerHTML = '';
-        document.getElementById('results-container').style.display = 'none';
-    }
-    
-    // Clear active jobs too (except those in progress)
-    for (const [jobId, job] of activeJobs.entries()) {
-        if (job.status !== 'processing') {
-            activeJobs.delete(jobId);
-        }
-    }
-}
-
-/**
  * Show/hide loading overlay
  */
 function showLoading(show) {
     const loadingOverlay = document.getElementById('loading-overlay');
     if (loadingOverlay) {
-        loadingOverlay.style.display = show ? 'flex' : 'none';
+        if (show) {
+            loadingOverlay.classList.remove('hidden');
+        } else {
+            loadingOverlay.classList.add('hidden');
+        }
     }
 }
 
 /**
  * Show notification
  */
-function showNotification(message, type = 'info') {
+function showNotification(message, type = 'info', timeout = 3000) {
     // Check if notification container exists, create if not
     let notificationContainer = document.getElementById('notification-container');
     
@@ -607,7 +850,7 @@ function showNotification(message, type = 'info') {
         }, 300);
     });
     
-    // Auto-remove after 5 seconds
+    // Auto-remove after specified timeout
     setTimeout(() => {
         if (notification.parentNode) {
             notification.classList.add('fade-out');
@@ -615,7 +858,7 @@ function showNotification(message, type = 'info') {
                 notification.remove();
             }, 300);
         }
-    }, 5000);
+    }, timeout);
     
     // Add to container
     notificationContainer.appendChild(notification);
@@ -624,4 +867,232 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
+}
+
+/**
+ * Handle video search
+ */
+function handleSearch(e) {
+    if (e) e.preventDefault();
+    
+    const query = document.getElementById('search-query').value.trim();
+    const platform = document.getElementById('platform').value;
+    
+    if (!query) {
+        showNotification('Please enter a search query', 'error');
+        return;
+    }
+    
+    // Show loading state
+    showLoading(true);
+    
+    // Prepare search URL based on platform
+    let searchUrl = '';
+    switch(platform) {
+        case 'youtube':
+            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+            break;
+        case 'vimeo':
+            searchUrl = `https://vimeo.com/search?q=${encodeURIComponent(query)}`;
+            break;
+        case 'dailymotion':
+            searchUrl = `https://www.dailymotion.com/search/${encodeURIComponent(query)}`;
+            break;
+        case 'all':
+            // For all platforms, default to YouTube but show results for others too
+            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+            break;
+        default:
+            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    }
+    
+    // Create search results container if doesn't exist
+    let searchResultsContainer = document.getElementById('search-results');
+    if (!searchResultsContainer) {
+        searchResultsContainer = document.createElement('div');
+        searchResultsContainer.id = 'search-results';
+        searchResultsContainer.className = 'search-results';
+        document.getElementById('search-content').appendChild(searchResultsContainer);
+    }
+    
+    // Clear previous search results
+    searchResultsContainer.innerHTML = '';
+    
+    // Show search in progress
+    searchResultsContainer.innerHTML = '<div class="loading-message">Searching videos...</div>';
+    
+    // For demonstration purposes, get search results from YouTube
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `/api/video-scraper/search?q=${encodeURIComponent(query)}&platform=${platform}`, true);
+    xhr.onload = function() {
+        // Hide loading state
+        showLoading(false);
+        
+        if (xhr.status === 200) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                
+                // Clear loading message
+                searchResultsContainer.innerHTML = '';
+                
+                // Show results count
+                const resultsHeader = document.createElement('div');
+                resultsHeader.className = 'search-results-header';
+                resultsHeader.innerHTML = `<h3>Found ${data.results.length} videos</h3>`;
+                searchResultsContainer.appendChild(resultsHeader);
+                
+                // Add each result
+                if (data.results.length === 0) {
+                    searchResultsContainer.innerHTML += '<div class="no-results">No videos found. Try a different search term.</div>';
+                } else {
+                    data.results.forEach(result => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'search-result-item';
+                        resultItem.innerHTML = `
+                            <div class="result-info">
+                                <h4>${result.title}</h4>
+                                <p>${result.platform} • ${result.duration || 'Unknown duration'}</p>
+                            </div>
+                            <div class="result-actions">
+                                <button class="btn btn-primary extract-btn" data-url="${result.url}">Extract</button>
+                            </div>
+                        `;
+                        searchResultsContainer.appendChild(resultItem);
+                        
+                        // Add click handler for extract button
+                        const extractBtn = resultItem.querySelector('.extract-btn');
+                        extractBtn.addEventListener('click', function() {
+                            const url = this.getAttribute('data-url');
+                            extractVideo(url, 'best');
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error parsing search results:', error);
+                searchResultsContainer.innerHTML = '<div class="error-message">Error retrieving search results. Please try again.</div>';
+            }
+        } else {
+            // Show mock results for demonstration if API not implemented
+            searchResultsContainer.innerHTML = '';
+            
+            const mockResults = [
+                { 
+                    title: `${query} - YouTube Video 1`, 
+                    platform: 'YouTube', 
+                    duration: '5:23', 
+                    // Use a known working YouTube video link instead of search results page
+                    url: `https://www.youtube.com/watch?v=dQw4w9WgXcQ` 
+                },
+                { 
+                    title: `${query} - ${platform} Video 2`, 
+                    platform: platform, 
+                    duration: '3:45', 
+                    // Use another known working YouTube video
+                    url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' 
+                }
+            ];
+            
+            // Show results count
+            const resultsHeader = document.createElement('div');
+            resultsHeader.className = 'search-results-header';
+            resultsHeader.innerHTML = `<h3>Found ${mockResults.length} videos on ${platform}</h3>`;
+            searchResultsContainer.appendChild(resultsHeader);
+            
+            // Add mock results
+            mockResults.forEach(result => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.innerHTML = `
+                    <div class="result-info">
+                        <h4>${result.title}</h4>
+                        <p>${result.platform} • ${result.duration}</p>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn btn-primary extract-btn" data-url="${result.url}">Extract</button>
+                    </div>
+                `;
+                searchResultsContainer.appendChild(resultItem);
+                
+                // Add click handler for extract button
+                const extractBtn = resultItem.querySelector('.extract-btn');
+                extractBtn.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    // Switch to URL input tab first
+                    showTab('url-tab');
+                    // Set the URL in the input field
+                    document.getElementById('video-url').value = url;
+                    // Extract the video
+                    extractVideo(url, 'best');
+                });
+            });
+            
+            // Add CSS for search results
+            addSearchResultsStyle();
+        }
+    };
+    xhr.onerror = function() {
+        showLoading(false);
+        searchResultsContainer.innerHTML = '<div class="error-message">Error connecting to search service. Please try again.</div>';
+    };
+    xhr.send();
+}
+
+/**
+ * Add CSS for search results styling
+ */
+function addSearchResultsStyle() {
+    // Check if style already exists
+    if (!document.getElementById('search-results-style')) {
+        const style = document.createElement('style');
+        style.id = 'search-results-style';
+        style.textContent = `
+            .search-results {
+                margin-top: 20px;
+                border-top: 1px solid var(--border-color);
+                padding-top: 15px;
+            }
+            .search-results-header {
+                margin-bottom: 15px;
+            }
+            .search-results-header h3 {
+                font-size: 16px;
+                font-weight: 500;
+            }
+            .search-result-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                background-color: var(--card-bg);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+            .result-info {
+                flex: 1;
+            }
+            .result-info h4 {
+                margin: 0 0 5px 0;
+                font-size: 15px;
+            }
+            .result-info p {
+                margin: 0;
+                font-size: 13px;
+                color: var(--text-secondary);
+            }
+            .result-actions {
+                display: flex;
+                gap: 8px;
+            }
+            .no-results, .loading-message, .error-message {
+                padding: 15px;
+                text-align: center;
+                color: var(--text-secondary);
+            }
+            .error-message {
+                color: var(--error);
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }

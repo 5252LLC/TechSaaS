@@ -60,6 +60,7 @@ DOMAIN_PLATFORM_MAP = {
     'pornhub.com': 'pornhub',
     'xhamster.com': 'xhamster',
     'soundcloud.com': 'soundcloud',
+    'redgifs.com': 'redgifs',
     # Add more mappings as needed
 }
 
@@ -385,6 +386,7 @@ def get_supported_platforms():
         {"name": "PornHub", "domain": "pornhub.com", "platform": "pornhub"},
         {"name": "XVideos", "domain": "xvideos.com", "platform": "xvideos"},
         {"name": "XHamster", "domain": "xhamster.com", "platform": "xhamster"},
+        {"name": "RedGifs", "domain": "redgifs.com", "platform": "redgifs"},
         # Add more platforms as needed
     ]
     

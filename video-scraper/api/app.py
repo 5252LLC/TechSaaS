@@ -201,6 +201,7 @@ def check_download_status(download_id):
     try:
         # Look for files matching the download_id pattern
         files = os.listdir(DOWNLOAD_DIR)
+        
         matching_files = [f for f in files if f.startswith(download_id)]
         
         if matching_files:
@@ -283,6 +284,45 @@ def supported_platforms():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/video-scraper/download-file/<path:filename>', methods=['GET'])
+def download_video_file(filename):
+    """
+    Serve downloaded video files with proper content-disposition headers
+    """
+    try:
+        app.logger.info(f"Download request for file: {filename}")
+        
+        # List files in the downloads directory
+        files = os.listdir(DOWNLOAD_DIR)
+        
+        # Exact match first
+        if filename in files:
+            return send_from_directory(DOWNLOAD_DIR, filename, as_attachment=True)
+            
+        # Case-insensitive match
+        matching_files = [f for f in files if f.lower() == filename.lower()]
+        if matching_files:
+            return send_from_directory(DOWNLOAD_DIR, matching_files[0], as_attachment=True)
+            
+        # Job ID match (for video_UUID.ext format)
+        if filename.startswith('video_'):
+            job_id = filename.split('.')[0].replace('video_', '')
+            job_id_matches = [f for f in files if f.startswith(f'video_{job_id}')]
+            if job_id_matches:
+                return send_from_directory(DOWNLOAD_DIR, job_id_matches[0], as_attachment=True)
+                
+        # If no match was found, return a helpful error
+        app.logger.error(f"File not found: {filename}")
+        app.logger.info(f"Available files: {files}")
+        return jsonify({
+            "error": f"File not found: {filename}",
+            "available_files": files
+        }), 404
+        
+    except Exception as e:
+        app.logger.error(f"Error serving file {filename}: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/downloads/<path:filename>', methods=['GET'])
 def download_file(filename):
     """
@@ -295,7 +335,7 @@ def download_file(filename):
         
         # List files in the downloads directory
         files = os.listdir(DOWNLOAD_DIR)
-        app.logger.info(f"Files in download directory: {files}")
+        app.logger.debug(f"Files in download directory: {files}")
         
         # Try to find a matching file (case insensitive)
         matching_files = [f for f in files if f.lower() == filename.lower()]
@@ -314,6 +354,94 @@ def download_file(filename):
     except Exception as e:
         app.logger.error(f"Error serving file {filename}: {str(e)}")
         return jsonify({"error": str(e), "path": DOWNLOAD_DIR, "files": os.listdir(DOWNLOAD_DIR)}), 404
+
+@app.route('/api/video-scraper/check-file/<path:filename>', methods=['GET'])
+def check_file_exists(filename):
+    """
+    Check if a file exists before attempting to download it
+    Returns the actual filename if found through any matching method
+    """
+    try:
+        app.logger.info(f"Checking if file exists: {filename}")
+        
+        # List files in the downloads directory
+        files = os.listdir(DOWNLOAD_DIR)
+        
+        # Exact match
+        if filename in files:
+            return jsonify({"exists": True, "filename": filename})
+            
+        # Case-insensitive match
+        matching_files = [f for f in files if f.lower() == filename.lower()]
+        if matching_files:
+            return jsonify({"exists": True, "filename": matching_files[0]})
+            
+        # Job ID match (for video_UUID.ext format)
+        if filename.startswith('video_'):
+            # Extract job ID from filename
+            job_id = filename.split('.')[0].replace('video_', '')
+            job_id_matches = [f for f in files if f.startswith(f'video_{job_id}')]
+            if job_id_matches:
+                return jsonify({"exists": True, "filename": job_id_matches[0]})
+                
+        # Try to find any recently downloaded file with similar job ID pattern
+        # This handles cases where the extension might be different or missing
+        if '_' in filename:
+            file_parts = filename.split('_', 1)
+            if len(file_parts) > 1:
+                partial_id = file_parts[1].split('.')[0]
+                partial_matches = [f for f in files if partial_id in f]
+                if partial_matches:
+                    app.logger.info(f"Found partial match: {partial_matches[0]} for {filename}")
+                    return jsonify({"exists": True, "filename": partial_matches[0]})
+        
+        # No match found
+        app.logger.warning(f"No matching file found for: {filename}")
+        return jsonify({"exists": False, "available_files": files[:10]}), 404
+        
+    except Exception as e:
+        app.logger.error(f"Error checking file {filename}: {str(e)}")
+        return jsonify({"error": str(e), "exists": False}), 500
+
+@app.route('/api/video-scraper/list-downloads', methods=['GET'])
+def list_downloads():
+    """
+    List all available downloads with file metadata to help find matches
+    """
+    try:
+        # Get all files in the downloads directory
+        files = os.listdir(DOWNLOAD_DIR)
+        
+        # Filter to only include video files
+        video_files = [f for f in files if f.endswith(('.mp4', '.webm', '.mkv', '.avi', '.mov'))]
+        
+        # Get detailed file information
+        file_details = {}
+        for file in video_files:
+            file_path = os.path.join(DOWNLOAD_DIR, file)
+            if os.path.isfile(file_path):
+                stats = os.stat(file_path)
+                file_details[file] = {
+                    'size': stats.st_size,
+                    'mtime': stats.st_mtime,
+                    'ctime': stats.st_ctime
+                }
+        
+        # Sort files by modification time (newest first)
+        sorted_files = sorted(video_files, 
+                             key=lambda f: file_details.get(f, {}).get('mtime', 0),
+                             reverse=True)
+        
+        return jsonify({
+            "files": sorted_files,
+            "fileDetails": file_details,
+            "count": len(sorted_files),
+            "downloadDir": DOWNLOAD_DIR
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error listing downloads: {str(e)}")
+        return jsonify({"error": str(e), "files": []}), 500
 
 if __name__ == "__main__":
     print(f"Starting Video Scraper API on port {PORT}")
