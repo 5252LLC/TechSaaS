@@ -130,10 +130,33 @@ def extract_info():
     if not url:
         return jsonify({"error": "URL is required"}), 400
     
+    # Basic URL validation
+    from urllib.parse import urlparse
+    parsed_url = urlparse(url)
+    if not parsed_url.scheme or not parsed_url.netloc:
+        return jsonify({"error": "Invalid URL format"}), 400
+    
+    # Check if platform is supported
+    platforms = get_supported_platforms()
+    domain = parsed_url.netloc.lower()
+    if 'www.' in domain:
+        domain = domain.replace('www.', '')
+    
+    # Check if domain matches any supported platform
+    supported = False
+    for platform in platforms:
+        if platform['domain'] in domain or domain in platform['domain']:
+            supported = True
+            break
+    
+    if not supported:
+        return jsonify({"error": f"Unsupported platform: {domain}"}), 400
+    
     try:
-        hitomi_wrapper._check_yt_dlp_version()  # Ensure yt-dlp is ready
-        video_info = hitomi_wrapper.extract_video_info(url)
-        return jsonify(video_info)
+        # Create an extraction job and return the job ID for tracking
+        result = extract_video(url, quality="best", output_dir=DOWNLOAD_DIR)
+        app.logger.info(f"Started extraction job: {result['job_id']} for URL: {url}")
+        return jsonify(result)
     except Exception as e:
         app.logger.error(f"Error extracting video info: {str(e)}")
         return jsonify({"error": str(e)}), 500
@@ -248,14 +271,14 @@ def cancel_job_endpoint(job_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/platforms', methods=['GET'])
+@app.route('/api/video-scraper/supported-platforms', methods=['GET'])
 def supported_platforms():
     """
     List all supported video platforms
     """
     try:
         platforms = get_supported_platforms()
-        return jsonify({"platforms": platforms})
+        return jsonify(platforms)
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500

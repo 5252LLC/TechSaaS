@@ -168,11 +168,13 @@ def extraction_worker(job):
         # Create command based on the available executable
         if hitomi_exe == 'yt-dlp':
             # Use yt-dlp directly
+            # Remove any existing extension from the output path to avoid duplicates
+            output_base = os.path.splitext(job.output_path)[0]
             cmd = [
                 'yt-dlp',
                 '-f', job.quality,
-                # Use absolute path and avoid duplicate extensions
-                '-o', f'{job.output_path}.%(ext)s',
+                # Use absolute path and let yt-dlp add the appropriate extension
+                '-o', f'{output_base}.%(ext)s',
                 '--newline',
                 '--progress',
                 job.url
