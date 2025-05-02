@@ -4,7 +4,7 @@
       "id": 1,
       "title": "Setup Development Environment and Project Structure",
       "description": "Create the basic project structure and install required dependencies for the TechSaaS platform.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "priority": "high",
       "details": "Create the directory structure as specified in the PRD section 4.1.1. Initialize a git repository. Create and activate a virtual environment. Install core dependencies including Flask, requests, beautifulsoup4, langchain, and other required packages. Set up the Node.js dependencies with npm init and install express, axios, cors, and dotenv.",
@@ -14,7 +14,7 @@
       "id": 2,
       "title": "Integrate Hitomi-Downloader",
       "description": "Set up and integrate Hitomi-Downloader as the primary video scraping engine for the platform.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         1
       ],
@@ -26,7 +26,7 @@
       "id": 3,
       "title": "Create Video Scraper Flask API",
       "description": "Develop a Flask API wrapper to expose Hitomi-Downloader functionality via REST endpoints.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2
       ],

@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}TechSaaS Platform - Web Browser{% endblock %}
+
+{% block browser_active %}active{% endblock %}
+
+{% block content %}
+<div class="browser-interface">
+    <div class="browser-toolbar">
+        <button class="browser-button back-button" title="Back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+            </svg>
+        </button>
+        <button class="browser-button forward-button" title="Forward">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+        </button>
+        <button class="browser-button refresh-button" title="Refresh">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>
+        </button>
+        <div class="url-bar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.217 11.068c1.216 0 2.147-.825 2.147-2.026 0-1.01-.814-1.78-1.862-1.78a1.787 1.787 0 0 0-1.081.314.5.5 0 0 1-.83-.115 2.876 2.876 0 0 1-.27-.65c.914-.47 1.695-.78 2.668-.78 1.55 0 2.79 1.067 2.79 2.414 0 1.35-1 2.233-2.348 2.233-.222 0-.412-.023-.586-.066.312-.307.526-.734.526-1.228 0-.808-.587-1.38-1.444-1.38-.856 0-1.444.572-1.444 1.38 0 .496.214.925.527 1.232a4.07 4.07 0 0 1-.586.066Z"/>
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0ZM1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8Z"/>
+            </svg>
+            <input type="text" id="url-input" placeholder="Enter URL or search query..." value="{{ url }}">
+        </div>
+        <button class="browser-button search-button" title="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+            </svg>
+        </button>
+        <div class="browser-actions">
+            <button class="browser-button" id="scrape-button" title="Scrape Content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.5 11a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5zm-2-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-2-4a.5.5 0 0 1 .5-.5h12a.5.5 0 0 1 0 1h-12a.5.5 0 0 1-.5-.5zm4 8a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/>
+                </svg>
+                Scrape
+            </button>
+        </div>
+    </div>
+    
+    <div class="browser-content">
+        <iframe id="browser-frame" src="{{ url if url else '' }}" style="display: {{ 'block' if url else 'none' }}"></iframe>
+        
+        <div class="empty-state" id="empty-state" style="display: {{ 'none' if url else 'flex' }}">
+            <div class="particle-background">
+                <div class="particles"></div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855-.143.268-.276.56-.395.872.705.157 1.472.257 2.282.287V1.077zM4.249 3.539c.142-.384.304-.744.481-1.078a6.7 6.7 0 0 1 .597-.933A7.01 7.01 0 0 0 3.051 3.05c.362.184.763.349 1.198.49zM3.509 7.5c.036-1.07.188-2.087.436-3.008a9.124 9.124 0 0 1-1.565-.667A6.964 6.964 0 0 0 1.018 7.5h2.49zm1.4-2.741a12.344 12.344 0 0 0-.4 2.741H7.5V5.091c-.91-.03-1.783-.145-2.591-.332zM8.5 5.09V7.5h2.99a12.342 12.342 0 0 0-.399-2.741c-.808.187-1.681.301-2.591.332zM4.51 8.5c.035.987.176 1.914.399 2.741A13.612 13.612 0 0 1 7.5 10.91V8.5H4.51zm3.99 0v2.409c.91.03 1.783.145 2.591.332.223-.827.364-1.754.4-2.741H8.5zm-3.282 3.696c.12.312.252.604.395.872.552 1.035 1.218 1.65 1.887 1.855V11.91c-.81.03-1.577.13-2.282.287zm.11 2.276a6.696 6.696 0 0 1-.598-.933 8.853 8.853 0 0 1-.481-1.079 8.38 8.38 0 0 0-1.198.49 7.01 7.01 0 0 0 2.276 1.522zm-1.383-2.964A13.36 13.36 0 0 1 3.508 8.5h-2.49a6.963 6.963 0 0 0 1.362 3.675c.47-.258.995-.482 1.565-.667zm6.728 2.964a7.009 7.009 0 0 0 2.275-1.521 8.376 8.376 0 0 0-1.197-.49 8.853 8.853 0 0 1-.481 1.078 6.688 6.688 0 0 1-.597.933zM8.5 11.909v3.014c.67-.204 1.335-.82 1.887-1.855.143-.268.276-.56.395-.872A12.63 12.63 0 0 0 8.5 11.91zm3.555-.401c.57.185 1.095.409 1.565.667A6.963 6.963 0 0 0 14.982 8.5h-2.49a13.36 13.36 0 0 1-.437 3.008zM14.982 7.5a6.963 6.963 0 0 0-1.362-3.675c-.47.258-.995.482-1.565.667.248.92.4 1.938.437 3.008h2.49zM11.27 2.461c.177.334.339.694.482 1.078a8.368 8.368 0 0 0 1.196-.49 7.01 7.01 0 0 0-2.275-1.52c.218.283.418.597.597.932zm-.488 1.343a7.765 7.765 0 0 0-.395-.872C9.835 1.897 9.17 1.282 8.5 1.077V4.09c.81-.03 1.577-.13 2.282-.287z"/>
+            </svg>
+            <h3>Enter a URL or search query</h3>
+            <p>Browse the web, analyze content, and extract videos with TechSaaS powerful browser interface.</p>
+            
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Enter search query...">
+                <button id="search-button" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search-results" id="search-results" style="display: none">
+    <h2>Search Results</h2>
+    <div class="results-list" id="results-list"></div>
+</div>
+
+<div class="loading-indicator" id="loading-indicator">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urlInput = document.getElementById('url-input');
+    const browserFrame = document.getElementById('browser-frame');
+    const emptyState = document.getElementById('empty-state');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const resultsContainer = document.getElementById('search-results');
+    const resultsList = document.getElementById('results-list');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const scrapeButton = document.getElementById('scrape-button');
+    
+    // URL navigation
+    urlInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            navigateToUrl(urlInput.value);
+        }
+    });
+    
+    // Search functionality
+    searchButton.addEventListener('click', function() {
+        performSearch(searchInput.value);
+    });
+    
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch(searchInput.value);
+        }
+    });
+    
+    // Scrape button functionality
+    scrapeButton.addEventListener('click', function() {
+        if (urlInput.value) {
+            scrapeContent(urlInput.value);
+        }
+    });
+    
+    // URL navigation function
+    function navigateToUrl(url) {
+        if (!url) return;
+        
+        // Add http if not present
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'https://' + url;
+        }
+        
+        // Show loading indicator
+        loadingIndicator.style.display = 'flex';
+        
+        // Update browser frame
+        setTimeout(() => {
+            browserFrame.src = url;
+            browserFrame.style.display = 'block';
+            emptyState.style.display = 'none';
+            urlInput.value = url;
+            
+            // Hide loading indicator after a delay
+            setTimeout(() => {
+                loadingIndicator.style.display = 'none';
+            }, 500);
+        }, 500);
+    }
+    
+    // Search function
+    function performSearch(query) {
+        if (!query) return;
+        
+        // Show loading indicator
+        loadingIndicator.style.display = 'flex';
+        
+        // In a real implementation, this would make an API request
+        // For now, we'll simulate a search with sample results
+        setTimeout(() => {
+            // Sample search results
+            const results = [
+                {
+                    title: "TechSaaS Documentation - Official Site",
+                    url: "https://techsaas.tech/docs",
+                    snippet: "Comprehensive documentation for the TechSaaS platform including API references, tutorials, and more."
+                },
+                {
+                    title: "Video Scraping with Hitomi-Downloader - TechSaaS",
+                    url: "https://techsaas.tech/video-scraper",
+                    snippet: "Learn how to use the advanced video scraping capabilities of TechSaaS powered by Hitomi-Downloader integration."
+                },
+                {
+                    title: "LangChain + Ollama: AI Integration - TechSaaS",
+                    url: "https://techsaas.tech/ai-service",
+                    snippet: "Explore the AI capabilities of TechSaaS with LangChain framework and Ollama model integration."
+                }
+            ];
+            
+            // Display results
+            resultsContainer.style.display = 'block';
+            resultsList.innerHTML = '';
+            
+            results.forEach(result => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <h3><a href="${result.url}">${result.title}</a></h3>
+                    <p class="result-url">${result.url}</p>
+                    <p class="result-snippet">${result.snippet}</p>
+                    <div class="result-actions">
+                        <button class="btn btn-outline btn-sm" onclick="navigateToUrl('${result.url}')">Open</button>
+                        <button class="btn btn-outline btn-sm" onclick="scrapeContent('${result.url}')">Scrape</button>
+                    </div>
+                `;
+                resultsList.appendChild(resultItem);
+            });
+            
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
+        }, 1000);
+    }
+    
+    // Scrape content function
+    function scrapeContent(url) {
+        if (!url) return;
+        
+        // Show loading indicator
+        loadingIndicator.style.display = 'flex';
+        
+        // In a real implementation, this would call the video scraper API
+        // For now, we'll simulate the process
+        setTimeout(() => {
+            alert(`Initiated scraping for ${url}\nThis would be handled by the video scraper service in the actual implementation.`);
+            
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
+        }, 800);
+    }
+    
+    // Make functions available globally
+    window.navigateToUrl = navigateToUrl;
+    window.scrapeContent = scrapeContent;
+    
+    // Create particle animation for empty state
+    const particlesContainer = document.querySelector('.particles');
+    if (particlesContainer) {
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particle.style.animationDuration = `${5 + Math.random() * 10}s`;
+            particlesContainer.appendChild(particle);
+        }
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.particle-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.particles {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: rgba(74, 108, 247, 0.3);
+    border-radius: 50%;
+    animation: float 8s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+    25% {
+        opacity: 0.5;
+    }
+    50% {
+        transform: translateY(-20px) translateX(20px) scale(1.5);
+        opacity: 0.8;
+    }
+    75% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 0;
+    }
+}
+
+.browser-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.browser-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.browser-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#scrape-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 10px;
+    background-color: rgba(74, 108, 247, 0.1);
+    color: var(--accent-color);
+    width: auto;
+}
+
+#scrape-button:hover {
+    background-color: rgba(74, 108, 247, 0.2);
+}
+
+.loading-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(18, 19, 26, 0.8);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: spin 1s infinite linear;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.search-box {
+    display: flex;
+    margin-top: 20px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 10px 16px;
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px 0 0 6px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-box button {
+    padding: 10px 20px;
+    border-radius: 0 6px 6px 0;
+}
+
+.search-results {
+    margin-top: 24px;
+    padding: 24px;
+    background-color: var(--secondary-bg);
+    border-radius: 8px;
+}
+
+.result-item {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.result-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item h3 {
+    margin: 0 0 8px 0;
+}
+
+.result-item h3 a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.result-item h3 a:hover {
+    text-decoration: underline;
+}
+
+.result-url {
+    color: var(--text-secondary);
+    margin: 0 0 8px 0;
+    font-size: 12px;
+}
+
+.result-snippet {
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+
+.result-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+#empty-state {
+    position: relative;
+}
+
+#empty-state > * {
+    position: relative;
+    z-index: 1;
+}
+</style>
+{% endblock %}

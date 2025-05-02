@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TechSaaS Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <a href="/" class="logo">Tech<span>SaaS</span></a>
+            <div class="header-controls">
+                <div class="toggle-wrapper">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle">
+                    <label for="theme-toggle" class="toggle-label"></label>
+                </div>
+                <button class="btn btn-outline">Documentation</button>
+                <button class="btn btn-primary">Sign In</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <a href="{{ url_for('browser') }}" class="tab {% block browser_active %}{% endblock %}">Web Browser</a>
+                <a href="{{ url_for('video_scraper') }}" class="tab {% block video_scraper_active %}{% endblock %}">Video Scraper</a>
+                <a href="#" class="tab">Downloads</a>
+                <a href="#" class="tab">Settings</a>
+            </div>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

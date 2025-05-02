@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Integrate Hitomi-Downloader
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Set up and integrate Hitomi-Downloader as the primary video scraping engine for the platform.

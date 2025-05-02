@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}TechSaaS Platform - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome to <span class="accent-text">TechSaaS</span> Platform</h1>
+        <p>A comprehensive platform for video scraping, web browsing, and AI-powered analysis.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Web Browser</h3>
+                <p>Browse the web with integrated search functionality and content analysis.</p>
+                <a href="{{ url_for('browser') }}" class="btn btn-primary">Open Browser</a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎬</div>
+                <h3>Video Scraper</h3>
+                <p>Extract videos from websites using the powerful Hitomi-Downloader integration.</p>
+                <a href="{{ url_for('video_scraper') }}" class="btn btn-primary">Open Video Scraper</a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Analysis</h3>
+                <p>Analyze content with LangChain and Ollama for intelligent insights.</p>
+                <a href="#" class="btn btn-primary">Try AI Analysis</a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure Platform</h3>
+                <p>Built with comprehensive security features and data anonymization.</p>
+                <a href="#" class="btn btn-primary">Learn More</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add animation effects to feature cards
+    const cards = document.querySelectorAll('.feature-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('fade-in');
+        }, 100 * index);
+    });
+});
+</script>
+{% endblock %}

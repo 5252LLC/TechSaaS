@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Create Video Scraper Flask API
-# Status: pending
+# Status: done
 # Dependencies: 2
 # Priority: high
 # Description: Develop a Flask API wrapper to expose Hitomi-Downloader functionality via REST endpoints.
