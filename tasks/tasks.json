@@ -64,7 +64,7 @@
           "description": "Check the Python version and ensure it meets the minimum requirements.",
           "dependencies": [],
           "details": "- Check that Python version is 3.7 or higher\n- Provide clear error message if Python version is unsupported\n- Exit setup process if Python version check fails\n- Test by running setup script with different Python versions",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 5
         },
         {
@@ -75,7 +75,7 @@
             1
           ],
           "details": "- Read dependencies from requirements.txt file\n- Install each dependency using pip\n- Handle potential installation errors and provide feedback\n- Verify installations by importing key packages\n- Test dependency installation by running setup script on clean environment",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 5
         },
         {
@@ -86,7 +86,7 @@
             2
           ],
           "details": "- Detect the operating system (Windows, macOS, Linux)\n- Follow platform-specific setup steps for Ollama\n- Download and install Ollama binaries/packages\n- Set necessary environment variables\n- Test Ollama setup by running simple Ollama command",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 5
         },
         {
@@ -97,7 +97,7 @@
             3
           ],
           "details": "- Create directories for storing models (llama3.2:3b, grok:3b)\n- Download model files from specified sources\n- Verify checksums of downloaded model files\n- Handle download errors and provide retry mechanism\n- Test model downloads by checking file presence and sizes",
-          "status": "pending",
+          "status": "in-progress",
           "parentTaskId": 5
         },
         {

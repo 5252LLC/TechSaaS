@@ -1,0 +1,2 @@
+# Test requirement for validation
+colorlog>=6.7.0

@@ -11,7 +11,7 @@ Implement the setup.py script as specified in the PRD. Create functions to check
 Run the setup script and verify all components install correctly. Confirm Ollama is running and the specified models are available. Test basic model inference to ensure the setup is functional.
 
 # Subtasks:
-## 1. Validate Python environment [pending]
+## 1. Validate Python environment [done]
 ### Dependencies: None
 ### Description: Check the Python version and ensure it meets the minimum requirements.
 ### Details:
@@ -20,7 +20,7 @@ Run the setup script and verify all components install correctly. Confirm Ollama
 - Exit setup process if Python version check fails
 - Test by running setup script with different Python versions
 
-## 2. Install dependencies [pending]
+## 2. Install dependencies [done]
 ### Dependencies: 5.1
 ### Description: Install the required Python packages and dependencies.
 ### Details:
@@ -30,7 +30,7 @@ Run the setup script and verify all components install correctly. Confirm Ollama
 - Verify installations by importing key packages
 - Test dependency installation by running setup script on clean environment
 
-## 3. Platform-specific Ollama setup [pending]
+## 3. Platform-specific Ollama setup [done]
 ### Dependencies: 5.2
 ### Description: Set up Ollama based on the detected operating system.
 ### Details:
@@ -40,7 +40,7 @@ Run the setup script and verify all components install correctly. Confirm Ollama
 - Set necessary environment variables
 - Test Ollama setup by running simple Ollama command
 
-## 4. Download required models [pending]
+## 4. Download required models [in-progress]
 ### Dependencies: 5.3
 ### Description: Pull the required models for LangChain and Ollama integration.
 ### Details:

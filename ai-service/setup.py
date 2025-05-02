@@ -32,43 +32,66 @@ logging.basicConfig(
 )
 logger = logging.getLogger('langchain-setup')
 
+SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def parse_arguments():
-    """Parse command line arguments."""
+def parse_args():
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description='Setup LangChain and Ollama for TechSaaS Platform'
+        description='Set up LangChain and Ollama integration',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
+    
     parser.add_argument(
-        '--skip-validation', 
+        '--skip-environment-check',
         action='store_true',
         help='Skip environment validation step'
     )
+    
     parser.add_argument(
-        '--skip-dependencies', 
+        '--skip-dependencies',
         action='store_true',
         help='Skip dependency installation step'
     )
+    
     parser.add_argument(
-        '--skip-ollama', 
+        '--skip-ollama',
         action='store_true',
         help='Skip Ollama setup step'
     )
+    
     parser.add_argument(
-        '--skip-models', 
+        '--force-reinstall',
         action='store_true',
-        help='Skip model download step'
+        help='Force reinstallation of components even if already installed'
     )
+    
     parser.add_argument(
-        '--skip-tests', 
+        '--update-ollama-only',
         action='store_true',
-        help='Skip integration tests'
+        help='Only update Ollama if a newer version is available'
     )
+    
     parser.add_argument(
-        '--verbose', 
+        '--verbose',
         action='store_true',
         help='Enable verbose output'
     )
+    
     return parser.parse_args()
+
+
+def setup_logging(verbose):
+    """Configure logging."""
+    if verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logger.debug("Verbose logging enabled")
+
+
+def print_banner():
+    """Print the setup banner."""
+    print("\n" + "=" * 80)
+    print("TechSaaS Platform - LangChain and Ollama Integration Setup".center(80))
+    print("=" * 80 + "\n")
 
 
 def run_step(step_name: str, command: List[str], exit_on_error: bool = True) -> bool:
@@ -110,45 +133,129 @@ def run_step(step_name: str, command: List[str], exit_on_error: bool = True) -> 
         return False
 
 
-def validate_environment(args):
+def validate_environment():
     """Run environment validation."""
-    if args.skip_validation:
-        logger.info("Skipping environment validation (--skip-validation)")
-        return True
-    
     return run_step(
         "Environment validation",
-        [sys.executable, "setup/validate_environment.py"]
+        [sys.executable, os.path.join(SETUP_DIR, "setup/validate_environment.py")]
     )
 
 
-def main():
-    """Main entry point for the setup script."""
-    args = parse_arguments()
+def install_dependencies(args):
+    """Install required dependencies."""
+    cmd = [sys.executable, os.path.join(SETUP_DIR, "setup/install_dependencies.py")]
+    if args.force_reinstall:
+        cmd.append("--upgrade")
     
-    # Set log level based on verbose flag
+    return run_step(
+        "Dependency installation",
+        cmd
+    )
+
+
+def setup_ollama(args):
+    """
+    Run the Ollama setup script to install and configure Ollama.
+    
+    Returns:
+        bool: True if Ollama setup was successful
+    """
+    logging.info("Running Ollama setup...")
+    
+    # Prepare command to run the Ollama setup script
+    cmd = [sys.executable, os.path.join(SETUP_DIR, "setup/setup_ollama.py")]
+    
+    # Add arguments
     if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logger.debug("Verbose logging enabled")
+        cmd.append("--verbose")
+    
+    if args.force_reinstall:
+        cmd.append("--force")
+    
+    if args.update_ollama_only:
+        cmd.append("--update-only")
+    
+    try:
+        # Run the Ollama setup script
+        result = subprocess.run(
+            cmd,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        
+        # Log output at debug level
+        for line in result.stdout.splitlines():
+            logging.debug(line)
+        
+        logging.info("Ollama setup completed successfully")
+        return True
+    
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Ollama setup failed with exit code {e.returncode}")
+        if e.stderr:
+            logging.error(f"Error output: {e.stderr}")
+        logging.warning("Ollama setup encountered issues. You may need to install Ollama manually. Continuing with remaining setup steps...")
+        return False
+
+
+def main():
+    """Main entry point for LangChain and Ollama setup."""
+    # Clear screen
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    # Parse command-line arguments
+    args = parse_args()
+    
+    # Configure logging
+    setup_logging(args.verbose)
     
     # Print banner
-    print("\n" + "=" * 80)
-    print("TechSaaS Platform - LangChain and Ollama Integration Setup".center(80))
-    print("=" * 80 + "\n")
+    print_banner()
     
-    # Get script directory
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(script_dir)
+    # Setup steps
+    environment_ok = True
+    dependencies_ok = True
+    ollama_ok = True
     
-    # Run environment validation
-    validate_environment(args)
+    # Step 1: Environment validation
+    if not args.skip_environment_check:
+        environment_ok = validate_environment()
+    else:
+        logging.info("Skipping environment validation (--skip-environment-check)")
     
-    # At this point, environment validation has passed or been skipped
-    # Additional steps will be implemented in subsequent tasks (5.2-5.5)
-    logger.info("Environment validation complete")
-    logger.info("Ready to proceed with remaining setup steps")
+    # Step 2: Dependency installation
+    if environment_ok and not args.skip_dependencies and not args.update_ollama_only:
+        dependencies_ok = install_dependencies(args)
+    elif args.skip_dependencies:
+        logging.info("Skipping dependency installation (--skip-dependencies)")
+    elif args.update_ollama_only:
+        logging.info("Skipping dependency installation (--update-ollama-only)")
+    
+    # Step 3: Ollama setup
+    if environment_ok and not args.skip_ollama:
+        ollama_ok = setup_ollama(args)
+    elif args.skip_ollama:
+        logging.info("Skipping Ollama setup (--skip-ollama)")
+    
+    # Step 4: Additional setup steps (to be implemented)
+    if environment_ok and dependencies_ok and ollama_ok:
+        # Future setup steps will go here
+        pass
+    
+    # Summary
+    if args.update_ollama_only:
+        logging.info("Ollama update process complete")
+    else:
+        status_message = "Environment validation and dependency installation complete"
+        if not args.skip_ollama:
+            status_message += ", but Ollama setup had issues" if not ollama_ok else " with Ollama setup"
+        
+        logging.info(status_message)
+        logging.info("Ready to proceed with remaining setup steps")
     
     print("\nSetup process completed successfully!")
+    
     return 0
 
 

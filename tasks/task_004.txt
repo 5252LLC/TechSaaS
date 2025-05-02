@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Develop Video Scraper Web Interface
-# Status: pending
+# Status: done
 # Dependencies: 3
 # Priority: medium
 # Description: Create a responsive web UI for controlling the video scraping functionality.
