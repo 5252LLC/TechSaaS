@@ -1096,3 +1096,246 @@ function addSearchResultsStyle() {
         document.head.appendChild(style);
     }
 }
+
+/**
+ * Display video extraction results in a more visually appealing way
+ */
+function displayVideoInfo(jobId, videoInfo) {
+    const resultsList = document.getElementById('results-list');
+    const resultItem = document.querySelector(`.job-item[data-job-id="${jobId}"]`);
+    
+    if (!resultItem) return;
+    
+    // Clear loading state
+    resultItem.classList.remove('loading');
+    
+    // Create info container
+    const infoContainer = document.createElement('div');
+    infoContainer.className = 'video-info-container';
+    
+    // Add thumbnail if available
+    if (videoInfo.thumbnail) {
+        const thumbnail = document.createElement('img');
+        thumbnail.src = videoInfo.thumbnail;
+        thumbnail.alt = videoInfo.title || 'Video thumbnail';
+        thumbnail.className = 'video-thumbnail';
+        thumbnail.onerror = function() {
+            this.src = '/static/images/no-thumbnail.png';
+            this.alt = 'Thumbnail unavailable';
+        };
+        infoContainer.appendChild(thumbnail);
+    }
+    
+    // Add title and metadata
+    const metadataDiv = document.createElement('div');
+    metadataDiv.className = 'video-metadata';
+    
+    const title = document.createElement('h3');
+    title.textContent = videoInfo.title || 'Untitled Video';
+    title.className = 'video-title';
+    metadataDiv.appendChild(title);
+    
+    if (videoInfo.uploader) {
+        const uploader = document.createElement('p');
+        uploader.className = 'video-uploader';
+        uploader.textContent = `Uploader: ${videoInfo.uploader}`;
+        metadataDiv.appendChild(uploader);
+    }
+    
+    if (videoInfo.duration) {
+        const duration = document.createElement('p');
+        duration.className = 'video-duration';
+        // Convert seconds to MM:SS format
+        const minutes = Math.floor(videoInfo.duration / 60);
+        const seconds = Math.floor(videoInfo.duration % 60);
+        duration.textContent = `Duration: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        metadataDiv.appendChild(duration);
+    }
+    
+    infoContainer.appendChild(metadataDiv);
+    
+    // Add format selector if formats are available
+    if (videoInfo.formats && videoInfo.formats.length > 0) {
+        const formatSelector = document.createElement('select');
+        formatSelector.className = 'format-selector';
+        formatSelector.dataset.jobId = jobId;
+        
+        videoInfo.formats.forEach(format => {
+            const option = document.createElement('option');
+            option.value = format.format_id;
+            
+            // Create descriptive label
+            let label = `${format.format_note || format.format || 'Unknown'}`;
+            if (format.filesize) {
+                // Convert to MB and round to 1 decimal place
+                const sizeMB = (format.filesize / 1024 / 1024).toFixed(1);
+                label += ` - ${sizeMB} MB`;
+            }
+            if (format.ext) {
+                label += ` (.${format.ext})`;
+            }
+            
+            option.textContent = label;
+            formatSelector.appendChild(option);
+        });
+        
+        const formatDiv = document.createElement('div');
+        formatDiv.className = 'format-selection';
+        
+        const label = document.createElement('label');
+        label.textContent = 'Select Format:';
+        label.htmlFor = `format-select-${jobId}`;
+        formatSelector.id = `format-select-${jobId}`;
+        
+        formatDiv.appendChild(label);
+        formatDiv.appendChild(formatSelector);
+        
+        infoContainer.appendChild(formatDiv);
+    }
+    
+    // Add download button
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'btn btn-primary download-btn';
+    downloadBtn.textContent = 'Download Video';
+    downloadBtn.dataset.jobId = jobId;
+    downloadBtn.addEventListener('click', handleDownload);
+    
+    infoContainer.appendChild(downloadBtn);
+    
+    // Replace content in result item
+    const contentDiv = resultItem.querySelector('.job-content');
+    if (contentDiv) {
+        contentDiv.innerHTML = '';
+        contentDiv.appendChild(infoContainer);
+    }
+    
+    // Store the video URL in the job item for later use
+    resultItem.dataset.url = videoInfo.webpage_url || videoInfo.url;
+    
+    // Show the results container
+    showResults();
+}
+
+/**
+ * Handle download button click
+ */
+function handleDownload(e) {
+    const jobId = e.target.dataset.jobId;
+    const formatSelector = document.querySelector(`.format-selector[data-job-id="${jobId}"]`);
+    const formatId = formatSelector ? formatSelector.value : 'best';
+    
+    const jobItem = document.querySelector(`.job-item[data-job-id="${jobId}"]`);
+    const jobContent = jobItem.querySelector('.job-content');
+    const videoUrl = jobItem.dataset.url;
+    
+    if (!videoUrl) {
+        showNotification('Error: Video URL not found', 'error');
+        return;
+    }
+    
+    // Show loading state
+    jobContent.innerHTML = '<div class="loading-spinner"></div><p>Starting download...</p>';
+    
+    // Call API to start download
+    fetch('/api/video-scraper/download', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            url: videoUrl,
+            format_id: formatId
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        // Store the download ID
+        jobItem.dataset.downloadId = data.download_id;
+        
+        // Start polling for download progress
+        pollDownloadProgress(jobItem, data.download_id);
+        
+        showNotification('Download started', 'success');
+    })
+    .catch(error => {
+        jobContent.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+        showNotification(`Failed to start download: ${error.message}`, 'error');
+    });
+}
+
+/**
+ * Poll for download progress
+ */
+function pollDownloadProgress(jobItem, downloadId) {
+    const jobContent = jobItem.querySelector('.job-content');
+    const progressInterval = setInterval(() => {
+        fetch(`/api/video-scraper/status/${downloadId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'completed') {
+                    clearInterval(progressInterval);
+                    
+                    // Create download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = `/api/video-scraper/download/${data.filename}`;
+                    downloadLink.className = 'btn btn-success';
+                    downloadLink.textContent = 'Download File';
+                    downloadLink.download = data.filename;
+                    
+                    jobContent.innerHTML = '<div class="success-message">Download complete!</div>';
+                    jobContent.appendChild(downloadLink);
+                    
+                    showNotification('Download completed successfully', 'success');
+                } 
+                else if (data.status === 'failed') {
+                    clearInterval(progressInterval);
+                    jobContent.innerHTML = `<div class="error-message">Download failed: ${data.error || 'Unknown error'}</div>`;
+                    showNotification(`Download failed: ${data.error || 'Unknown error'}`, 'error');
+                }
+                else if (data.progress) {
+                    // Update progress bar
+                    const progressPercent = Math.round(data.progress * 100);
+                    jobContent.innerHTML = `
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <p>${progressPercent}% - ${data.status_message || 'Downloading...'}</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error checking download status:', error);
+            });
+    }, 1000);
+    
+    // Store the interval ID to cancel if needed
+    jobItem.dataset.progressInterval = progressInterval;
+}
+
+/**
+ * Enhanced function to process job completion with better display
+ */
+function processCompletedJob(jobId, data) {
+    if (data.video_info) {
+        displayVideoInfo(jobId, data.video_info);
+    } else {
+        updateJobItem(jobId, {
+            status: 'failed',
+            error: 'No video information available'
+        });
+    }
+}
