@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSaaS - Web Browser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <a href="/" class="logo">Tech<span>SaaS</span></a>
+            <div class="header-controls">
+                <div class="toggle-wrapper">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark theme">
+                    <label for="theme-toggle" class="toggle-label">
+                        <span class="visually-hidden">Toggle dark theme</span>
+                    </label>
+                </div>
+                <button class="btn btn-outline" onclick="window.open('/docs', '_blank')">Documentation</button>
+                <button class="btn btn-primary">Sign In</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <a href="/" class="tab">Home</a>
+                <a href="/browser" class="tab active">Web Browser</a>
+                <a href="/video-scraper" class="tab">Video Scraper</a>
+                <a href="#" class="tab">Downloads</a>
+            </div>
+
+            <div class="scraper-container">
+                <div class="intro-section">
+                    <h1>Web <span class="accent-text">Browser</span></h1>
+                    <p>This feature will be implemented in a future task (Task 9) as per the project roadmap.</p>
+                </div>
+
+                <div class="placeholder-content">
+                    <div class="placeholder-browser">
+                        <div class="browser-header">
+                            <div class="browser-controls">
+                                <button class="browser-btn">⬅️</button>
+                                <button class="browser-btn">➡️</button>
+                                <button class="browser-btn">🔄</button>
+                            </div>
+                            <div class="browser-address-bar">
+                                <input type="text" placeholder="Enter URL..." disabled>
+                            </div>
+                            <div class="browser-menu">
+                                <button class="browser-btn">⋮</button>
+                            </div>
+                        </div>
+                        <div class="browser-content">
+                            <div class="coming-soon">
+                                <h2>Coming Soon</h2>
+                                <p>The integrated web browser feature is planned for implementation in Task 9.</p>
+                                <p>Features will include:</p>
+                                <ul>
+                                    <li>Integrated web browsing</li>
+                                    <li>URL navigation and history</li>
+                                    <li>Search integration</li>
+                                    <li>One-click scraping from browser</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Add placeholder-specific script
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure theme toggle works
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('change', function() {
+                    document.body.classList.toggle('dark-theme');
+                    localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+                });
+                
+                // Check for saved theme preference
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.body.classList.add('dark-theme');
+                    themeToggle.checked = true;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

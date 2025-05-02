@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechSaaS - Video Scraper</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
     <div class="app-container">
@@ -15,7 +16,7 @@
                     <input type="checkbox" id="theme-toggle" class="theme-toggle">
                     <label for="theme-toggle" class="toggle-label"></label>
                 </div>
-                <button class="btn btn-outline">Documentation</button>
+                <button class="btn btn-outline" onclick="window.open('/docs', '_blank')">Documentation</button>
                 <button class="btn btn-primary">Sign In</button>
             </div>
         </header>
@@ -63,20 +64,23 @@
                 </div>
 
                 <div id="search-content" class="tab-content">
-                    <div class="input-group">
-                        <label for="search-query">Search Query</label>
-                        <input type="text" id="search-query" placeholder="Enter search query...">
-                    </div>
-                    <div class="input-group">
-                        <label for="platform">Platform</label>
-                        <select id="platform">
-                            <option value="youtube">YouTube</option>
-                            <option value="vimeo">Vimeo</option>
-                            <option value="dailymotion">Dailymotion</option>
-                            <option value="all">All Platforms</option>
-                        </select>
-                    </div>
-                    <button id="search-btn" class="btn btn-primary">Search</button>
+                    <form id="search-form" class="search-form">
+                        <div class="input-group">
+                            <label for="search-query">Search Query</label>
+                            <input type="text" id="search-query" placeholder="Enter search terms..." required>
+                        </div>
+                        <div class="input-group">
+                            <label for="search-platform">Platform</label>
+                            <select id="search-platform">
+                                <option value="youtube">YouTube</option>
+                                <option value="vimeo">Vimeo</option>
+                                <option value="dailymotion">Dailymotion</option>
+                                <option value="all">All Platforms</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="search-btn" class="btn btn-primary">Search</button>
+                    </form>
+                    <div id="search-results" class="search-results"></div>
                 </div>
 
                 <div id="batch-content" class="tab-content">

@@ -8,19 +8,68 @@ let activeJobs = new Map();
 let pollInterval;
 
 // DOM Elements
-document.addEventListener('DOMContentLoaded', () => {
-    init();
-});
 
 /**
  * Initialize the application
  */
 function init() {
-    // Attach event listeners
-    document.getElementById('extract-btn')?.addEventListener('click', handleSingleExtraction);
-    document.getElementById('batch-extract-btn')?.addEventListener('click', handleBatchExtraction);
+    console.log('Initializing TechSaaS Video Scraper...');
     
-    // Set up tab switching
+    // Set up initial tab state
+    const urlTab = document.getElementById('url-tab');
+    if (urlTab && !document.querySelector('.tab-container .tab.active')) {
+        showTab('url-tab');
+    }
+    
+    // Show results container if we have jobs
+    if (document.querySelectorAll('.job-item').length > 0) {
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.classList.remove('hidden');
+            resultsContainer.style.display = 'block';
+        }
+    }
+    
+    // Add event listeners
+    // Theme toggling
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('change', toggleTheme);
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            themeToggle.checked = true;
+        }
+    }
+    
+    // Single URL extraction
+    const extractBtn = document.getElementById('extract-btn');
+    if (extractBtn) {
+        extractBtn.addEventListener('click', handleSingleExtraction);
+    }
+    
+    // Batch extraction
+    const batchExtractBtn = document.getElementById('batch-extract-btn');
+    if (batchExtractBtn) {
+        batchExtractBtn.addEventListener('click', handleBatchExtraction);
+    } else {
+        console.error('Batch extract button not found');
+    }
+    
+    // Search form
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', handleSearch);
+    }
+    
+    // Search button as fallback
+    const searchBtn = document.getElementById('search-btn');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', handleSearch);
+    }
+    
+    // Set up tab switching for main tabs
     const tabs = document.querySelectorAll('.tab-container .tab');
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -33,7 +82,7 @@ function init() {
     const navTabs = document.querySelectorAll('.tabs a.tab');
     navTabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
-            // Only handle normal tabs, not the Downloads tab
+            // Only handle Downloads tab specially
             if (tab.innerText !== 'Downloads') return;
             
             // Prevent default only for Downloads tab
@@ -44,44 +93,26 @@ function init() {
         });
     });
     
-    // Set up clear results button
+    // Clear results button
     const clearResultsBtn = document.getElementById('clear-results');
     if (clearResultsBtn) {
         clearResultsBtn.addEventListener('click', clearResults);
     }
     
-    // Show results container if we have jobs
-    if (document.querySelectorAll('.job-item').length > 0) {
-        document.getElementById('results-container').classList.remove('hidden');
-        document.getElementById('results-container').style.display = 'block';
-    }
+    // Check for initial downloads
+    fetchAvailableDownloads();
     
-    // Initial tab setup - show URL tab by default
-    const urlTab = document.getElementById('url-tab');
-    if (urlTab && !document.querySelector('.tab-container .tab.active')) {
-        showTab('url-tab');
-    }
+    // Add CSS for search results styling
+    addSearchResultsStyle();
     
-    // Theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('change', toggleTheme);
-        // Check for saved theme preference
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-            themeToggle.checked = true;
-        }
-    }
-    
-    // Search button click handler
-    const searchBtn = document.getElementById('search-btn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', handleSearch);
-    }
-    
-    // Add the highlight style on load
+    // Add CSS for highlighting elements
     addHighlightStyle();
+    
+    console.log('Video Scraper initialized successfully');
 }
+
+// Initialize the application
+init();
 
 /**
  * Show downloads tab functionality
@@ -275,107 +306,113 @@ function handleSingleExtraction(e) {
 /**
  * Handle batch extraction of multiple URLs
  */
-async function handleBatchExtraction(e) {
-    e.preventDefault();
+function handleBatchExtraction(e) {
+    if (e) e.preventDefault();
     
-    // Get batch textarea content
-    const batchUrlsTextarea = document.getElementById('url-list');
-    if (!batchUrlsTextarea) {
-        showNotification('Batch textarea not found', 'error');
+    // Get batch URLs from textarea
+    const batchUrlsInput = document.getElementById('url-list');
+    if (!batchUrlsInput) {
+        showNotification('URL list textarea not found', 'error');
         return;
     }
     
-    const batchText = batchUrlsTextarea.value.trim();
-    if (!batchText) {
+    const batchUrls = batchUrlsInput.value.split('\n').filter(url => url.trim() !== '');
+    
+    // Quality setting
+    const quality = document.getElementById('batch-quality').value || 'best';
+    
+    if (batchUrls.length === 0) {
         showNotification('Please enter at least one URL', 'error');
         return;
     }
     
-    // Split by newlines or commas
-    const urlList = batchText.split(/[\n,]+/).map(url => url.trim()).filter(url => url);
+    // Show results container
+    showResults();
     
-    if (urlList.length === 0) {
-        showNotification('No valid URLs found', 'error');
-        return;
-    }
+    // Add batch info to results
+    addResultItem(`Processing ${batchUrls.length} URLs in batch mode`, 'info');
     
-    // Get quality selection
-    const qualitySelect = document.getElementById('batch-quality');
-    const quality = qualitySelect ? qualitySelect.value : 'best';
-    
-    // Show batch preview grid
-    const batchPreviewContainer = document.getElementById('batch-preview-container');
-    if (batchPreviewContainer) {
-        batchPreviewContainer.classList.remove('hidden');
-    }
-    
-    // Show loading indicator
-    showLoading(true);
-    
-    // Clear the preview grid
-    const previewGrid = document.getElementById('preview-grid');
-    if (previewGrid) {
-        previewGrid.innerHTML = '';
-    }
-    
-    // Process URLs
-    await processBatchUrls(urlList, quality);
-    
-    // Hide loading indicator
-    showLoading(false);
+    // Start processing URLs one by one
+    processBatchUrls(batchUrls, quality);
 }
 
 /**
  * Process a batch of URLs sequentially to avoid overwhelming the server
  */
-async function processBatchUrls(urls, quality, startIndex = 0) {
+function processBatchUrls(urls, quality, startIndex = 0) {
     if (startIndex >= urls.length) {
         showNotification('Batch processing complete!', 'success');
         return;
     }
     
-    const url = urls[startIndex];
+    const url = urls[startIndex].trim();
+    
     if (!url) {
-        // Skip empty URLs
+        // Skip empty lines
         processBatchUrls(urls, quality, startIndex + 1);
         return;
     }
     
-    // Validate URL before sending
     if (!isValidUrl(url)) {
-        console.log(`Skipping invalid URL: ${url}`);
-        showNotification(`Skipped invalid URL: ${url}`, 'warning');
-        // Add an error item to the results list
-        addResultItem(`Invalid URL format: ${url}`, 'error');
-        // Continue with next URL
-        await processBatchUrls(urls, quality, startIndex + 1);
+        // Add error for invalid URL
+        addResultItem(`Error for URL #${startIndex + 1}: Invalid URL format`, 'error');
+        processBatchUrls(urls, quality, startIndex + 1);
         return;
     }
     
-    try {
-        console.log(`Processing batch URL ${startIndex + 1}/${urls.length}: ${url}`);
-        
-        // Extract video
-        const result = await extractVideo(url, quality);
-        
-        // If extraction failed, add an error result item
-        if (!result) {
-            addResultItem(`Failed to extract: ${url}`, 'error');
+    // Show extraction in progress message
+    addResultItem(`Processing URL #${startIndex + 1}: ${url}`, 'info');
+    
+    // Extract the video
+    fetch('/api/extract', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            url: url,
+            quality: quality
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
         }
         
-        // Delay before processing next URL to avoid rate limiting
-        setTimeout(() => {
-            processBatchUrls(urls, quality, startIndex + 1);
-        }, 1000);
-    } catch (error) {
-        console.error(`Error processing URL ${url}:`, error);
-        addResultItem(`Error processing: ${url} - ${error.message}`, 'error');
+        // If we have a job_id, track the job
+        if (data.job_id) {
+            trackJob(data.job_id);
+            
+            // Update batch item with job ID link
+            updateBatchItemStatus(startIndex, 'pending', `Job started: ${data.job_id}`);
+            
+            // Proceed to next URL after a short delay to prevent overwhelming the server
+            setTimeout(() => {
+                processBatchUrls(urls, quality, startIndex + 1);
+            }, 500);
+        } else {
+            updateBatchItemStatus(startIndex, 'error', 'No job ID returned');
+            // Continue anyway
+            setTimeout(() => {
+                processBatchUrls(urls, quality, startIndex + 1);
+            }, 500);
+        }
+    })
+    .catch(error => {
+        console.error('Error in batch extraction:', error);
+        updateBatchItemStatus(startIndex, 'error', error.message);
         
-        // Continue with next URL
+        // Continue with next URL despite error
         setTimeout(() => {
             processBatchUrls(urls, quality, startIndex + 1);
-        }, 1000);
-    }
+        }, 500);
+    });
 }
 
 /**
@@ -394,58 +431,50 @@ function isValidUrl(string) {
  * Extract a video from a URL
  */
 async function extractVideo(url, quality = 'best') {
-    // Show loading state
+    if (!isValidUrl(url)) {
+        showNotification('Please enter a valid URL', 'error');
+        return false;
+    }
+    
     showLoading(true);
     
-    try {
-        // Basic validation
-        if (!url || !url.trim()) {
-            showNotification('Please enter a valid URL', 'error');
-            showLoading(false);
-            return false;
-        }
-        
-        console.log(`Extracting video from URL: ${url}`);
-        
-        // Call extraction API
-        const response = await fetch('/api/video-scraper/info', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ url, quality })
-        });
-        
-        const data = await response.json();
-        
+    fetch('/api/extract', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            url: url,
+            quality: quality
+        })
+    })
+    .then(response => {
         if (!response.ok) {
-            showNotification(`Error: ${data.error || 'Unknown error'}`, 'error');
-            console.error('API Error:', data);
-            return false;
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
         }
         
+        // If we have a job_id, track the job
         if (data.job_id) {
-            // Add job to tracking list
             trackJob(data.job_id);
-            
-            // Show results section
             showResults();
-            
-            // Show success notification
-            showNotification('Video extraction started!', 'success');
-            return true;
         } else {
-            showNotification('No job ID returned from server', 'error');
-            return false;
+            processCompletedJob(Date.now(), data);
+            showLoading(false);
         }
-    } catch (error) {
-        console.error('Error extracting video:', error);
-        showNotification(`Error: ${error.message || 'Unknown error'}`, 'error');
-        return false;
-    } finally {
-        // Hide loading state
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(`Error: ${error.message}`, 'error');
         showLoading(false);
-    }
+    });
+    
+    return true;
 }
 
 /**
@@ -454,14 +483,49 @@ async function extractVideo(url, quality = 'best') {
 function processCompletedJob(jobId, data) {
     console.log(`Processing completed job ${jobId}:`, data);
     
-    // Add download button if we have a result
-    if (data.result && data.result.filename) {
+    // Check for video info in various possible locations in the response
+    let videoInfo = null;
+    
+    if (data.info) {
+        videoInfo = data.info;
+    } else if (data.result && data.result.info) {
+        videoInfo = data.result.info;
+    } else if (data.video_info) {
+        videoInfo = data.video_info;
+    }
+    
+    // If we have video info, display it
+    if (videoInfo) {
+        displayVideoInfo(jobId, videoInfo);
+        showNotification('Video extracted successfully!', 'success');
+    } 
+    // If we have a result with a filename but no info, add download button
+    else if (data.result && data.result.filename) {
         addDownloadButton(jobId, data.result);
+        showNotification('Download ready!', 'success');
+    } 
+    // No video info found
+    else {
+        // Update job item to show "No video information available"
+        const jobItem = document.getElementById(`job-${jobId}`);
+        if (jobItem) {
+            const jobInfo = jobItem.querySelector('.job-info');
+            if (jobInfo) {
+                // Add error message if not already present
+                let errorMsg = jobItem.querySelector('.error-message');
+                if (!errorMsg) {
+                    errorMsg = document.createElement('div');
+                    errorMsg.className = 'error-message';
+                    jobInfo.appendChild(errorMsg);
+                }
+                errorMsg.textContent = 'Error: No video information available';
+            }
+        }
     }
 }
 
 /**
- * Add download button to completed job
+ * Add a download button to completed job
  */
 function addDownloadButton(jobId, result) {
     if (!result || !result.filename) {
@@ -714,6 +778,7 @@ function addJobItem(jobId) {
                 <div class="progress-text">0%</div>
             </div>
         </div>
+        <div class="job-content"></div>
         <div class="job-actions">
             <button class="btn btn-outline cancel-btn" data-job-id="${jobId}">Cancel</button>
         </div>
@@ -731,47 +796,117 @@ function addJobItem(jobId) {
  */
 function updateJobItem(jobId, data) {
     const jobItem = document.getElementById(`job-${jobId}`);
-    if (!jobItem) return;
+    if (!jobItem) {
+        console.error(`Job item not found: ${jobId}`);
+        return;
+    }
+    
+    console.log(`Updating job ${jobId} with data:`, data);
     
     const statusElement = jobItem.querySelector('.status-label');
     const progressBar = jobItem.querySelector('.progress-bar');
     const progressText = jobItem.querySelector('.progress-text');
-    
-    // Update status
-    if (statusElement) {
-        statusElement.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
-        statusElement.className = `status-label ${data.status}`;
-    }
+    const jobContent = jobItem.querySelector('.job-content');
+    const jobInfo = jobItem.querySelector('.job-info');
     
     // Update progress
     if (progressBar && progressText) {
         const progress = data.progress || 0;
         progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${Math.round(data.progress)}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
     }
     
-    // If job completed successfully or failed, hide the cancel button
-    if (data.status === 'complete' || data.status === 'completed' || data.status === 'failed' || data.status === 'cancelled') {
+    // If job completed successfully, show the video information or download button
+    if (data.status === 'complete' || data.status === 'completed') {
+        // Update status
+        if (statusElement) {
+            statusElement.textContent = 'Complete';
+            statusElement.className = 'status-label complete';
+        }
+        
+        // Remove any error messages that might exist
+        const errorMsg = jobInfo.querySelector('.error-message');
+        if (errorMsg) {
+            errorMsg.remove();
+        }
+        
+        // If we have a result with a filename, add download button
+        if (data.result && data.result.filename) {
+            // Create a basic video info display if we don't have detailed info
+            if (jobContent) {
+                const videoInfoContainer = document.createElement('div');
+                videoInfoContainer.className = 'video-info-container basic-info';
+                
+                // Create a simplified info view
+                videoInfoContainer.innerHTML = `
+                    <div class="video-metadata">
+                        <h3 class="video-title">Video Ready for Download</h3>
+                        <p>Filename: ${data.result.filename}</p>
+                        ${data.info ? '' : '<p class="info-note">Detailed video information not available</p>'}
+                    </div>
+                    <button class="btn btn-primary download-btn" data-job-id="${jobId}">Download Video</button>
+                `;
+                
+                // Add click handler for download button
+                const downloadBtn = videoInfoContainer.querySelector('.download-btn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', () => {
+                        const downloadPath = `/api/video-scraper/download-file/${data.result.filename}`;
+                        window.open(downloadPath, '_blank');
+                    });
+                }
+                
+                // Clear any existing content and add our new content
+                jobContent.innerHTML = '';
+                jobContent.appendChild(videoInfoContainer);
+            }
+        }
+        
+        // Hide the cancel button
         const cancelBtn = jobItem.querySelector('.cancel-btn');
         if (cancelBtn) {
             cancelBtn.classList.add('hidden');
         }
+    }
+    // If job is still in progress
+    else if (data.status === 'pending' || data.status === 'processing') {
+        // Update status
+        if (statusElement) {
+            statusElement.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+            statusElement.className = `status-label ${data.status}`;
+        }
+    }
+    // If job failed, show error message
+    else if (data.status === 'failed' || data.status === 'error') {
+        // Update status
+        if (statusElement) {
+            statusElement.textContent = 'Failed';
+            statusElement.className = 'status-label failed';
+        }
         
-        // Add error message if failed
-        if (data.status === 'failed' && data.error) {
-            const jobInfo = jobItem.querySelector('.job-info');
-            
-            // Check if error message already exists
-            let errorMsg = jobItem.querySelector('.error-message');
-            if (!errorMsg && jobInfo) {
-                errorMsg = document.createElement('div');
-                errorMsg.className = 'error-message';
-                jobInfo.appendChild(errorMsg);
-            }
-            
-            if (errorMsg) {
-                errorMsg.textContent = `Error: ${data.error}`;
-            }
+        // Check if error message already exists
+        let errorMsg = jobInfo.querySelector('.error-message');
+        if (!errorMsg && jobInfo) {
+            errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            jobInfo.appendChild(errorMsg);
+        }
+        
+        if (errorMsg) {
+            errorMsg.textContent = `Error: ${data.error || 'An error occurred during processing'}`;
+        }
+        
+        // Hide the cancel button
+        const cancelBtn = jobItem.querySelector('.cancel-btn');
+        if (cancelBtn) {
+            cancelBtn.classList.add('hidden');
+        }
+    }
+    else {
+        // Update status for other states
+        if (statusElement) {
+            statusElement.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+            statusElement.className = `status-label ${data.status}`;
         }
     }
 }
@@ -875,166 +1010,131 @@ function showNotification(message, type = 'info', timeout = 3000) {
 function handleSearch(e) {
     if (e) e.preventDefault();
     
-    const query = document.getElementById('search-query').value.trim();
-    const platform = document.getElementById('platform').value;
+    console.log('Search function called');
     
-    if (!query) {
+    const query = document.getElementById('search-query')?.value;
+    if (!query || !query.trim()) {
         showNotification('Please enter a search query', 'error');
         return;
     }
     
-    // Show loading state
-    showLoading(true);
+    const platform = document.getElementById('search-platform')?.value || 'youtube';
     
-    // Prepare search URL based on platform
-    let searchUrl = '';
-    switch(platform) {
-        case 'youtube':
-            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-            break;
-        case 'vimeo':
-            searchUrl = `https://vimeo.com/search?q=${encodeURIComponent(query)}`;
-            break;
-        case 'dailymotion':
-            searchUrl = `https://www.dailymotion.com/search/${encodeURIComponent(query)}`;
-            break;
-        case 'all':
-            // For all platforms, default to YouTube but show results for others too
-            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-            break;
-        default:
-            searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-    }
-    
-    // Create search results container if doesn't exist
-    let searchResultsContainer = document.getElementById('search-results');
+    const searchResultsContainer = document.getElementById('search-results');
     if (!searchResultsContainer) {
-        searchResultsContainer = document.createElement('div');
-        searchResultsContainer.id = 'search-results';
-        searchResultsContainer.className = 'search-results';
-        document.getElementById('search-content').appendChild(searchResultsContainer);
+        console.error('Search results container not found');
+        return;
     }
     
-    // Clear previous search results
-    searchResultsContainer.innerHTML = '';
+    // Show loading indicator
+    searchResultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Searching...</p></div>';
+    searchResultsContainer.style.display = 'block';
     
-    // Show search in progress
-    searchResultsContainer.innerHTML = '<div class="loading-message">Searching videos...</div>';
+    // Build search URL
+    const searchUrl = `/api/video-scraper/search?q=${encodeURIComponent(query)}&platform=${platform}`;
+    console.log('Searching with URL:', searchUrl);
     
-    // For demonstration purposes, get search results from YouTube
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api/video-scraper/search?q=${encodeURIComponent(query)}&platform=${platform}`, true);
-    xhr.onload = function() {
-        // Hide loading state
-        showLoading(false);
-        
-        if (xhr.status === 200) {
-            try {
-                const data = JSON.parse(xhr.responseText);
-                
-                // Clear loading message
-                searchResultsContainer.innerHTML = '';
-                
-                // Show results count
-                const resultsHeader = document.createElement('div');
-                resultsHeader.className = 'search-results-header';
-                resultsHeader.innerHTML = `<h3>Found ${data.results.length} videos</h3>`;
-                searchResultsContainer.appendChild(resultsHeader);
-                
-                // Add each result
-                if (data.results.length === 0) {
-                    searchResultsContainer.innerHTML += '<div class="no-results">No videos found. Try a different search term.</div>';
-                } else {
-                    data.results.forEach(result => {
-                        const resultItem = document.createElement('div');
-                        resultItem.className = 'search-result-item';
-                        resultItem.innerHTML = `
-                            <div class="result-info">
-                                <h4>${result.title}</h4>
-                                <p>${result.platform} • ${result.duration || 'Unknown duration'}</p>
-                            </div>
-                            <div class="result-actions">
-                                <button class="btn btn-primary extract-btn" data-url="${result.url}">Extract</button>
-                            </div>
-                        `;
-                        searchResultsContainer.appendChild(resultItem);
-                        
-                        // Add click handler for extract button
-                        const extractBtn = resultItem.querySelector('.extract-btn');
-                        extractBtn.addEventListener('click', function() {
-                            const url = this.getAttribute('data-url');
-                            extractVideo(url, 'best');
-                        });
-                    });
-                }
-            } catch (error) {
-                console.error('Error parsing search results:', error);
-                searchResultsContainer.innerHTML = '<div class="error-message">Error retrieving search results. Please try again.</div>';
+    // Call search API
+    fetch(searchUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Search request failed with status ${response.status}`);
             }
-        } else {
-            // Show mock results for demonstration if API not implemented
+            return response.json();
+        })
+        .then(data => {
+            console.log('Search results:', data);
+            
+            // Clear loading indicator
             searchResultsContainer.innerHTML = '';
             
-            const mockResults = [
-                { 
-                    title: `${query} - YouTube Video 1`, 
-                    platform: 'YouTube', 
-                    duration: '5:23', 
-                    // Use a known working YouTube video link instead of search results page
-                    url: `https://www.youtube.com/watch?v=dQw4w9WgXcQ` 
-                },
-                { 
-                    title: `${query} - ${platform} Video 2`, 
-                    platform: platform, 
-                    duration: '3:45', 
-                    // Use another known working YouTube video
-                    url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' 
-                }
-            ];
+            if (!data.results || data.results.length === 0) {
+                searchResultsContainer.innerHTML = '<div class="no-results">No videos found. Try a different search term.</div>';
+                return;
+            }
             
-            // Show results count
+            // Create results header
             const resultsHeader = document.createElement('div');
-            resultsHeader.className = 'search-results-header';
-            resultsHeader.innerHTML = `<h3>Found ${mockResults.length} videos on ${platform}</h3>`;
+            resultsHeader.className = 'results-header';
+            resultsHeader.innerHTML = `<h3>Search Results for "${query}"</h3>`;
             searchResultsContainer.appendChild(resultsHeader);
             
-            // Add mock results
-            mockResults.forEach(result => {
-                const resultItem = document.createElement('div');
-                resultItem.className = 'search-result-item';
-                resultItem.innerHTML = `
-                    <div class="result-info">
-                        <h4>${result.title}</h4>
-                        <p>${result.platform} • ${result.duration}</p>
-                    </div>
-                    <div class="result-actions">
-                        <button class="btn btn-primary extract-btn" data-url="${result.url}">Extract</button>
-                    </div>
-                `;
-                searchResultsContainer.appendChild(resultItem);
+            // Create results grid
+            const resultsGrid = document.createElement('div');
+            resultsGrid.className = 'search-results-grid';
+            
+            // Add each result to the grid
+            data.results.forEach(video => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'search-result-card';
+                resultCard.dataset.url = video.url;
                 
-                // Add click handler for extract button
-                const extractBtn = resultItem.querySelector('.extract-btn');
+                // Create thumbnail
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'search-result-thumbnail';
+                if (video.thumbnail) {
+                    thumbnail.innerHTML = `<img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='/static/images/default-thumbnail.png';">`;
+                } else {
+                    thumbnail.innerHTML = '<div class="no-thumbnail">No Thumbnail</div>';
+                }
+                
+                // Create info section
+                const info = document.createElement('div');
+                info.className = 'search-result-info';
+                
+                // Create title and metadata
+                const title = document.createElement('h4');
+                title.className = 'search-result-title';
+                title.textContent = video.title || 'Untitled Video';
+                
+                const metadata = document.createElement('div');
+                metadata.className = 'search-result-metadata';
+                
+                let metadataContent = '';
+                if (video.uploader) {
+                    metadataContent += `<span class="uploader">${video.uploader}</span>`;
+                }
+                if (video.duration) {
+                    metadataContent += `<span class="duration">${video.duration}</span>`;
+                }
+                if (video.platform) {
+                    metadataContent += `<span class="platform">${video.platform}</span>`;
+                }
+                
+                metadata.innerHTML = metadataContent;
+                
+                // Create action buttons
+                const actions = document.createElement('div');
+                actions.className = 'search-result-actions';
+                
+                const extractBtn = document.createElement('button');
+                extractBtn.className = 'btn btn-primary btn-sm';
+                extractBtn.textContent = 'Extract';
                 extractBtn.addEventListener('click', function() {
-                    const url = this.getAttribute('data-url');
-                    // Switch to URL input tab first
+                    extractVideo(video.url);
+                    // Switch to URL tab to show progress
                     showTab('url-tab');
-                    // Set the URL in the input field
-                    document.getElementById('video-url').value = url;
-                    // Extract the video
-                    extractVideo(url, 'best');
                 });
+                
+                actions.appendChild(extractBtn);
+                
+                // Assemble everything
+                info.appendChild(title);
+                info.appendChild(metadata);
+                info.appendChild(actions);
+                
+                resultCard.appendChild(thumbnail);
+                resultCard.appendChild(info);
+                
+                resultsGrid.appendChild(resultCard);
             });
             
-            // Add CSS for search results
-            addSearchResultsStyle();
-        }
-    };
-    xhr.onerror = function() {
-        showLoading(false);
-        searchResultsContainer.innerHTML = '<div class="error-message">Error connecting to search service. Please try again.</div>';
-    };
-    xhr.send();
+            searchResultsContainer.appendChild(resultsGrid);
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            searchResultsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        });
 }
 
 /**
@@ -1058,7 +1158,7 @@ function addSearchResultsStyle() {
                 font-size: 16px;
                 font-weight: 500;
             }
-            .search-result-item {
+            .search-result-card {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -1068,28 +1168,40 @@ function addSearchResultsStyle() {
                 background-color: var(--card-bg);
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             }
-            .result-info {
+            .search-result-thumbnail {
+                width: 120px;
+                height: 90px;
+                margin-right: 15px;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .search-result-thumbnail img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .search-result-info {
                 flex: 1;
             }
-            .result-info h4 {
+            .search-result-title {
                 margin: 0 0 5px 0;
                 font-size: 15px;
             }
-            .result-info p {
+            .search-result-metadata {
                 margin: 0;
                 font-size: 13px;
                 color: var(--text-secondary);
             }
-            .result-actions {
+            .search-result-actions {
                 display: flex;
                 gap: 8px;
             }
-            .no-results, .loading-message, .error-message {
+            .no-results, .loading, .error {
                 padding: 15px;
                 text-align: center;
                 color: var(--text-secondary);
             }
-            .error-message {
+            .error {
                 color: var(--error);
             }
         `;
@@ -1101,13 +1213,15 @@ function addSearchResultsStyle() {
  * Display video extraction results in a more visually appealing way
  */
 function displayVideoInfo(jobId, videoInfo) {
-    const resultsList = document.getElementById('results-list');
-    const resultItem = document.querySelector(`.job-item[data-job-id="${jobId}"]`);
+    console.log(`Displaying video info for job ${jobId}:`, videoInfo);
     
-    if (!resultItem) return;
+    // Find job item by ID
+    const jobItem = document.getElementById(`job-${jobId}`);
     
-    // Clear loading state
-    resultItem.classList.remove('loading');
+    if (!jobItem) {
+        console.error(`Job item not found for ID: ${jobId}`);
+        return;
+    }
     
     // Create info container
     const infoContainer = document.createElement('div');
@@ -1120,7 +1234,7 @@ function displayVideoInfo(jobId, videoInfo) {
         thumbnail.alt = videoInfo.title || 'Video thumbnail';
         thumbnail.className = 'video-thumbnail';
         thumbnail.onerror = function() {
-            this.src = '/static/images/no-thumbnail.png';
+            this.src = '/static/images/default-thumbnail.png';
             this.alt = 'Thumbnail unavailable';
         };
         infoContainer.appendChild(thumbnail);
@@ -1142,56 +1256,7 @@ function displayVideoInfo(jobId, videoInfo) {
         metadataDiv.appendChild(uploader);
     }
     
-    if (videoInfo.duration) {
-        const duration = document.createElement('p');
-        duration.className = 'video-duration';
-        // Convert seconds to MM:SS format
-        const minutes = Math.floor(videoInfo.duration / 60);
-        const seconds = Math.floor(videoInfo.duration % 60);
-        duration.textContent = `Duration: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-        metadataDiv.appendChild(duration);
-    }
-    
     infoContainer.appendChild(metadataDiv);
-    
-    // Add format selector if formats are available
-    if (videoInfo.formats && videoInfo.formats.length > 0) {
-        const formatSelector = document.createElement('select');
-        formatSelector.className = 'format-selector';
-        formatSelector.dataset.jobId = jobId;
-        
-        videoInfo.formats.forEach(format => {
-            const option = document.createElement('option');
-            option.value = format.format_id;
-            
-            // Create descriptive label
-            let label = `${format.format_note || format.format || 'Unknown'}`;
-            if (format.filesize) {
-                // Convert to MB and round to 1 decimal place
-                const sizeMB = (format.filesize / 1024 / 1024).toFixed(1);
-                label += ` - ${sizeMB} MB`;
-            }
-            if (format.ext) {
-                label += ` (.${format.ext})`;
-            }
-            
-            option.textContent = label;
-            formatSelector.appendChild(option);
-        });
-        
-        const formatDiv = document.createElement('div');
-        formatDiv.className = 'format-selection';
-        
-        const label = document.createElement('label');
-        label.textContent = 'Select Format:';
-        label.htmlFor = `format-select-${jobId}`;
-        formatSelector.id = `format-select-${jobId}`;
-        
-        formatDiv.appendChild(label);
-        formatDiv.appendChild(formatSelector);
-        
-        infoContainer.appendChild(formatDiv);
-    }
     
     // Add download button
     const downloadBtn = document.createElement('button');
@@ -1202,15 +1267,27 @@ function displayVideoInfo(jobId, videoInfo) {
     
     infoContainer.appendChild(downloadBtn);
     
-    // Replace content in result item
-    const contentDiv = resultItem.querySelector('.job-content');
+    // Find the job-content div and replace its content
+    const contentDiv = jobItem.querySelector('.job-content');
     if (contentDiv) {
         contentDiv.innerHTML = '';
         contentDiv.appendChild(infoContainer);
+    } else {
+        console.error('No .job-content div found in job item');
     }
     
-    // Store the video URL in the job item for later use
-    resultItem.dataset.url = videoInfo.webpage_url || videoInfo.url;
+    // Remove any error messages that might have been added
+    const errorMsg = jobItem.querySelector('.error-message');
+    if (errorMsg) {
+        errorMsg.remove();
+    }
+    
+    // Update job status to show success
+    const statusElement = jobItem.querySelector('.status-label');
+    if (statusElement) {
+        statusElement.textContent = 'Complete';
+        statusElement.className = 'status-label complete';
+    }
     
     // Show the results container
     showResults();
@@ -1338,4 +1415,119 @@ function processCompletedJob(jobId, data) {
             error: 'No video information available'
         });
     }
+}
+
+/**
+ * Add a result item to the results list
+ */
+function addResultItem(message, type) {
+    const resultsList = document.getElementById('results-list');
+    const resultItem = document.createElement('div');
+    resultItem.className = `result-item ${type}`;
+    resultItem.innerHTML = `<p>${message}</p>`;
+    resultsList.appendChild(resultItem);
+}
+
+/**
+ * Update batch item status in results list
+ */
+function updateBatchItemStatus(index, status, message) {
+    const resultItems = document.querySelectorAll('#results-list .result-item');
+    if (index < resultItems.length) {
+        const item = resultItems[index];
+        
+        // Add status class
+        item.classList.add(status);
+        
+        // Update message
+        if (message) {
+            const p = item.querySelector('p');
+            if (p) {
+                p.innerHTML += ` <span class="status ${status}">${message}</span>`;
+            }
+        }
+    }
+}
+
+/**
+ * Fetch available downloads from the API
+ */
+function fetchAvailableDownloads() {
+    fetch('/api/video-scraper/downloads')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Available downloads:', data);
+            
+            const downloadsContainer = document.getElementById('downloads-container');
+            if (downloadsContainer) {
+                // Clear existing content
+                downloadsContainer.innerHTML = '';
+                
+                if (!data || !data.files || data.files.length === 0) {
+                    downloadsContainer.innerHTML = '<div class="no-downloads">No downloads available</div>';
+                    return;
+                }
+                
+                // Create downloads header
+                const downloadsHeader = document.createElement('div');
+                downloadsHeader.className = 'downloads-header';
+                downloadsHeader.innerHTML = `<h3>Available Downloads (${data.files.length})</h3>`;
+                downloadsContainer.appendChild(downloadsHeader);
+                
+                // Create downloads list
+                const downloadsList = document.createElement('div');
+                downloadsList.className = 'downloads-list';
+                
+                // Add each download item
+                data.files.forEach(file => {
+                    // Skip files that don't exist on the server
+                    if (!file.exists) {
+                        return;
+                    }
+                    
+                    const downloadItem = document.createElement('div');
+                    downloadItem.className = 'download-item';
+                    
+                    // Format size
+                    let sizeText = 'Unknown size';
+                    if (file.size) {
+                        const sizeInMB = (file.size / 1024 / 1024).toFixed(2);
+                        sizeText = `${sizeInMB} MB`;
+                    }
+                    
+                    // Format date
+                    let dateText = 'Unknown date';
+                    if (file.date) {
+                        const date = new Date(file.date);
+                        dateText = date.toLocaleString();
+                    }
+                    
+                    downloadItem.innerHTML = `
+                        <div class="download-info">
+                            <h4>${file.filename}</h4>
+                            <p>${sizeText} • ${dateText}</p>
+                        </div>
+                        <div class="download-actions">
+                            <a href="/api/video-scraper/download-file/${file.filename}" class="btn btn-primary btn-sm" download>Download</a>
+                        </div>
+                    `;
+                    
+                    downloadsList.appendChild(downloadItem);
+                });
+                
+                downloadsContainer.appendChild(downloadsList);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching downloads:', error);
+            const downloadsContainer = document.getElementById('downloads-container');
+            if (downloadsContainer) {
+                downloadsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        });
 }
