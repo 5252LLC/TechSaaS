@@ -38,7 +38,7 @@
       "id": 4,
       "title": "Develop Video Scraper Web Interface",
       "description": "Create a responsive web UI for controlling the video scraping functionality.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3
       ],
@@ -50,13 +50,68 @@
       "id": 5,
       "title": "Set Up LangChain and Ollama",
       "description": "Configure the AI service with LangChain framework and Ollama integration.",
-      "status": "pending",
+      "status": "in-progress",
       "dependencies": [
         1
       ],
       "priority": "high",
       "details": "Implement the setup.py script as specified in the PRD. Create functions to check Python version, install dependencies, set up Ollama based on platform, pull required models (llama3.2:3b, grok:3b), and create necessary directories. Ensure proper error handling and user feedback throughout the setup process.",
-      "testStrategy": "Run the setup script and verify all components install correctly. Confirm Ollama is running and the specified models are available. Test basic model inference to ensure the setup is functional."
+      "testStrategy": "Run the setup script and verify all components install correctly. Confirm Ollama is running and the specified models are available. Test basic model inference to ensure the setup is functional.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Validate Python environment",
+          "description": "Check the Python version and ensure it meets the minimum requirements.",
+          "dependencies": [],
+          "details": "- Check that Python version is 3.7 or higher\n- Provide clear error message if Python version is unsupported\n- Exit setup process if Python version check fails\n- Test by running setup script with different Python versions",
+          "status": "pending",
+          "parentTaskId": 5
+        },
+        {
+          "id": 2,
+          "title": "Install dependencies",
+          "description": "Install the required Python packages and dependencies.",
+          "dependencies": [
+            1
+          ],
+          "details": "- Read dependencies from requirements.txt file\n- Install each dependency using pip\n- Handle potential installation errors and provide feedback\n- Verify installations by importing key packages\n- Test dependency installation by running setup script on clean environment",
+          "status": "pending",
+          "parentTaskId": 5
+        },
+        {
+          "id": 3,
+          "title": "Platform-specific Ollama setup",
+          "description": "Set up Ollama based on the detected operating system.",
+          "dependencies": [
+            2
+          ],
+          "details": "- Detect the operating system (Windows, macOS, Linux)\n- Follow platform-specific setup steps for Ollama\n- Download and install Ollama binaries/packages\n- Set necessary environment variables\n- Test Ollama setup by running simple Ollama command",
+          "status": "pending",
+          "parentTaskId": 5
+        },
+        {
+          "id": 4,
+          "title": "Download required models",
+          "description": "Pull the required models for LangChain and Ollama integration.",
+          "dependencies": [
+            3
+          ],
+          "details": "- Create directories for storing models (llama3.2:3b, grok:3b)\n- Download model files from specified sources\n- Verify checksums of downloaded model files\n- Handle download errors and provide retry mechanism\n- Test model downloads by checking file presence and sizes",
+          "status": "pending",
+          "parentTaskId": 5
+        },
+        {
+          "id": 5,
+          "title": "Test LangChain and Ollama integration",
+          "description": "Verify the setup by running a test script that uses LangChain with Ollama.",
+          "dependencies": [
+            4
+          ],
+          "details": "- Create a test script that imports LangChain and Ollama\n- Initialize Ollama models and run a simple query\n- Verify the output and check for any errors\n- Provide clear success/failure messages based on test results\n- Include the test script in the setup process\n- Test the integration with different models and queries",
+          "status": "pending",
+          "parentTaskId": 5
+        }
+      ]
     },
     {
       "id": 6,

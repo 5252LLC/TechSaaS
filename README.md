@@ -9,10 +9,17 @@ A comprehensive web platform that combines video scraping capabilities using Hit
 The TechSaaS platform is a production-ready solution designed to demonstrate advanced web technologies and provide a learning resource for developers at all skill levels. The system integrates:
 
 - Advanced video scraping with Hitomi-Downloader
-- AI analysis using LangChain with Ollama integration
+- AI analysis using LangChain with Ollama integration (In Progress)
 - Web browser interface with search capabilities
 - Comprehensive security layer and API gateway
 - Microservices architecture with Flask
+
+## Current Development Status (May 2, 2025)
+
+- **Video Scraper**: Core functionality stable and working
+- **LangChain & Ollama Integration**: Detailed subtasks created, implementation beginning
+- **Task Management**: Using Task Master for organized development workflow
+- **UI/UX**: Core interface is responsive and user-friendly 
 
 ## Repository Structure
 
@@ -21,7 +28,7 @@ techsaas-platform/
 ├── api-gateway/                   # API Gateway service
 ├── video-scraper/                 # Video Scraper service with Hitomi
 ├── web-interface/                 # Web Browser Interface
-├── ai-service/                    # LangChain AI service
+├── ai-service/                    # LangChain AI service (Task 5 - In Progress)
 ├── security/                      # Security components
 ├── docs/                          # Documentation
 └── [other project files]
@@ -31,7 +38,7 @@ techsaas-platform/
 
 This project is extensively documented to serve as both a functional application and a learning resource:
 
-- [Project Roadmap](PROJECT_ROADMAP.md) - Comprehensive overview and timeline
+- [Project Roadmap](video-scraper/ROADMAP.md) - Comprehensive overview and timeline
 - [Developer Journal](docs/journal/DEVELOPER_JOURNAL.md) - Step-by-step development log
 - [Git Setup Guide](docs/GIT_SETUP.md) - Git/GitHub repository configuration
 - [API Documentation](docs/api/) - API endpoint references
@@ -42,7 +49,7 @@ This project is extensively documented to serve as both a functional application
 
 This project follows a structured task-driven development methodology using the Task Master system. To contribute or understand the implementation process:
 
-1. Review the [Project Roadmap](PROJECT_ROADMAP.md)
+1. Review the [Project Roadmap](video-scraper/ROADMAP.md)
 2. Check current tasks with `task-master list`
 3. Examine the [Developer Journal](docs/journal/DEVELOPER_JOURNAL.md) for implementation details
 4. Follow the [Git Setup Guide](docs/GIT_SETUP.md) for repository management
@@ -125,4 +132,4 @@ This project is released under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-© 2025 5252LLC | TechSaaS.Tech
+ 2025 5252LLC | TechSaaS.Tech
