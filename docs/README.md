@@ -1,6 +1,6 @@
 # TechSaaS Documentation Hub
 
-Welcome to the TechSaaS documentation hub! This central resource provides comprehensive documentation for developers at all skill levels.
+Welcome to the TechSaaS documentation hub! This central resource provides comprehensive documentation for the TechSaaS platform features across different skill levels.
 
 ## Authentication Documentation
 
@@ -15,6 +15,15 @@ Welcome to the TechSaaS documentation hub! This central resource provides compre
 ### For Professional Engineers
 - [Authentication System Architecture](architecture/auth-system-architecture.md) - Detailed system design and integration points
 - [Security Best Practices](architecture/security-best-practices.md) (Coming Soon)
+
+## Rate Limiting & Usage Tracking
+
+Our platform includes comprehensive rate limiting and usage tracking for API monetization:
+
+- [Rate Limiting Basics](guides/rate-limiting-basics.md) - Beginner-friendly introduction
+- [Rate Limiting Implementation](guides/rate-limiting-implementation.md) - Code patterns and examples
+- [Rate Limiting Architecture](architecture/rate-limiting-architecture.md) - System design and scaling
+- [API Rate Limiting Reference](api/rate-limiting.md) - Complete API documentation
 
 ## Getting Started
 

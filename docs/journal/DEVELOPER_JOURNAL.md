@@ -675,6 +675,7 @@ task-master set-status --id=11.4 --status=done
 ```
 
 #### Next Steps
+
 1. **API Integration (Task 11.5)**:
    - Connect the connector to the main API gateway
    - Create standardized endpoints for video analysis
@@ -1322,3 +1323,47 @@ git add docs/README.md
 git add docs/journal/DEVELOPER_JOURNAL.md
 git commit -m "Add comprehensive JWT authentication documentation for all skill levels"
 ```
+
+### May 3, 2025: Implemented Rate Limiting & Usage Tracking System
+
+Today I implemented a comprehensive rate limiting and usage tracking system for the TechSaaS platform. This system enables API monetization through tiered access control and detailed usage monitoring. The implementation provides the foundation for our pay-per-use pricing model, which will be a key revenue stream alongside our subscription plans.
+
+### Rate Limiting Implementation
+- Built a Redis-based rate limiter to replace the previous in-memory solution
+- Implemented tiered rate limits based on subscription levels (Free, Basic, Pro, Enterprise)
+- Added support for multiple time windows (minute, hour, day)
+- Created rate limit response headers for client visibility
+- Implemented retry-after headers to guide clients on backoff strategies
+
+### Usage Tracking System
+- Developed a comprehensive usage tracking system to capture API consumption metrics
+- Created storage for detailed request metadata (user, category, operation, duration)
+- Implemented metrics collection for billable resources (compute units, tokens, storage)
+- Built an aggregation system for daily, monthly, and custom period reports
+- Designed the persistence layer for long-term storage and analysis
+
+### API Endpoints
+- Added `/usage/summary` for users to view their consumption patterns
+- Created `/usage/billing` to provide users with cost estimates
+- Implemented admin endpoints for monitoring platform-wide usage
+- Added administrative reporting tools for business analytics
+
+### Documentation
+- Created comprehensive rate limiting and usage tracking documentation:
+  - General API documentation for all developers
+  - Beginner-friendly guide with simple examples and explanations
+  - Implementation patterns for experienced developers with code snippets
+  - Architecture documentation for system design and scaling details
+
+This implementation completes a critical component of our monetization strategy. The system now supports tiered API access with different rate limits based on subscription levels, while tracking usage for billing purposes. The documentation makes this feature accessible to developers at all skill levels, with examples tailored to different experience levels.
+
+Next steps include integrating this system with our billing infrastructure to generate invoices based on the collected usage data.
+
+### Git Activity
+```bash
+git add ai-service/api/v1/usage
+git add ai-service/api/v1/middleware/rate_limiting.py
+git add ai-service/api/v1/management/usage.py
+git add ai-service/requirements.txt
+git add docs/journal/DEVELOPER_JOURNAL.md
+git commit -m "Implement rate limiting and usage tracking system"
