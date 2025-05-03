@@ -235,11 +235,38 @@ async def home(request: Request):
                         const jobId = data.job_id;
                         document.getElementById('jobStatus').innerHTML = 'Job submitted. Job ID: ' + jobId;
                         
+                        // Store the interval ID so we can clear it
+                        let statusInterval;
+                        let retryCount = 0;
+                        const MAX_RETRIES = 3;
+                        
                         // Poll for job status
-                        const statusInterval = setInterval(() => {
+                        statusInterval = setInterval(() => {
                             fetch(`/api/job/${jobId}`)
-                                .then(response => response.json())
+                                .then(response => {
+                                    // Check if job was not found (404)
+                                    if (response.status === 404) {
+                                        retryCount++;
+                                        if (retryCount >= MAX_RETRIES) {
+                                            clearInterval(statusInterval);
+                                            document.getElementById('jobStatus').className = 'status error';
+                                            document.getElementById('jobStatus').innerHTML = 'Job not found or expired. Please try again.';
+                                            return null;
+                                        }
+                                        return { status: "not_found" };
+                                    }
+                                    return response.json();
+                                })
                                 .then(statusData => {
+                                    // Skip processing if we got null (already handled 404 case)
+                                    if (!statusData) return;
+                                    
+                                    // Handle not found status
+                                    if (statusData.status === "not_found") {
+                                        document.getElementById('jobStatus').innerHTML = 'Waiting for job to start...';
+                                        return;
+                                    }
+                                    
                                     document.getElementById('jobStatus').innerHTML = 'Status: ' + statusData.status;
                                     
                                     // If job is complete
@@ -277,6 +304,14 @@ async def home(request: Request):
                                         clearInterval(statusInterval);
                                         document.getElementById('jobStatus').className = 'status error';
                                         document.getElementById('jobStatus').innerHTML = 'Job failed: ' + statusData.error;
+                                    }
+                                })
+                                .catch(error => {
+                                    retryCount++;
+                                    if (retryCount >= MAX_RETRIES) {
+                                        clearInterval(statusInterval);
+                                        document.getElementById('jobStatus').className = 'status error';
+                                        document.getElementById('jobStatus').innerHTML = 'Error checking job status: ' + error.message;
                                     }
                                 });
                         }, 2000);
@@ -325,7 +360,11 @@ async def get_job_status(job_id: str):
     try:
         status = connector.get_job_status(job_id)
         if not status:
-            raise HTTPException(status_code=404, detail="Job not found")
+            # Return a proper 404 response instead of raising an exception
+            return JSONResponse(
+                status_code=404,
+                content={"status": "not_found", "message": f"Job {job_id} not found"}
+            )
         return status
     except Exception as e:
         logger.error(f"Error getting job status: {e}")
