@@ -25,6 +25,14 @@ Our platform includes comprehensive rate limiting and usage tracking for API mon
 - [Rate Limiting Architecture](architecture/rate-limiting-architecture.md) - System design and scaling
 - [API Rate Limiting Reference](api/rate-limiting.md) - Complete API documentation
 
+## Billing System
+
+Our billing system integrates with the usage tracking to enable API monetization:
+
+- [Billing Basics](guides/billing-basics.md) - Beginner-friendly introduction to API billing
+- [Billing Implementation](guides/billing-implementation.md) - Integration code patterns and examples
+- [Billing API Reference](api/billing-api.md) - Complete API documentation for billing operations
+
 ## Getting Started
 
 Choose the documentation that best matches your experience level:

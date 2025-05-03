@@ -964,110 +964,127 @@ git add docs/journal/DEVELOPER_JOURNAL.md
 git commit -m "Implement JWT authentication system (Task #10.1)"
 ```
 
-### 2025-05-03: Security Layer Implementation with JWT Authentication
+### May 3, 2025 - Implementing JWT Authentication System
 
-#### Summary of Work Accomplished
-Today I successfully implemented a robust security layer and API gateway for the TechSaaS platform. This included the development of JWT-based authentication, role-based access control (RBAC), and tier-based authorization mechanisms. These components are critical for ensuring the platform's security and enabling the monetization strategy through subscription tiers.
+Today I focused on implementing a comprehensive JWT-based authentication system for the TechSaaS platform. This is the first component of our security layer and API gateway implementation (Task #10.1), which is essential for supporting our subscription-based monetization strategy.
 
-#### Key Features Implemented
+### Key Implementation Details
 
-1. **JWT Authentication System**:
-   - Centralized JWT token management for stateless authentication
-   - Secure token generation and validation
-   - Token payload including user identity, role, and subscription tier
-   - Proper error handling for expired or invalid tokens
+#### 1. Authentication Blueprint
+Created a dedicated authentication blueprint (`auth_endpoints.py`) with these key endpoints:
+- `/api/v1/auth/register` - User registration with email validation
+- `/api/v1/auth/login` - User login with secure token generation
+- `/api/v1/auth/refresh` - Token refresh functionality
+- `/api/v1/auth/logout` - Secure logout with token invalidation
+- `/api/v1/auth/verify` - Token verification endpoint
+- `/api/v1/auth/password/reset-request` - Password reset request
+- `/api/v1/auth/password/reset` - Password reset with secure token
+- Protected routes demonstrating role and tier-based access control
 
-2. **Authorization Middleware**:
-   - Fine-grained decorator-based access control system
-   - Implemented `requires_auth`, `has_permission`, `has_any_permission`, and `has_all_permissions` decorators
-   - Created a middleware system for protecting routes based on various criteria
+#### 2. Security Decorators
+Implemented three critical security decorators:
+- `@jwt_required` - Validates JWT token for authenticated routes
+- `@role_required(role)` - Restricts access based on user role
+- `@tier_required(tier)` - Enforces subscription tier requirements
 
-3. **Role-Based Access Control (RBAC)**:
-   - Hierarchical role system (user, premium, admin, superadmin)
-   - Role validation and inheritance
-   - Framework for defining role-specific permissions
+#### 3. Database Schema
+Designed a comprehensive database schema supporting:
+- User accounts with role and tier information
+- API key management for developer access
+- Rate limiting tables for enforcing usage limits
+- Usage tracking for billing and analytics
+- Token management (JWT, password reset, verification)
+- Subscription management tables
 
-4. **Tier-Based Access Control**:
-   - Subscription tier validation (free, basic, premium, professional, enterprise)
-   - API endpoint restrictions based on subscription level
-   - Rate limiting infrastructure tied to subscription tiers
-
-5. **Testing Utilities**:
-   - Created token generation utilities for testing purposes
-   - Implemented debug endpoints for token validation
-   - Built standalone debugging tools for JWT troubleshooting
-
-#### Technical Implementation Details
-
-- **Authentication Flow**:
-  - Client obtains JWT token through authentication endpoint
-  - Token includes user identity, role, and subscription tier in payload
-  - Subsequent requests include token in Authorization header
-  - Middleware validates token before processing protected requests
-
-- **Security Middleware Components**:
-  - `api/v1/middleware/security.py`: Core JWT validation and security headers
-  - `api/v1/middleware/authorization.py`: Permission and tier-based access control
-  - `api/v1/middleware/rbac.py`: Role-based access control implementation
-  - `api/v1/utils/token_generator.py`: Utilities for token generation and testing
-
-- **Token Structure**:
-  ```json
-  {
-    "sub": "user-id-123",
-    "email": "user@example.com",
-    "role": "user|premium|admin|superadmin",
-    "tier": "free|basic|premium|professional|enterprise",
-    "iat": 1746311019,
-    "exp": 1746312819
+#### 4. Integration with Response Formatter
+Fully integrated the authentication system with our standardized response format to ensure consistent API behavior:
+```json
+{
+  "status": "success",
+  "message": "Login successful",
+  "data": {
+    "user_id": 123,
+    "email": "user@techsaas.tech",
+    "tier": "premium",
+    "access_token": "...",
+    "refresh_token": "..."
+  },
+  "metadata": {
+    "token_expires_in": 1800,
+    "subscription_status": "active"
   }
-  ```
+}
+```
 
-- **Implementation Challenges**:
-  - Resolved token timing issues by using integer timestamps instead of floating-point
-  - Implemented proper error handling in middleware components
-  - Ensured consistent response formatting across all security layers
-  - Created debugging tools to facilitate token testing and troubleshooting
+### Security Considerations
 
-#### Technical Decisions and Trade-offs
+1. **Password Security**
+   - Implemented bcrypt password hashing
+   - Enforced strong password requirements
+   - Added secure password reset workflow
 
-1. **JWT vs. Session-Based Authentication**:
-   - Selected JWT for stateless authentication to improve scalability
-   - Trade-off: Lost the ability to immediately invalidate sessions, mitigated with token expiration and a blacklist system
+2. **Token Security**
+   - JWT with appropriate expiration times
+   - Token type verification (access vs. refresh)
+   - Token blacklisting for logout
 
-2. **Middleware Approach vs. Function Decorators**:
-   - Used both middleware and decorators to provide flexibility in how security is applied
-   - Trade-off: Slightly increased complexity for significantly improved code organization and reusability
+3. **Input Validation**
+   - Comprehensive validation for all inputs
+   - Email format verification
+   - Password strength requirements
+   - Sanitization to prevent injection attacks
 
-3. **Integer vs. Floating-Point Timestamps**:
-   - Switched to integer timestamps to avoid precision-related validation issues
-   - Trade-off: Slightly less precision (second-level vs. millisecond) for improved reliability
+4. **Tier-based Access Control**
+   - Granular access control based on subscription tier
+   - Standardized error responses for tier limitation
+   - Upgrade path information in responses
 
-#### Next Steps
+### Monetization Support
 
-1. **Testing**:
-   - Develop comprehensive unit tests for all security components
-   - Implement integration tests for protected endpoints
+This implementation directly supports our monetization strategy by:
+1. Enabling subscription tier validation on API endpoints
+2. Providing usage tracking infrastructure for billing
+3. Supporting developer-focused API access with API keys
+4. Implementing rate limiting based on subscription level
 
-2. **Integration**:
-   - Connect authentication system with user database
-   - Implement token blacklisting for logout and revocation
+### Technical Decisions and Trade-offs
 
-3. **Documentation**:
-   - Create detailed API documentation for authentication endpoints
-   - Develop security best practices guide for internal developers
+1. **JWT vs. Session-based Authentication**
+   We chose JWT for its stateless nature, which simplifies scaling and is more appropriate for API access. The trade-off is slightly more complex token management.
 
-#### Git Activity
+2. **In-memory vs. Database Token Blacklist**
+   We implemented an in-memory token blacklist for simplicity in development. For production, we'll extend this to use Redis or another distributed cache.
+
+3. **Role vs. Permission-based Authorization**
+   We implemented a role-based system for simplicity, with the understanding that we may need to extend to more granular permissions in the future.
+
+### Next Steps
+
+1. **Implement Authorization & Access Control Middleware** (Task #10.2)
+   - Create middleware to enforce access policies across the API
+   - Implement fine-grained permission checking
+   - Add role-based access controls for administrative functions
+
+2. **Add Unit and Integration Tests**
+   - Test all authentication endpoints
+   - Verify security decorator behavior
+   - Test boundary conditions for tier validation
+
+3. **Documentation**
+   - Create comprehensive API documentation
+   - Add usage examples for different authentication scenarios
+   - Document security best practices for API consumers
+
+### Git Activity
 ```bash
-git checkout -b feature/jwt-authentication
-git add ai-service/api/v1/middleware/security.py
-git add ai-service/api/v1/middleware/authorization.py
-git add ai-service/api/v1/middleware/rbac.py
-git add ai-service/api/v1/utils/token_generator.py
-git add ai-service/api/v1/routes/token_test_endpoint.py
-git add ai-service/debug_token.py
+git checkout -b feature/security-auth-system
+git add ai-service/api/v1/routes/auth_endpoints.py
+git add ai-service/api/v1/utils/config.py
+git add ai-service/api/v1/utils/database_util.py
+git add ai-service/api/v1/utils/validation.py
+git add ai-service/api/v1/routes/__init__.py
 git add docs/journal/DEVELOPER_JOURNAL.md
-git commit -m "Implement JWT authentication and authorization system"
+git commit -m "Implement JWT authentication system (Task #10.1)"
 ```
 
 ### 2025-05-03: API Documentation and Monetization Implementation
@@ -1367,3 +1384,51 @@ git add ai-service/api/v1/management/usage.py
 git add ai-service/requirements.txt
 git add docs/journal/DEVELOPER_JOURNAL.md
 git commit -m "Implement rate limiting and usage tracking system"
+
+```
+
+### May 3, 2025: Implemented Billing System Integration
+
+Today I implemented a billing system that integrates with our rate limiting and usage tracking components to complete the API monetization strategy for the TechSaaS platform. This system enables us to generate invoices based on API usage data, supporting our pay-per-use revenue model.
+
+### Billing Service Implementation
+- Created a `BillingService` class that calculates costs based on usage metrics
+- Implemented a tier-based pricing model with different rates for each subscription level
+- Developed an invoice generation system that creates detailed line items for different usage categories
+- Added support for caching invoices in Redis for performance optimization
+
+### Billing API Endpoints
+- Added `/billing/invoice` endpoint for users to view their current billing period invoice
+- Created `/billing/invoices/history` endpoint for accessing past invoices
+- Implemented `/billing/invoice/{id}` endpoint for viewing specific invoice details
+- Added public `/billing/pricing` endpoint to expose pricing information
+- Implemented administrative endpoints for invoice management and batch operations
+
+### Service Initialization
+- Created a service initialization module to properly configure rate limiting, usage tracking, and billing components
+- Updated application configuration to include billing settings
+- Added proper Redis integration for all components
+
+### Documentation
+- Created comprehensive billing documentation:
+  - API documentation for all billing endpoints
+  - Beginner-friendly guide explaining how API billing works
+  - Implementation guide with code patterns for integrating with the billing system
+  - Updated the documentation hub to include the new billing resources
+
+This implementation completes the monetization strategy for our API platform, enabling a sustainable business model through usage-based billing. The system now tracks API consumption, applies appropriate pricing based on subscription tiers, and generates invoices that can be used for billing customers.
+
+Next steps include integrating with payment processors like Stripe to automate payment collection and enhancing the reporting capabilities for business analytics.
+
+### Git Activity
+```bash
+git add ai-service/api/v1/utils/billing_service.py
+git add ai-service/api/v1/routes/billing_endpoints.py
+git add ai-service/api/v1/utils/service_init.py
+git add ai-service/config.py
+git add docs/api/billing-api.md
+git add docs/guides/billing-basics.md
+git add docs/guides/billing-implementation.md
+git add docs/README.md
+git commit -m "Implement billing system with invoice generation and documentation"
+```
