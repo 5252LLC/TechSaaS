@@ -581,3 +581,59 @@ class UnifiedModelManager:
             return False
         
         return self.download_model(model_id)
+    
+    def check_resource_availability(self, required_memory_gb: float) -> bool:
+        """
+        Check if the system has enough resources to load a model.
+        
+        Args:
+            required_memory_gb: Required memory in GB
+            
+        Returns:
+            True if resources are available, False otherwise
+        """
+        try:
+            import psutil
+            # Get available memory in GB
+            available_memory_gb = psutil.virtual_memory().available / (1024 * 1024 * 1024)
+            return available_memory_gb >= required_memory_gb
+        except ImportError:
+            logger.warning("psutil not available, cannot check resource availability")
+            # Assume resources are available if we can't check
+            return True
+    
+    def unload_all_models(self, provider: Optional[str] = None) -> None:
+        """
+        Unload all loaded models, optionally filtered by provider.
+        
+        Args:
+            provider: Provider to unload models from (optional)
+        """
+        logger.info(f"Unloading all models{f' from {provider}' if provider else ''}")
+        
+        # Get list of currently loaded models
+        models_to_unload = []
+        for model_id in self._model_cache:
+            model = self._model_cache[model_id]
+            if model.loaded and (provider is None or model.provider == provider):
+                models_to_unload.append(model_id)
+        
+        # Unload models
+        for model_id in models_to_unload:
+            try:
+                self.unload_model(model_id)
+            except Exception as e:
+                logger.error(f"Error unloading model {model_id}: {e}")
+        
+        # Force garbage collection
+        import gc
+        gc.collect()
+        
+        # Clear CUDA cache if available
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                logger.info("Cleared CUDA cache")
+        except (ImportError, AttributeError):
+            pass
