@@ -110,6 +110,34 @@ class MultimodalConfig:
         config.processing = processing
         
         return config
+    
+    def get_model_memory_requirement(self, model_id: str, default: float = 4.0) -> float:
+        """
+        Get the memory requirement for a specific model.
+        
+        Args:
+            model_id: Model ID (with or without provider prefix)
+            default: Default memory requirement in GB if model not found
+            
+        Returns:
+            float: Required memory in GB
+        """
+        # Parse model ID to handle provider prefix
+        model_name = model_id
+        if "/" in model_id:
+            provider, model_name = model_id.split("/", 1)
+        
+        # Look up model in configuration
+        if model_name in self.models:
+            return self.models[model_name].min_ram_gb
+        
+        # Try matching with partial name (like "llava" matches "llava:latest")
+        for config_name, model_config in self.models.items():
+            if model_name in config_name:
+                return model_config.min_ram_gb
+        
+        # Return default if not found
+        return default
 
 
 def create_default_config() -> MultimodalConfig:
