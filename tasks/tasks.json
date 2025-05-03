@@ -97,7 +97,7 @@
             3
           ],
           "details": "- Create directories for storing models (llama3.2:3b, grok:3b)\n- Download model files from specified sources\n- Verify checksums of downloaded model files\n- Handle download errors and provide retry mechanism\n- Test model downloads by checking file presence and sizes",
-          "status": "in-progress",
+          "status": "done",
           "parentTaskId": 5
         },
         {

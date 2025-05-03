@@ -12,7 +12,8 @@ integration used in the TechSaaS platform. It performs the following tasks:
 
 Usage:
     python setup.py [--skip-validation] [--skip-dependencies] [--skip-ollama]
-                   [--skip-models] [--skip-tests] [--verbose]
+                   [--skip-models] [--skip-model-verify] [--force-reinstall]
+                   [--update-ollama-only] [--models] [--verbose]
 """
 
 import argparse
@@ -60,6 +61,18 @@ def parse_args():
     )
     
     parser.add_argument(
+        '--skip-models',
+        action='store_true',
+        help='Skip model download step'
+    )
+    
+    parser.add_argument(
+        '--skip-model-verify',
+        action='store_true',
+        help='Skip model verification after download'
+    )
+    
+    parser.add_argument(
         '--force-reinstall',
         action='store_true',
         help='Force reinstallation of components even if already installed'
@@ -69,6 +82,12 @@ def parse_args():
         '--update-ollama-only',
         action='store_true',
         help='Only update Ollama if a newer version is available'
+    )
+    
+    parser.add_argument(
+        '--models',
+        type=str,
+        help='Comma-separated list of models to download (e.g., "llama3.2:3b,grok:3b")'
     )
     
     parser.add_argument(
@@ -199,6 +218,55 @@ def setup_ollama(args):
         return False
 
 
+def download_models(args):
+    """
+    Download and verify required models for LangChain and Ollama.
+    
+    Returns:
+        bool: True if model download was successful
+    """
+    logging.info("Downloading required models...")
+    
+    # Prepare command to run the model download script
+    cmd = [sys.executable, os.path.join(SETUP_DIR, "setup/download_models.py")]
+    
+    # Add arguments
+    if args.verbose:
+        cmd.append("--verbose")
+    
+    if args.force_reinstall:
+        cmd.append("--force")
+    
+    if args.skip_model_verify:
+        cmd.append("--no-verify")
+    
+    if args.models:
+        cmd.extend(["--models"] + args.models.split(","))
+    
+    try:
+        # Run the model download script
+        result = subprocess.run(
+            cmd,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        
+        # Log output at debug level
+        for line in result.stdout.splitlines():
+            logging.debug(line)
+        
+        logging.info("Model download completed successfully")
+        return True
+    
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Model download failed with exit code {e.returncode}")
+        if e.stderr:
+            logging.error(f"Error output: {e.stderr}")
+        logging.warning("Model download encountered issues. Some models may not be available. Continuing with remaining setup steps...")
+        return False
+
+
 def main():
     """Main entry point for LangChain and Ollama setup."""
     # Clear screen
@@ -217,6 +285,7 @@ def main():
     environment_ok = True
     dependencies_ok = True
     ollama_ok = True
+    models_ok = True
     
     # Step 1: Environment validation
     if not args.skip_environment_check:
@@ -238,21 +307,34 @@ def main():
     elif args.skip_ollama:
         logging.info("Skipping Ollama setup (--skip-ollama)")
     
-    # Step 4: Additional setup steps (to be implemented)
-    if environment_ok and dependencies_ok and ollama_ok:
-        # Future setup steps will go here
-        pass
+    # Step 4: Model download
+    if environment_ok and dependencies_ok and ollama_ok and not args.skip_models and not args.update_ollama_only:
+        models_ok = download_models(args)
+    elif args.skip_models:
+        logging.info("Skipping model download (--skip-models)")
+    elif args.update_ollama_only:
+        logging.info("Skipping model download (--update-ollama-only)")
     
     # Summary
     if args.update_ollama_only:
         logging.info("Ollama update process complete")
     else:
-        status_message = "Environment validation and dependency installation complete"
+        status_message = "Setup process completed"
+        if not args.skip_environment_check:
+            status_message += " with environment validation"
+        if not args.skip_dependencies:
+            status_message += ", dependency installation"
         if not args.skip_ollama:
-            status_message += ", but Ollama setup had issues" if not ollama_ok else " with Ollama setup"
+            status_message += ", and Ollama setup"
+            if not ollama_ok:
+                status_message += " (with issues)"
+        if not args.skip_models:
+            status_message += ", and model download"
+            if not models_ok:
+                status_message += " (with issues)"
         
         logging.info(status_message)
-        logging.info("Ready to proceed with remaining setup steps")
+        logging.info("LangChain and Ollama integration setup is now complete")
     
     print("\nSetup process completed successfully!")
     

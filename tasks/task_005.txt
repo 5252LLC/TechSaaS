@@ -40,7 +40,7 @@ Run the setup script and verify all components install correctly. Confirm Ollama
 - Set necessary environment variables
 - Test Ollama setup by running simple Ollama command
 
-## 4. Download required models [in-progress]
+## 4. Download required models [done]
 ### Dependencies: 5.3
 ### Description: Pull the required models for LangChain and Ollama integration.
 ### Details:
