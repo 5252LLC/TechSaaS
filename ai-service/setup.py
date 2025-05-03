@@ -13,7 +13,7 @@ integration used in the TechSaaS platform. It performs the following tasks:
 Usage:
     python setup.py [--skip-validation] [--skip-dependencies] [--skip-ollama]
                    [--skip-models] [--skip-model-verify] [--force-reinstall]
-                   [--update-ollama-only] [--models] [--verbose]
+                   [--update-ollama-only] [--models] [--verbose] [--skip-tests]
 """
 
 import argparse
@@ -37,65 +37,27 @@ SETUP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def parse_args():
     """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Set up LangChain and Ollama integration',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description="Set up LangChain and Ollama")
     
-    parser.add_argument(
-        '--skip-environment-check',
-        action='store_true',
-        help='Skip environment validation step'
-    )
+    # Skip options
+    parser.add_argument("--skip-environment-check", action="store_true", help="Skip environment validation")
+    parser.add_argument("--skip-dependencies", action="store_true", help="Skip dependency installation")
+    parser.add_argument("--skip-ollama", action="store_true", help="Skip Ollama setup")
+    parser.add_argument("--skip-models", action="store_true", help="Skip model download")
+    parser.add_argument("--skip-model-verify", action="store_true", help="Skip model verification")
+    parser.add_argument("--skip-tests", action="store_true", help="Skip integration tests")
     
-    parser.add_argument(
-        '--skip-dependencies',
-        action='store_true',
-        help='Skip dependency installation step'
-    )
+    # Force options
+    parser.add_argument("--force-reinstall", action="store_true", help="Force reinstallation of dependencies")
+    parser.add_argument("--update-ollama-only", action="store_true", help="Only update Ollama, skip other steps")
     
-    parser.add_argument(
-        '--skip-ollama',
-        action='store_true',
-        help='Skip Ollama setup step'
-    )
+    # Model options
+    parser.add_argument("--models", type=str, help="Comma-separated list of models to download (default: llama3:8b,phi3:mini)")
     
-    parser.add_argument(
-        '--skip-models',
-        action='store_true',
-        help='Skip model download step'
-    )
+    # Other options
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     
-    parser.add_argument(
-        '--skip-model-verify',
-        action='store_true',
-        help='Skip model verification after download'
-    )
-    
-    parser.add_argument(
-        '--force-reinstall',
-        action='store_true',
-        help='Force reinstallation of components even if already installed'
-    )
-    
-    parser.add_argument(
-        '--update-ollama-only',
-        action='store_true',
-        help='Only update Ollama if a newer version is available'
-    )
-    
-    parser.add_argument(
-        '--models',
-        type=str,
-        help='Comma-separated list of models to download (e.g., "llama3.2:3b,grok:3b")'
-    )
-    
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose output'
-    )
-    
+    # Parse arguments
     return parser.parse_args()
 
 
@@ -225,46 +187,79 @@ def download_models(args):
     Returns:
         bool: True if model download was successful
     """
-    logging.info("Downloading required models...")
-    
-    # Prepare command to run the model download script
-    cmd = [sys.executable, os.path.join(SETUP_DIR, "setup/download_models.py")]
-    
-    # Add arguments
-    if args.verbose:
-        cmd.append("--verbose")
-    
-    if args.force_reinstall:
-        cmd.append("--force")
-    
-    if args.skip_model_verify:
-        cmd.append("--no-verify")
-    
-    if args.models:
-        cmd.extend(["--models"] + args.models.split(","))
-    
     try:
-        # Run the model download script
-        result = subprocess.run(
-            cmd,
-            check=True,
-            capture_output=True,
-            text=True
+        # If the download_models.py module exists, use it
+        from setup.download_models import download_required_models
+        
+        # Get the models to download
+        models = []
+        if args.models:
+            models = [model.strip() for model in args.models.split(",")]
+        
+        return download_required_models(
+            models=models,
+            force=args.force_reinstall,
+            skip_verify=args.skip_model_verify,
+            verbose=args.verbose
         )
+    except ImportError:
+        # Fall back to a simple model download using run_step
+        logging.warning("download_models.py not found, falling back to basic model download")
         
-        # Log output at debug level
-        for line in result.stdout.splitlines():
-            logging.debug(line)
+        # Default models if not specified
+        models = args.models if args.models else "llama3:8b,phi3:mini"
+        models_list = [model.strip() for model in models.split(",")]
         
-        logging.info("Model download completed successfully")
-        return True
+        success = True
+        for model in models_list:
+            logging.info(f"Downloading model: {model}")
+            cmd = ["ollama", "pull", model]
+            step_success = run_step(f"Download model {model}", cmd, exit_on_error=False)
+            success = success and step_success
+            
+        return success
+
+
+def run_integration_tests(args):
+    """
+    Run integration tests for LangChain and Ollama.
     
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Model download failed with exit code {e.returncode}")
-        if e.stderr:
-            logging.error(f"Error output: {e.stderr}")
-        logging.warning("Model download encountered issues. Some models may not be available. Continuing with remaining setup steps...")
-        return False
+    Returns:
+        bool: True if integration tests were successful
+    """
+    try:
+        # If the test_integration.py module exists, use it
+        from setup.test_integration import run_integration_tests
+        
+        # Get the models to test with
+        models = []
+        if args.models:
+            models = [model.strip() for model in args.models.split(",")]
+        
+        logging.info("Running LangChain and Ollama integration tests...")
+        success, message = run_integration_tests(models)
+        
+        if success:
+            logging.info("Integration tests passed successfully!")
+        else:
+            logging.error(f"Integration tests failed: {message}")
+        
+        return success
+    
+    except ImportError:
+        # Fall back to a simple test command
+        logging.warning("test_integration.py not found, falling back to basic integration test")
+        
+        # Try to find the test script
+        test_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "test_langchain_ollama.py")
+        
+        if os.path.exists(test_script):
+            cmd = [sys.executable, test_script]
+            return run_step("Integration tests", cmd, exit_on_error=False)
+        else:
+            logging.error(f"Test script not found: {test_script}")
+            logging.error("Please ensure the test script exists or run with --skip-tests")
+            return False
 
 
 def main():
@@ -286,6 +281,7 @@ def main():
     dependencies_ok = True
     ollama_ok = True
     models_ok = True
+    tests_ok = True
     
     # Step 1: Environment validation
     if not args.skip_environment_check:
@@ -315,6 +311,14 @@ def main():
     elif args.update_ollama_only:
         logging.info("Skipping model download (--update-ollama-only)")
     
+    # Step 5: Integration tests
+    if environment_ok and dependencies_ok and ollama_ok and models_ok and not args.skip_tests and not args.update_ollama_only:
+        tests_ok = run_integration_tests(args)
+    elif args.skip_tests:
+        logging.info("Skipping integration tests (--skip-tests)")
+    elif args.update_ollama_only:
+        logging.info("Skipping integration tests (--update-ollama-only)")
+    
     # Summary
     if args.update_ollama_only:
         logging.info("Ollama update process complete")
@@ -332,13 +336,30 @@ def main():
             status_message += ", and model download"
             if not models_ok:
                 status_message += " (with issues)"
+        if not args.skip_tests:
+            status_message += ", and integration testing"
+            if not tests_ok:
+                status_message += " (with issues)"
         
         logging.info(status_message)
         logging.info("LangChain and Ollama integration setup is now complete")
     
     print("\nSetup process completed successfully!")
     
-    return 0
+    # Return success code only if all enabled steps succeeded
+    success = True
+    if not args.skip_environment_check and not environment_ok:
+        success = False
+    if not args.skip_dependencies and not args.update_ollama_only and not dependencies_ok:
+        success = False
+    if not args.skip_ollama and not ollama_ok:
+        success = False
+    if not args.skip_models and not args.update_ollama_only and not models_ok:
+        success = False
+    if not args.skip_tests and not args.update_ollama_only and not tests_ok:
+        success = False
+    
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
