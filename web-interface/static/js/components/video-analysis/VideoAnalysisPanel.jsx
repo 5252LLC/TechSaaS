@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import FrameGrid from './FrameGrid';
 import TabbedInterface from './TabbedInterface';
-import axios from 'axios';
+import TimelineVisualization from './TimelineVisualization';
+import HeatmapVisualization from './HeatmapVisualization';
+import ObjectTrackingVisualization from './ObjectTrackingVisualization';
+import { videoAnalysisApi } from '../../services/api-client';
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api';
 
@@ -74,33 +77,31 @@ const VideoAnalysisPanel = () => {
     setIsSubmitting(true);
     
     try {
-      const formData = new FormData();
+      let data;
+      let options = { ...analysisOptions };
       
       if (fileUpload) {
-        formData.append('video_file', fileUpload);
+        data = new FormData();
+        data.append('video_file', fileUpload);
+        
+        // Add analysis options to formData
+        Object.entries(analysisOptions).forEach(([key, value]) => {
+          data.append(key, value.toString());
+        });
       } else if (videoUrl) {
-        formData.append('video_url', videoUrl);
+        data = { video_url: videoUrl, ...options };
       } else {
         throw new Error('Please provide a video URL or upload a file');
       }
       
-      // Add analysis options to formData
-      Object.entries(analysisOptions).forEach(([key, value]) => {
-        formData.append(key, value.toString());
-      });
+      const response = await videoAnalysisApi.submitAnalysisJob(data);
       
-      const response = await axios.post(`${API_BASE_URL}/video/analyze`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      if (response.data && response.data.job_id) {
-        setJobId(response.data.job_id);
+      if (response && response.job_id) {
+        setJobId(response.job_id);
         setJobStatus('processing');
         
         // Start checking status immediately
-        checkJobStatus(response.data.job_id);
+        checkJobStatus(response.job_id);
       } else {
         throw new Error('Invalid response from server');
       }
@@ -112,47 +113,60 @@ const VideoAnalysisPanel = () => {
     }
   };
 
-  const checkJobStatus = async (jId) => {
+  const checkJobStatus = async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/video/job-status/${jId}`);
+      const statusData = await videoAnalysisApi.checkJobStatus(id);
       
-      if (response.data) {
-        setJobStatus(response.data.status);
-        
-        if (response.data.status === 'completed') {
-          fetchAnalysisResults(jId);
-          if (statusCheckInterval) {
-            clearInterval(statusCheckInterval);
-            setStatusCheckInterval(null);
-          }
-        } else if (response.data.status === 'failed') {
-          setError(response.data.error || 'Analysis job failed');
-          if (statusCheckInterval) {
-            clearInterval(statusCheckInterval);
-            setStatusCheckInterval(null);
-          }
-        }
+      setJobStatus(statusData.status);
+      
+      // If job is complete, fetch results
+      if (statusData.status === 'completed') {
+        fetchJobResults(id);
+      } else if (statusData.status === 'failed') {
+        setError(statusData.error || 'Analysis failed without specific error details');
       }
     } catch (err) {
-      setError('Error checking job status');
-      setJobStatus('failed');
-      if (statusCheckInterval) {
-        clearInterval(statusCheckInterval);
-        setStatusCheckInterval(null);
-      }
+      console.error('Error checking job status:', err);
+      setError('Failed to check job status. Please try again.');
     }
   };
 
-  const fetchAnalysisResults = async (jId) => {
+  const fetchJobResults = async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/video/results/${jId}`);
-      
-      if (response.data) {
-        setAnalysisResults(response.data);
-        setActiveTab('summary');
+      const resultsData = await videoAnalysisApi.getJobResults(id);
+      setAnalysisResults(resultsData);
+    } catch (err) {
+      console.error('Error fetching job results:', err);
+      setError('Failed to fetch analysis results. Please try again.');
+    }
+  };
+
+  const cancelAnalysisJob = async () => {
+    try {
+      if (jobId) {
+        await videoAnalysisApi.cancelJob(jobId);
+        setJobStatus('cancelled');
+        setError('Analysis job cancelled');
+        
+        if (statusCheckInterval) {
+          clearInterval(statusCheckInterval);
+          setStatusCheckInterval(null);
+        }
       }
     } catch (err) {
-      setError('Error fetching analysis results');
+      console.error('Error cancelling job:', err);
+      setError('Failed to cancel analysis job');
+    }
+  };
+
+  const downloadResults = async (format = 'json') => {
+    try {
+      if (jobId && jobStatus === 'completed') {
+        await videoAnalysisApi.exportResults(jobId, format);
+      }
+    } catch (err) {
+      console.error(`Error exporting results as ${format}:`, err);
+      setError(`Failed to export results as ${format}`);
     }
   };
 
@@ -249,19 +263,43 @@ const VideoAnalysisPanel = () => {
     return (
       <div className="job-status">
         <h4>Analysis Job Status</h4>
-        
-        <div className={`status-indicator status-${jobStatus}`}>
-          <span className="status-text">{jobStatus}</span>
-          {jobStatus === 'processing' && (
-            <div className="spinner"></div>
-          )}
-        </div>
-        
-        {error && (
-          <div className="error-message">
-            <p>{error}</p>
+        <div className="status-container">
+          <div className="status-indicator">
+            <div className={`status-badge ${jobStatus}`}>{jobStatus}</div>
+            {jobStatus === 'processing' && (
+              <div className="progress-container">
+                <div className="progress-bar"></div>
+              </div>
+            )}
           </div>
-        )}
+          <div className="status-actions">
+            {jobStatus === 'processing' && (
+              <button 
+                className="btn btn-outline btn-small" 
+                onClick={cancelAnalysisJob}
+              >
+                Cancel
+              </button>
+            )}
+            {jobStatus === 'completed' && (
+              <div className="export-buttons">
+                <button 
+                  className="btn btn-outline btn-small" 
+                  onClick={() => downloadResults('json')}
+                >
+                  Export JSON
+                </button>
+                <button 
+                  className="btn btn-outline btn-small" 
+                  onClick={() => downloadResults('csv')}
+                >
+                  Export CSV
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        {error && <div className="error-message">{error}</div>}
       </div>
     );
   };
@@ -269,12 +307,7 @@ const VideoAnalysisPanel = () => {
   const renderAnalysisResults = () => {
     if (!analysisResults) return null;
     
-    const tabs = [
-      { id: 'summary', label: 'Summary' },
-      { id: 'frames', label: 'Frames', disabled: !analysisResults.frames || analysisResults.frames.length === 0 },
-      { id: 'objects', label: 'Objects', disabled: !analysisResults.objects || Object.keys(analysisResults.objects).length === 0 },
-      { id: 'timeline', label: 'Timeline', disabled: !analysisResults.scenes || analysisResults.scenes.length === 0 },
-    ];
+    const tabs = getTabs();
     
     return (
       <div className="analysis-results">
@@ -285,11 +318,59 @@ const VideoAnalysisPanel = () => {
           activeTab={activeTab}
           onTabChange={setActiveTab}
         >
-          {activeTab === 'summary' && renderSummaryTab()}
-          {activeTab === 'frames' && renderFramesTab()}
-          {activeTab === 'objects' && renderObjectsTab()}
-          {activeTab === 'timeline' && renderTimelineTab()}
+          {tabs.map(tab => tab.content)}
         </TabbedInterface>
+      </div>
+    );
+  };
+
+  const getTabs = () => {
+    return [
+      { 
+        id: 'summary', 
+        label: 'Summary', 
+        content: renderSummaryTab() 
+      },
+      { 
+        id: 'frames', 
+        label: 'Frames', 
+        content: renderFramesTab() 
+      },
+      { 
+        id: 'objects', 
+        label: 'Objects', 
+        content: renderObjectsTab() 
+      },
+      { 
+        id: 'timeline', 
+        label: 'Timeline', 
+        content: renderTimelineTab() 
+      },
+      {
+        id: 'heatmap',
+        label: 'Heatmap',
+        content: renderHeatmapTab()
+      },
+      {
+        id: 'tracking',
+        label: 'Object Tracking',
+        content: renderTrackingTab()
+      }
+    ];
+  };
+
+  const renderFramesTab = () => {
+    return (
+      <div className="frames-tab">
+        {analysisResults.frames && analysisResults.frames.length > 0 ? (
+          <FrameGrid 
+            frames={analysisResults.frames} 
+            jobId={jobId} 
+            autoLoadFrames={true} 
+          />
+        ) : (
+          <div className="empty-state">No frames were extracted from this video</div>
+        )}
       </div>
     );
   };
@@ -343,33 +424,23 @@ const VideoAnalysisPanel = () => {
             <h4>Key Frames</h4>
             <div className="key-frames-preview">
               {analysisResults.key_frames.slice(0, 5).map((frameIndex, idx) => {
-                const frame = analysisResults.frames[frameIndex];
                 return (
                   <div className="key-frame-preview" key={idx}>
                     <img 
-                      src={`data:image/jpeg;base64,${frame.image_data}`} 
+                      src={`${API_BASE_URL}/video/frame/${jobId}/${frameIndex}`}
                       alt={`Key Frame ${idx + 1}`}
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMjAwIDE1MCIgZmlsbD0ibm9uZSI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTRweCIgZmlsbD0iIzU1NSI+RXJyb3IgbG9hZGluZyBpbWFnZTwvdGV4dD48L3N2Zz4=';
+                      }}
                     />
                     <div className="key-frame-time">
-                      {frame.timestamp_str}
+                      {analysisResults.frames[frameIndex].timestamp_str}
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderFramesTab = () => {
-    return (
-      <div className="frames-tab">
-        {analysisResults.frames && analysisResults.frames.length > 0 ? (
-          <FrameGrid frames={analysisResults.frames} />
-        ) : (
-          <div className="empty-state">No frames were extracted from this video</div>
         )}
       </div>
     );
@@ -423,38 +494,45 @@ const VideoAnalysisPanel = () => {
     
     return (
       <div className="timeline-tab">
-        <div className="scenes-list">
-          <h4>Scene Timeline</h4>
-          
-          {scenes.map((scene, idx) => (
-            <div className="scene-item" key={idx}>
-              <div className="scene-header">
-                <div className="scene-number">Scene {idx + 1}</div>
-                <div className="scene-time">
-                  {scene.start_time_str} - {scene.end_time_str}
-                </div>
-                <div className="scene-duration">
-                  {formatDuration(scene.duration)}
-                </div>
-              </div>
-              
-              {scene.keyframe_index !== undefined && analysisResults.frames && (
-                <div className="scene-keyframe">
-                  <img 
-                    src={`data:image/jpeg;base64,${analysisResults.frames[scene.keyframe_index].image_data}`}
-                    alt={`Scene ${idx + 1} keyframe`}
-                  />
-                </div>
-              )}
-              
-              {scene.description && (
-                <div className="scene-description">
-                  {scene.description}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        {analysisResults ? (
+          <TimelineVisualization 
+            analysisResults={analysisResults}
+            jobId={jobId}
+            onTimeSelect={(time) => console.log(`Selected time: ${time}`)}
+          />
+        ) : (
+          <div className="empty-state">No analysis results available for timeline visualization</div>
+        )}
+      </div>
+    );
+  };
+
+  const renderHeatmapTab = () => {
+    return (
+      <div className="heatmap-tab">
+        {analysisResults ? (
+          <HeatmapVisualization 
+            analysisResults={analysisResults}
+            dimensions={{ width: 640, height: 360 }}
+          />
+        ) : (
+          <div className="empty-state">No analysis results available for heatmap visualization</div>
+        )}
+      </div>
+    );
+  };
+
+  const renderTrackingTab = () => {
+    return (
+      <div className="tracking-tab">
+        {analysisResults ? (
+          <ObjectTrackingVisualization 
+            analysisResults={analysisResults}
+            jobId={jobId}
+          />
+        ) : (
+          <div className="empty-state">No analysis results available for object tracking</div>
+        )}
       </div>
     );
   };

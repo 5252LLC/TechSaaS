@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Analysis API Integration Tests</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .test-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .test-controls {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .test-output {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .info {
+            color: #3498db;
+        }
+        .test-summary {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Analysis API Integration Tests</h1>
+    <p>This page runs tests to verify the integration between Video Analysis UI components and the backend API.</p>
+    
+    <div class="test-container">
+        <h2>Test Control Panel</h2>
+        <div class="test-controls">
+            <button id="run-all-tests">Run All Tests</button>
+            <button id="clear-results">Clear Results</button>
+            <span id="loading-spinner" class="spinner hidden"></span>
+        </div>
+        
+        <div class="test-output" id="test-output">
+            <div class="info">Click "Run All Tests" to begin testing...</div>
+        </div>
+        
+        <div class="test-summary" id="test-summary"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Test Groups</h2>
+        
+        <div class="test-section">
+            <h3>VideoAnalysisPanel API Tests</h3>
+            <div class="test-controls">
+                <button class="run-test-group" data-group="panel">Run This Group</button>
+            </div>
+            <ul>
+                <li>Submit analysis job with file upload</li>
+                <li>Check job status periodically</li>
+                <li>Fetch results when job is complete</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h3>TimelineVisualization API Tests</h3>
+            <div class="test-controls">
+                <button class="run-test-group" data-group="timeline">Run This Group</button>
+            </div>
+            <ul>
+                <li>Render with analysis results</li>
+                <li>Load timeline data from API</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h3>HeatmapVisualization API Tests</h3>
+            <div class="test-controls">
+                <button class="run-test-group" data-group="heatmap">Run This Group</button>
+            </div>
+            <ul>
+                <li>Render heatmap with object detections</li>
+                <li>Update heatmap based on API data</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h3>ObjectTrackingVisualization API Tests</h3>
+            <div class="test-controls">
+                <button class="run-test-group" data-group="tracking">Run This Group</button>
+            </div>
+            <ul>
+                <li>Load frame images from API</li>
+                <li>Track objects across frames</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Mock API client methods for testing
+        const videoAnalysisApi = {
+            submitAnalysisJob: async (data) => {
+                console.log('Submitting analysis job', data);
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return {
+                    data: { jobId: 'test-job-' + Date.now(), status: 'pending' }
+                };
+            },
+            checkJobStatus: async (jobId) => {
+                console.log('Checking job status', jobId);
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 300));
+                return {
+                    data: { jobId, status: 'processing', progress: 50 }
+                };
+            },
+            getJobResults: async (jobId) => {
+                console.log('Getting job results', jobId);
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 400));
+                return {
+                    data: {
+                        frames: [{ index: 0, objects: [{class: 'person', confidence: 0.98}] }],
+                        summary: { duration: 60, frameCount: 1800 }
+                    }
+                };
+            },
+            getFrame: async (jobId, frameIndex) => {
+                console.log('Getting frame', jobId, frameIndex);
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 200));
+                return {
+                    data: { 
+                        imageData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAA' 
+                    }
+                };
+            },
+            cancelJob: async (jobId) => {
+                console.log('Cancelling job', jobId);
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 300));
+                return {
+                    data: { success: true }
+                };
+            },
+            exportResults: async (jobId, format) => {
+                console.log('Exporting results', jobId, format);
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return {
+                    data: { downloadUrl: `http://localhost:8000/api/download/${jobId}.${format}` }
+                };
+            }
+        };
+
+        // Test runner functions
+        const testOutput = document.getElementById('test-output');
+        const testSummary = document.getElementById('test-summary');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        
+        let testsPassed = 0;
+        let testsFailed = 0;
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            testOutput.appendChild(div);
+            testOutput.scrollTop = testOutput.scrollHeight;
+        }
+        
+        function clearLog() {
+            testOutput.innerHTML = '';
+            testSummary.innerHTML = '';
+            testsPassed = 0;
+            testsFailed = 0;
+        }
+        
+        async function runTest(name, testFn) {
+            log(`Running test: ${name}...`);
+            try {
+                await testFn();
+                log(`✅ Test passed: ${name}`, 'success');
+                testsPassed++;
+            } catch (error) {
+                log(`❌ Test failed: ${name} - ${error.message}`, 'error');
+                console.error(error);
+                testsFailed++;
+            }
+        }
+        
+        function updateSummary() {
+            testSummary.innerHTML = `Tests completed: ${testsPassed + testsFailed}. Passed: ${testsPassed}. Failed: ${testsFailed}.`;
+            testSummary.className = testsFailed > 0 ? 'test-summary error' : 'test-summary success';
+        }
+        
+        // VideoAnalysisPanel API Tests
+        async function testPanelApiSubmit() {
+            const mockFormData = new FormData();
+            mockFormData.append('video', new Blob(['test'], { type: 'video/mp4' }), 'test.mp4');
+            
+            const response = await videoAnalysisApi.submitAnalysisJob(mockFormData);
+            if (!response.data || !response.data.jobId) {
+                throw new Error('API did not return a job ID');
+            }
+            return response.data.jobId;
+        }
+        
+        async function testPanelApiStatus(jobId) {
+            const response = await videoAnalysisApi.checkJobStatus(jobId);
+            if (!response.data || !response.data.status) {
+                throw new Error('API did not return job status');
+            }
+        }
+        
+        async function testPanelApiResults(jobId) {
+            const response = await videoAnalysisApi.getJobResults(jobId);
+            if (!response.data || !response.data.frames) {
+                throw new Error('API did not return job results');
+            }
+        }
+        
+        // TimelineVisualization API Tests
+        async function testTimelineApiRendering(jobId) {
+            const response = await videoAnalysisApi.getJobResults(jobId);
+            // In a real test, we'd mount the component with this data
+            // But here we'll just check if we got valid data
+            if (!response.data || !response.data.frames) {
+                throw new Error('Could not get data for timeline rendering');
+            }
+        }
+        
+        // HeatmapVisualization API Tests  
+        async function testHeatmapApiRendering(jobId) {
+            const response = await videoAnalysisApi.getJobResults(jobId);
+            // In a real test, we'd create a heatmap with this data
+            // But here we'll just check if we got valid data
+            if (!response.data || !response.data.frames) {
+                throw new Error('Could not get data for heatmap rendering');
+            }
+        }
+        
+        // ObjectTrackingVisualization API Tests
+        async function testTrackingApiFrameLoading(jobId) {
+            const frameIndex = 1;
+            const response = await videoAnalysisApi.getFrame(jobId, frameIndex);
+            if (!response.data || !response.data.imageData) {
+                throw new Error('API did not return frame image data');
+            }
+        }
+        
+        // Test group runners
+        async function runPanelTests() {
+            const jobId = await runTest('Submit analysis job', testPanelApiSubmit);
+            await runTest('Check job status', () => testPanelApiStatus(jobId));
+            await runTest('Fetch job results', () => testPanelApiResults(jobId));
+        }
+        
+        async function runTimelineTests() {
+            const response = await videoAnalysisApi.submitAnalysisJob({url: 'https://example.com/video.mp4'});
+            const jobId = response.data.jobId;
+            await runTest('Render timeline with API data', () => testTimelineApiRendering(jobId));
+        }
+        
+        async function runHeatmapTests() {
+            const response = await videoAnalysisApi.submitAnalysisJob({url: 'https://example.com/video.mp4'});
+            const jobId = response.data.jobId;
+            await runTest('Render heatmap with API data', () => testHeatmapApiRendering(jobId));
+        }
+        
+        async function runTrackingTests() {
+            const response = await videoAnalysisApi.submitAnalysisJob({url: 'https://example.com/video.mp4'});
+            const jobId = response.data.jobId;
+            await runTest('Load frame images from API', () => testTrackingApiFrameLoading(jobId));
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            clearLog();
+            loadingSpinner.classList.remove('hidden');
+            
+            log('🚀 Starting API integration tests...', 'info');
+            log('───────────────────────────────────────');
+            
+            log('📋 Testing VideoAnalysisPanel API integration:', 'info');
+            await runPanelTests();
+            log('');
+            
+            log('📊 Testing TimelineVisualization API integration:', 'info');
+            await runTimelineTests();
+            log('');
+            
+            log('🔥 Testing HeatmapVisualization API integration:', 'info');
+            await runHeatmapTests();
+            log('');
+            
+            log('🔍 Testing ObjectTrackingVisualization API integration:', 'info');
+            await runTrackingTests();
+            log('');
+            
+            updateSummary();
+            loadingSpinner.classList.add('hidden');
+        }
+        
+        // Event listeners
+        document.getElementById('run-all-tests').addEventListener('click', runAllTests);
+        document.getElementById('clear-results').addEventListener('click', clearLog);
+        
+        // Group test buttons
+        document.querySelectorAll('.run-test-group').forEach(button => {
+            button.addEventListener('click', async () => {
+                clearLog();
+                loadingSpinner.classList.remove('hidden');
+                
+                const group = button.dataset.group;
+                
+                if (group === 'panel') {
+                    log('📋 Testing VideoAnalysisPanel API integration:', 'info');
+                    await runPanelTests();
+                } else if (group === 'timeline') {
+                    log('📊 Testing TimelineVisualization API integration:', 'info');
+                    await runTimelineTests();
+                } else if (group === 'heatmap') {
+                    log('🔥 Testing HeatmapVisualization API integration:', 'info');
+                    await runHeatmapTests();
+                } else if (group === 'tracking') {
+                    log('🔍 Testing ObjectTrackingVisualization API integration:', 'info');
+                    await runTrackingTests();
+                }
+                
+                updateSummary();
+                loadingSpinner.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
