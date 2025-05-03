@@ -4,6 +4,7 @@ import TabbedInterface from './TabbedInterface';
 import TimelineVisualization from './TimelineVisualization';
 import HeatmapVisualization from './HeatmapVisualization';
 import ObjectTrackingVisualization from './ObjectTrackingVisualization';
+import MultimodalVisualization from './MultimodalVisualization';
 import { videoAnalysisApi } from '../../services/api-client';
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api';
@@ -15,7 +16,10 @@ const VideoAnalysisPanel = () => {
     extract_frames: true,
     object_detection: true,
     scene_detection: true,
-    text_analysis: true
+    text_analysis: true,
+    multimodal_analysis: true,
+    content_summarization: true,
+    audio_analysis: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobId, setJobId] = useState(null);
@@ -24,6 +28,7 @@ const VideoAnalysisPanel = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('summary');
   const [statusCheckInterval, setStatusCheckInterval] = useState(null);
+  const [processingProgress, setProcessingProgress] = useState(0);
 
   // Check job status periodically if jobId exists
   useEffect(() => {
@@ -75,6 +80,7 @@ const VideoAnalysisPanel = () => {
   const submitAnalysisJob = async () => {
     setError(null);
     setIsSubmitting(true);
+    setProcessingProgress(0);
     
     try {
       let data;
@@ -96,12 +102,12 @@ const VideoAnalysisPanel = () => {
       
       const response = await videoAnalysisApi.submitAnalysisJob(data);
       
-      if (response && response.job_id) {
-        setJobId(response.job_id);
+      if (response && response.data && response.data.job_id) {
+        setJobId(response.data.job_id);
         setJobStatus('processing');
         
         // Start checking status immediately
-        checkJobStatus(response.job_id);
+        checkJobStatus(response.data.job_id);
       } else {
         throw new Error('Invalid response from server');
       }
@@ -115,9 +121,15 @@ const VideoAnalysisPanel = () => {
 
   const checkJobStatus = async (id) => {
     try {
-      const statusData = await videoAnalysisApi.checkJobStatus(id);
+      const response = await videoAnalysisApi.checkJobStatus(id);
+      const statusData = response.data;
       
       setJobStatus(statusData.status);
+      
+      // Update progress if available
+      if (statusData.progress !== undefined) {
+        setProcessingProgress(statusData.progress);
+      }
       
       // If job is complete, fetch results
       if (statusData.status === 'completed') {
@@ -133,8 +145,8 @@ const VideoAnalysisPanel = () => {
 
   const fetchJobResults = async (id) => {
     try {
-      const resultsData = await videoAnalysisApi.getJobResults(id);
-      setAnalysisResults(resultsData);
+      const response = await videoAnalysisApi.getJobResults(id);
+      setAnalysisResults(response.data);
     } catch (err) {
       console.error('Error fetching job results:', err);
       setError('Failed to fetch analysis results. Please try again.');
@@ -155,47 +167,65 @@ const VideoAnalysisPanel = () => {
       }
     } catch (err) {
       console.error('Error cancelling job:', err);
-      setError('Failed to cancel analysis job');
+      setError('Failed to cancel job. It may still be processing.');
     }
   };
 
-  const downloadResults = async (format = 'json') => {
+  const downloadResults = async (format) => {
     try {
-      if (jobId && jobStatus === 'completed') {
-        await videoAnalysisApi.exportResults(jobId, format);
+      if (jobId) {
+        const response = await videoAnalysisApi.exportResults(jobId, format);
+        
+        if (response && response.data && response.data.downloadUrl) {
+          // Create a temporary link and trigger download
+          const link = document.createElement('a');
+          link.href = response.data.downloadUrl;
+          link.download = `video-analysis-${jobId}.${format}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          throw new Error('Invalid response for export');
+        }
       }
     } catch (err) {
-      console.error(`Error exporting results as ${format}:`, err);
-      setError(`Failed to export results as ${format}`);
+      console.error('Error exporting results:', err);
+      setError(`Failed to export results as ${format.toUpperCase()}. Please try again.`);
     }
   };
 
-  const renderInputForm = () => {
+  const renderForm = () => {
     return (
-      <div className="input-form">
-        <h3>Video Analysis</h3>
+      <div className="analysis-form">
+        <h3>Submit Video for Analysis</h3>
         
         <div className="form-group">
-          <label>Video URL:</label>
-          <input
-            type="text"
-            value={videoUrl}
+          <label>Video URL</label>
+          <input 
+            type="text" 
+            value={videoUrl} 
             onChange={handleVideoUrlChange}
-            placeholder="Enter video URL"
-            disabled={!!fileUpload || isSubmitting}
+            placeholder="Enter YouTube URL or direct link to video"
+            disabled={isSubmitting || !!fileUpload}
             className="form-control"
           />
         </div>
         
         <div className="form-group">
-          <label>Upload Video:</label>
-          <input
-            type="file"
-            onChange={handleFileChange}
+          <label>Upload Video</label>
+          <input 
+            type="file" 
+            onChange={handleFileChange} 
             accept="video/*"
-            disabled={!!videoUrl || isSubmitting}
+            disabled={isSubmitting || !!videoUrl}
             className="form-control"
           />
+          {fileUpload && (
+            <div className="file-info">
+              <span>{fileUpload.name}</span>
+              <span className="file-size">({formatFileSize(fileUpload.size)})</span>
+            </div>
+          )}
         </div>
         
         <div className="options-group">
@@ -245,6 +275,39 @@ const VideoAnalysisPanel = () => {
               /> 
               Text Analysis
             </label>
+
+            <label className="new-option">
+              <input
+                type="checkbox"
+                name="multimodal_analysis"
+                checked={analysisOptions.multimodal_analysis}
+                onChange={handleOptionChange}
+                disabled={isSubmitting}
+              /> 
+              Multimodal Analysis
+            </label>
+            
+            <label className="new-option">
+              <input
+                type="checkbox"
+                name="content_summarization"
+                checked={analysisOptions.content_summarization}
+                onChange={handleOptionChange}
+                disabled={isSubmitting}
+              /> 
+              Content Summarization
+            </label>
+            
+            <label className="new-option">
+              <input
+                type="checkbox"
+                name="audio_analysis"
+                checked={analysisOptions.audio_analysis}
+                onChange={handleOptionChange}
+                disabled={isSubmitting}
+              /> 
+              Audio Analysis
+            </label>
           </div>
         </div>
         
@@ -252,6 +315,7 @@ const VideoAnalysisPanel = () => {
           onClick={submitAnalysisJob} 
           disabled={(!videoUrl && !fileUpload) || isSubmitting}
           className="btn btn-primary"
+          data-testid="submit-button"
         >
           {isSubmitting ? 'Submitting...' : 'Analyze Video'}
         </button>
@@ -268,7 +332,11 @@ const VideoAnalysisPanel = () => {
             <div className={`status-badge ${jobStatus}`}>{jobStatus}</div>
             {jobStatus === 'processing' && (
               <div className="progress-container">
-                <div className="progress-bar"></div>
+                <div 
+                  className="progress-bar" 
+                  style={{ width: `${processingProgress}%` }}
+                ></div>
+                <span className="progress-text">{processingProgress}%</span>
               </div>
             )}
           </div>
@@ -299,273 +367,226 @@ const VideoAnalysisPanel = () => {
             )}
           </div>
         </div>
-        {error && <div className="error-message">{error}</div>}
       </div>
     );
   };
 
-  const renderAnalysisResults = () => {
+  const renderResults = () => {
     if (!analysisResults) return null;
     
-    const tabs = getTabs();
-    
-    return (
-      <div className="analysis-results">
-        <h3>Analysis Results</h3>
-        
-        <TabbedInterface 
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        >
-          {tabs.map(tab => tab.content)}
-        </TabbedInterface>
-      </div>
-    );
-  };
-
-  const getTabs = () => {
-    return [
-      { 
-        id: 'summary', 
-        label: 'Summary', 
-        content: renderSummaryTab() 
+    const tabs = [
+      {
+        id: 'summary',
+        title: 'Summary',
+        content: renderSummary()
       },
-      { 
-        id: 'frames', 
-        label: 'Frames', 
-        content: renderFramesTab() 
+      {
+        id: 'frames',
+        title: 'Frames',
+        content: <FrameGrid frames={analysisResults.frames} jobId={jobId} />
       },
-      { 
-        id: 'objects', 
-        label: 'Objects', 
-        content: renderObjectsTab() 
-      },
-      { 
-        id: 'timeline', 
-        label: 'Timeline', 
-        content: renderTimelineTab() 
+      {
+        id: 'timeline',
+        title: 'Timeline',
+        content: (
+          <TimelineVisualization 
+            analysisResults={analysisResults} 
+            jobId={jobId}
+          />
+        )
       },
       {
         id: 'heatmap',
-        label: 'Heatmap',
-        content: renderHeatmapTab()
+        title: 'Heatmap',
+        content: (
+          <HeatmapVisualization 
+            analysisResults={analysisResults}
+          />
+        )
       },
       {
         id: 'tracking',
-        label: 'Object Tracking',
-        content: renderTrackingTab()
-      }
-    ];
-  };
-
-  const renderFramesTab = () => {
-    return (
-      <div className="frames-tab">
-        {analysisResults.frames && analysisResults.frames.length > 0 ? (
-          <FrameGrid 
-            frames={analysisResults.frames} 
-            jobId={jobId} 
-            autoLoadFrames={true} 
-          />
-        ) : (
-          <div className="empty-state">No frames were extracted from this video</div>
-        )}
-      </div>
-    );
-  };
-
-  const renderSummaryTab = () => {
-    const { summary, duration, resolution, format } = analysisResults;
-    
-    return (
-      <div className="summary-tab">
-        <div className="summary-section">
-          <h4>Video Information</h4>
-          <table className="info-table">
-            <tbody>
-              <tr>
-                <td>Duration:</td>
-                <td>{formatDuration(duration)}</td>
-              </tr>
-              <tr>
-                <td>Resolution:</td>
-                <td>{resolution?.width || 'N/A'} x {resolution?.height || 'N/A'}</td>
-              </tr>
-              <tr>
-                <td>Format:</td>
-                <td>{format || 'N/A'}</td>
-              </tr>
-              <tr>
-                <td>Frames Analyzed:</td>
-                <td>{analysisResults.frames?.length || 0}</td>
-              </tr>
-              <tr>
-                <td>Objects Detected:</td>
-                <td>{countTotalObjects()}</td>
-              </tr>
-              <tr>
-                <td>Scenes Detected:</td>
-                <td>{analysisResults.scenes?.length || 0}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        {summary && (
-          <div className="summary-section">
-            <h4>Content Summary</h4>
-            <p className="summary-text">{summary}</p>
-          </div>
-        )}
-        
-        {analysisResults.key_frames && analysisResults.key_frames.length > 0 && (
-          <div className="summary-section">
-            <h4>Key Frames</h4>
-            <div className="key-frames-preview">
-              {analysisResults.key_frames.slice(0, 5).map((frameIndex, idx) => {
-                return (
-                  <div className="key-frame-preview" key={idx}>
-                    <img 
-                      src={`${API_BASE_URL}/video/frame/${jobId}/${frameIndex}`}
-                      alt={`Key Frame ${idx + 1}`}
-                      onError={(e) => {
-                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMjAwIDE1MCIgZmlsbD0ibm9uZSI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTRweCIgZmlsbD0iIzU1NSI+RXJyb3IgbG9hZGluZyBpbWFnZTwvdGV4dD48L3N2Zz4=';
-                      }}
-                    />
-                    <div className="key-frame-time">
-                      {analysisResults.frames[frameIndex].timestamp_str}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderObjectsTab = () => {
-    const { objects } = analysisResults;
-    
-    if (!objects || Object.keys(objects).length === 0) {
-      return <div className="empty-state">No objects were detected in this video</div>;
-    }
-    
-    // Process object data for visualization
-    const objectClasses = Object.keys(objects).sort();
-    const objectCounts = objectClasses.map(cls => objects[cls].length);
-    
-    return (
-      <div className="objects-tab">
-        <div className="objects-summary">
-          <h4>Objects Detected</h4>
-          <div className="object-class-list">
-            {objectClasses.map((cls, idx) => (
-              <div className="object-class-item" key={cls}>
-                <div className="object-class-name">{cls}</div>
-                <div className="object-class-count">{objectCounts[idx]}</div>
-                <div className="object-class-bar" style={{ width: `${Math.min(100, (objectCounts[idx] / Math.max(...objectCounts)) * 100)}%` }}></div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="objects-timeline">
-          <h4>Object Appearances</h4>
-          <div className="timeline-container">
-            {/* Timeline visualization will go here */}
-            <div className="timeline-placeholder">
-              Timeline visualization component will be implemented in a future update
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderTimelineTab = () => {
-    const { scenes } = analysisResults;
-    
-    if (!scenes || scenes.length === 0) {
-      return <div className="empty-state">No scene transitions were detected in this video</div>;
-    }
-    
-    return (
-      <div className="timeline-tab">
-        {analysisResults ? (
-          <TimelineVisualization 
-            analysisResults={analysisResults}
-            jobId={jobId}
-            onTimeSelect={(time) => console.log(`Selected time: ${time}`)}
-          />
-        ) : (
-          <div className="empty-state">No analysis results available for timeline visualization</div>
-        )}
-      </div>
-    );
-  };
-
-  const renderHeatmapTab = () => {
-    return (
-      <div className="heatmap-tab">
-        {analysisResults ? (
-          <HeatmapVisualization 
-            analysisResults={analysisResults}
-            dimensions={{ width: 640, height: 360 }}
-          />
-        ) : (
-          <div className="empty-state">No analysis results available for heatmap visualization</div>
-        )}
-      </div>
-    );
-  };
-
-  const renderTrackingTab = () => {
-    return (
-      <div className="tracking-tab">
-        {analysisResults ? (
+        title: 'Object Tracking',
+        content: (
           <ObjectTrackingVisualization 
             analysisResults={analysisResults}
             jobId={jobId}
           />
-        ) : (
-          <div className="empty-state">No analysis results available for object tracking</div>
+        )
+      },
+      {
+        id: 'multimodal',
+        title: 'Multimodal Analysis',
+        content: (
+          <MultimodalVisualization
+            analysisResults={analysisResults}
+            jobId={jobId}
+          />
+        )
+      }
+    ];
+    
+    return (
+      <div className="analysis-results">
+        <h3>Analysis Results</h3>
+        <TabbedInterface 
+          tabs={tabs} 
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      </div>
+    );
+  };
+
+  const renderSummary = () => {
+    if (!analysisResults) return null;
+    
+    const { summary, multimodal_summary = {} } = analysisResults;
+    
+    return (
+      <div className="results-summary">
+        <div className="summary-section">
+          <h4>Video Information</h4>
+          <table className="summary-table">
+            <tbody>
+              <tr>
+                <th>Duration</th>
+                <td>{formatTime(summary?.duration || 0)}</td>
+              </tr>
+              <tr>
+                <th>Resolution</th>
+                <td>{summary?.resolution?.width || 0} x {summary?.resolution?.height || 0}</td>
+              </tr>
+              <tr>
+                <th>Format</th>
+                <td>{summary?.format || 'Unknown'}</td>
+              </tr>
+              <tr>
+                <th>Frame Count</th>
+                <td>{summary?.frame_count || 0}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {analysisOptions.multimodal_analysis && multimodal_summary && (
+          <div className="summary-section">
+            <h4>Multimodal Analysis</h4>
+            {multimodal_summary.content_summary && (
+              <>
+                <h5>Content Summary</h5>
+                <p>{multimodal_summary.content_summary}</p>
+              </>
+            )}
+            
+            {multimodal_summary.key_topics && (
+              <>
+                <h5>Key Topics</h5>
+                <ul className="topics-list">
+                  {multimodal_summary.key_topics.map((topic, idx) => (
+                    <li key={idx} className="topic-item">{topic}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            
+            {multimodal_summary.sentiment && (
+              <>
+                <h5>Content Sentiment</h5>
+                <div className="sentiment-meter">
+                  <div className="sentiment-score" style={{
+                    left: `${(multimodal_summary.sentiment + 1) * 50}%`
+                  }}></div>
+                  <div className="sentiment-labels">
+                    <span>Negative</span>
+                    <span>Neutral</span>
+                    <span>Positive</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        
+        <div className="summary-section">
+          <h4>Detected Objects</h4>
+          {renderObjectSummary()}
+        </div>
+        
+        {analysisOptions.scene_detection && (
+          <div className="summary-section">
+            <h4>Scene Detection</h4>
+            <p>Detected {analysisResults.scenes?.length || 0} distinct scenes</p>
+          </div>
         )}
       </div>
     );
   };
 
-  // Helper functions
-  const formatDuration = (seconds) => {
-    if (!seconds && seconds !== 0) return 'N/A';
+  const renderObjectSummary = () => {
+    if (!analysisResults || !analysisResults.objects) {
+      return <p>No objects detected</p>;
+    }
     
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
+    const objectCounts = {};
     
-    return [
-      hrs > 0 ? hrs.toString().padStart(2, '0') : null,
-      mins.toString().padStart(2, '0'),
-      secs.toString().padStart(2, '0')
-    ].filter(Boolean).join(':');
+    // Count object occurrences
+    Object.entries(analysisResults.objects).forEach(([className, instances]) => {
+      objectCounts[className] = instances.length;
+    });
+    
+    // Sort by count (descending)
+    const sortedObjects = Object.entries(objectCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10); // Top 10
+    
+    return (
+      <div className="object-summary">
+        <div className="object-counts">
+          {sortedObjects.map(([className, count]) => (
+            <div key={className} className="object-count-item">
+              <span className="object-class">{className}</span>
+              <span className="object-count">{count}</span>
+              <div className="count-bar" style={{ width: `${Math.min(count / 2, 100)}%` }}></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
-  const countTotalObjects = () => {
-    if (!analysisResults.objects) return 0;
-    
-    return Object.values(analysisResults.objects)
-      .reduce((total, instances) => total + instances.length, 0);
+  const formatTime = (seconds) => {
+    if (isNaN(seconds)) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   return (
     <div className="video-analysis-panel">
-      {renderInputForm()}
+      <div className="panel-header">
+        <h2>Video Analysis</h2>
+        {error && <div className="error-message">{error}</div>}
+      </div>
       
-      {jobId && jobStatus && renderJobStatus()}
-      
-      {analysisResults && renderAnalysisResults()}
+      <div className="panel-body">
+        {!jobId && renderForm()}
+        
+        {jobId && (
+          <>
+            {renderJobStatus()}
+            {jobStatus === 'completed' && renderResults()}
+          </>
+        )}
+      </div>
     </div>
   );
 };
