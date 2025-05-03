@@ -12,6 +12,7 @@ import json
 from typing import Dict, List, Optional, Union, Any, Callable
 from pathlib import Path
 import time
+from datetime import datetime
 
 # LangChain imports
 try:
@@ -28,6 +29,16 @@ except (ImportError, AttributeError) as e:
     LANGCHAIN_AVAILABLE = False
     logger = logging.getLogger(__name__)
     logger.warning(f"LangChain dependencies not available: {str(e)}")
+
+# Local imports
+try:
+    from langchain.memory.simple import SimpleMemoryManager
+    from langchain.memory.persistent import PersistentMemoryManager
+    MEMORY_AVAILABLE = True
+except ImportError:
+    MEMORY_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("Memory management modules not available. Using basic memory functionality.")
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -60,7 +71,11 @@ class LangChainService:
             model_name: Optional[str] = None,
             ollama_base_url: Optional[str] = None,
             model_kwargs: Optional[Dict[str, Any]] = None,
-            templates_dir: Optional[str] = None
+            templates_dir: Optional[str] = None,
+            memory_dir: Optional[str] = None,
+            persistent_memory: bool = False,
+            encryption_enabled: bool = False,
+            encryption_key: Optional[str] = None
         ):
         """
         Initialize the LangChain service.
@@ -70,6 +85,10 @@ class LangChainService:
             ollama_base_url: Base URL for Ollama API (default: http://localhost:11434)
             model_kwargs: Additional arguments to pass to the model
             templates_dir: Directory containing prompt templates
+            memory_dir: Directory for storing memory files
+            persistent_memory: Whether to use persistent memory storage
+            encryption_enabled: Whether to encrypt stored memories
+            encryption_key: Key for encryption/decryption
         """
         # Check if LangChain is available
         if not LANGCHAIN_AVAILABLE:
@@ -107,8 +126,33 @@ class LangChainService:
         # Initialize chains registry
         self.chains = {}
         
-        # Initialize memory
-        self.memory = {}
+        # Initialize memory manager
+        memory_path = memory_dir or os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "memory"
+        )
+        
+        if MEMORY_AVAILABLE and persistent_memory:
+            logger.info("Initializing persistent memory manager")
+            self.memory_manager = PersistentMemoryManager(
+                memory_dir=memory_path,
+                encryption_enabled=encryption_enabled,
+                encryption_key=encryption_key,
+                auto_save=True,
+                auto_summarize=True
+            )
+        elif MEMORY_AVAILABLE:
+            logger.info("Initializing simple memory manager")
+            self.memory_manager = SimpleMemoryManager(
+                memory_dir=memory_path,
+                encryption_enabled=encryption_enabled,
+                encryption_key=encryption_key
+            )
+        else:
+            logger.warning("Memory modules not available, using basic dictionary storage")
+            self.memory_manager = None
+            # Initialize basic memory dictionary as fallback
+            self.memory = {}
         
         logger.info(f"Initialized LangChainService with model {self.model_name}")
     
@@ -251,12 +295,29 @@ class LangChainService:
         
         # Set up memory if requested
         if memory_key:
-            if memory_key not in self.memory:
-                self.memory[memory_key] = []
-            
-            def get_history():
-                return self.memory[memory_key]
+            # Initialize memory if needed
+            if self.memory_manager:
+                # Use memory manager
+                if not self.memory_manager.memory_exists(memory_key):
+                    # Add a system message if available
+                    if system_prompt:
+                        self.memory_manager.add_message(memory_key, system_prompt, role="system")
                 
+                def get_history():
+                    return self.memory_manager.get_messages(memory_key)
+                
+            else:
+                # Fallback to basic memory dictionary
+                if memory_key not in self.memory:
+                    self.memory[memory_key] = []
+                    # Add a system message if available
+                    if system_prompt:
+                        self.memory[memory_key].append(SystemMessage(content=system_prompt))
+                
+                def get_history():
+                    return self.memory[memory_key]
+                
+            # Create chain with memory
             history_chain = RunnablePassthrough.assign(
                 history=lambda _: get_history()
             )
@@ -325,17 +386,35 @@ class LangChainService:
             ])
             
             if memory_key:
-                if memory_key not in self.memory:
-                    self.memory[memory_key] = []
-                
-                def get_history():
-                    return self.memory[memory_key]
+                # Initialize memory if needed
+                if self.memory_manager:
+                    # Use memory manager
+                    if not self.memory_manager.memory_exists(memory_key):
+                        # Add a system message if available
+                        if system_message:
+                            self.memory_manager.add_message(memory_key, system_message, role="system")
                     
+                    def get_history():
+                        return self.memory_manager.get_messages(memory_key)
+                    
+                else:
+                    # Fallback to basic memory dictionary
+                    if memory_key not in self.memory:
+                        self.memory[memory_key] = []
+                        # Add a system message if available
+                        if system_message:
+                            self.memory[memory_key].append(SystemMessage(content=system_message))
+                    
+                    def get_history():
+                        return self.memory[memory_key]
+                
+                # Create chain with memory
                 history_chain = RunnablePassthrough.assign(
                     history=lambda _: get_history()
                 )
                 chain = history_chain | prompt | self.model | StrOutputParser()
             else:
+                # No memory chain
                 chain = prompt | self.model | StrOutputParser()
             
             self.chains[chain_key] = chain
@@ -355,8 +434,14 @@ class LangChainService:
                 
                 # Add to memory if memory key is provided
                 if memory_key:
-                    self.memory[memory_key].append(HumanMessage(content=input_text))
-                    self.memory[memory_key].append(AIMessage(content=response))
+                    if self.memory_manager:
+                        # Add to memory manager
+                        self.memory_manager.add_message(memory_key, input_text, role="human")
+                        self.memory_manager.add_message(memory_key, response, role="ai")
+                    else:
+                        # Add to basic memory dictionary
+                        self.memory[memory_key].append(HumanMessage(content=input_text))
+                        self.memory[memory_key].append(AIMessage(content=response))
                 
                 end_time = time.time()
                 logger.debug(f"Response generated in {end_time - start_time:.2f}s")
@@ -373,10 +458,156 @@ class LangChainService:
         Args:
             memory_key: Memory key to clear, or None to clear all memory
         """
-        if memory_key:
-            if memory_key in self.memory:
-                self.memory[memory_key] = []
-                logger.debug(f"Cleared memory for {memory_key}")
+        if self.memory_manager:
+            # Use memory manager
+            self.memory_manager.clear_memory(memory_key)
         else:
-            self.memory = {}
-            logger.debug("Cleared all memory")
+            # Fallback to basic memory dictionary
+            if memory_key:
+                if memory_key in self.memory:
+                    self.memory[memory_key] = []
+                    logger.debug(f"Cleared memory for {memory_key}")
+            else:
+                self.memory = {}
+                logger.debug("Cleared all memory")
+    
+    def get_memory(self, memory_key: str, max_messages: Optional[int] = None) -> List[Any]:
+        """
+        Get messages from a specific memory context.
+        
+        Args:
+            memory_key: Memory key to retrieve
+            max_messages: Maximum number of recent messages to return
+            
+        Returns:
+            List of messages from the specified memory context
+        """
+        if self.memory_manager:
+            # Use memory manager
+            return self.memory_manager.get_messages(memory_key, max_messages)
+        else:
+            # Fallback to basic memory dictionary
+            if memory_key in self.memory:
+                messages = self.memory[memory_key]
+                if max_messages:
+                    return messages[-max_messages:]
+                return messages
+            return []
+    
+    def save_memory(self, memory_key: Optional[str] = None, path: Optional[str] = None) -> bool:
+        """
+        Save memory state to persistent storage.
+        
+        Args:
+            memory_key: Specific memory context to save, or None to save all
+            path: Path to save the memory, or None to use default location
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if self.memory_manager:
+            # Use memory manager
+            return self.memory_manager.save_memory(memory_key, path)
+        else:
+            # Fallback - not supported with basic memory dictionary
+            logger.warning("Memory persistence not available with basic memory storage")
+            return False
+    
+    def load_memory(self, memory_key: Optional[str] = None, path: Optional[str] = None) -> bool:
+        """
+        Load memory state from persistent storage.
+        
+        Args:
+            memory_key: Specific memory context to load, or None to load all
+            path: Path to load the memory from, or None to use default location
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if self.memory_manager:
+            # Use memory manager
+            return self.memory_manager.load_memory(memory_key, path)
+        else:
+            # Fallback - not supported with basic memory dictionary
+            logger.warning("Memory persistence not available with basic memory storage")
+            return False
+    
+    def summarize_memory(self, memory_key: str, max_tokens: Optional[int] = None) -> str:
+        """
+        Generate a summary of the conversation in a memory context.
+        
+        Args:
+            memory_key: Memory context to summarize
+            max_tokens: Maximum tokens to consider for summarization
+            
+        Returns:
+            Summary of the conversation
+        """
+        if self.memory_manager:
+            # Use memory manager
+            return self.memory_manager.summarize_memory(
+                memory_key, 
+                max_tokens,
+                summary_model=self.model_name
+            )
+        else:
+            # Fallback to basic memory summary
+            if memory_key in self.memory:
+                messages = self.memory[memory_key]
+                if not messages:
+                    return "No conversation history found."
+                
+                # Simple summary: show first message and count
+                first_msg = messages[0]
+                first_content = first_msg.content if hasattr(first_msg, 'content') else str(first_msg)
+                
+                # Truncate first message if needed
+                if max_tokens and len(first_content) > max_tokens:
+                    first_content = first_content[:max_tokens] + "..."
+                    
+                summary = f"Conversation with {len(messages)} messages. Started with: {first_content}"
+                return summary
+            else:
+                return "No conversation history found."
+    
+    def get_memory_stats(self, memory_key: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Get statistics about memory usage.
+        
+        Args:
+            memory_key: Specific memory context, or None for all
+            
+        Returns:
+            Dictionary with memory statistics
+        """
+        if self.memory_manager:
+            # Use memory manager
+            return self.memory_manager.get_memory_stats(memory_key)
+        else:
+            # Fallback to basic statistics
+            if memory_key:
+                if memory_key in self.memory:
+                    return {
+                        "message_count": len(self.memory[memory_key]),
+                        "last_updated": datetime.now().isoformat()
+                    }
+                return {}
+            else:
+                return {
+                    "total_contexts": len(self.memory),
+                    "total_messages": sum(len(msgs) for msgs in self.memory.values())
+                }
+    
+    def get_memory_keys(self) -> List[str]:
+        """
+        Get all available memory keys.
+        
+        Returns:
+            List of all memory keys in the system
+        """
+        if self.memory_manager:
+            # Use memory manager
+            return self.memory_manager.get_memory_keys()
+        else:
+            # Fallback to basic memory dictionary
+            return list(self.memory.keys())

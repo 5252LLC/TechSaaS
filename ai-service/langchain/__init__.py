@@ -1,13 +1,32 @@
+#!/usr/bin/env python3
 """
-LangChain Components
+TechSaaS LangChain Integration
 
-This package provides the core LangChain components for the TechSaaS platform:
-- LangChainService: Main service for interacting with LLMs via LangChain
-- Template management for different tasks
-- Memory management for conversations
-- Chain creation and optimization
+This package provides LangChain integration for the TechSaaS platform,
+with support for model management, prompting, and memory persistence.
+
+Features:
+- Model integration with Ollama
+- Prompt template management
+- Chain creation and execution
+- Memory management with persistence
+- Conversation summarization
 """
 
-from .service import LangChainService
+from langchain.service import LangChainService
 
-__all__ = ["LangChainService"]
+# Make memory packages available
+try:
+    from langchain.memory import (
+        BaseMemoryManager,
+        SimpleMemoryManager,
+        PersistentMemoryManager
+    )
+    __all__ = [
+        'LangChainService',
+        'BaseMemoryManager',
+        'SimpleMemoryManager',
+        'PersistentMemoryManager'
+    ]
+except ImportError:
+    __all__ = ['LangChainService']
