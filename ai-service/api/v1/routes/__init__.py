@@ -13,6 +13,8 @@ from .admin_endpoints import admin_blueprint
 from .admin_docs import admin_docs_blueprint
 from .validation_example import validation_example_blueprint
 from .langchain_example import langchain_example_blueprint
+from .response_example import response_example_bp
+from .live_demo import live_demo_bp
 
 __all__ = [
     'ai_blueprint',
@@ -23,6 +25,8 @@ __all__ = [
     'admin_docs_blueprint',
     'validation_example_blueprint',
     'langchain_example_blueprint',
+    'response_example_bp',
+    'live_demo_bp',
     'register_routes'
 ]
 
@@ -42,8 +46,10 @@ def register_routes(app: Flask) -> Flask:
     app.register_blueprint(subscription_blueprint, url_prefix='/api/v1/subscription')
     app.register_blueprint(admin_blueprint, url_prefix='/api/v1/admin')
     app.register_blueprint(admin_docs_blueprint, url_prefix='/api/v1/admin-docs')
-    app.register_blueprint(validation_example_blueprint, url_prefix='/api/v1/examples')
-    app.register_blueprint(langchain_example_blueprint, url_prefix='/api/v1/langchain')
+    app.register_blueprint(validation_example_blueprint)  # URL prefix is set in the blueprint
+    app.register_blueprint(langchain_example_blueprint)  # URL prefix is set in the blueprint
+    app.register_blueprint(response_example_bp)  # URL prefix is set in the blueprint
+    app.register_blueprint(live_demo_bp)  # URL prefix is set in the blueprint
     
     app.logger.info("All API route blueprints registered")
     return app

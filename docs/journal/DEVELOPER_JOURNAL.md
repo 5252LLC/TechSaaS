@@ -934,6 +934,17 @@ Successfully fixed Task Master CLI integration and used it to:
 - Proceed with the Hitomi-LangChain connector enhancement as specified in the roadmap
 - Focus on security enhancements in API connectors following Task #8
 
+#### Technical Decisions and Trade-offs
+
+1. **API Integration vs. Direct Component Usage**:
+   We chose to integrate the React UI components with the backend API endpoints instead of directly using the components. This approach allows for better separation of concerns, easier testing, and improved scalability.
+
+2. **Mock Services vs. Real API Calls**:
+   We used mock services to simulate API behavior in our tests, which allows for faster test execution and reduces the dependency on the backend API.
+
+3. **Unified Test Dashboard**:
+   We created a unified test dashboard to make it easier to execute and verify the tests. This dashboard provides a single entry point for testing all the visualization components.
+
 ### 2025-05-03: API Documentation and Monetization Implementation
 
 Today I implemented comprehensive API documentation and monetization capabilities for the TechSaaS AI service, aligning with our requirements for both professional documentation and tiered access models.
@@ -1221,86 +1232,20 @@ This implementation provides a solid foundation for AI-powered endpoints in our 
 
 ## AI Task Endpoints Implementation (2025-05-03)
 
-Today I completed task #8.4: Implementing AI task endpoints for the Flask API service. This implementation builds upon the LangChain components integration and request validation middleware to provide a comprehensive suite of AI-powered API endpoints.
-
-### Key Endpoints Implemented
-
-1. **Core AI Functionality Endpoints**
-   - Enhanced `/api/v1/ai/chat` endpoint for conversational AI with memory persistence
-   - Improved `/api/v1/ai/completion` endpoint for text generation with advanced parameters 
-   - Updated `/api/v1/ai/analyze` endpoint for text analysis with multiple analysis types
-   - Added proper LangChain integration for all endpoints
-
-2. **Operational Support Endpoints**
-   - Added `/api/v1/ai/models` endpoint to list available AI models and capabilities
-   - Implemented `/api/v1/ai/batch` endpoint for processing multiple inputs as a batch
-   - Created `/api/v1/ai/health` endpoint for service health monitoring
-   - Built `/api/v1/ai/example/beginner` endpoint with comprehensive code examples
-
-3. **Monetization Features**
-   - Structured API documentation with tiered feature availability (Basic/Pro/Enterprise)
-   - Added usage cost information for each endpoint
-   - Implemented tier-specific limitations for features like batch processing
-   - Added proper tracking for token usage to support pay-per-use billing
-
-### Security & Validation
-
-- All endpoints integrate with our request validation middleware
-- Proper input sanitization for all user-supplied data
-- Error handling and graceful degradation for all operations
-- Authentication integration with our API key system
-- Security-focused documentation for users
-
-### Integration with LangChain
-
-- Full integration with the LangChain factory module
-- Proper service initialization and cleanup
-- Memory management for conversational contexts
-- Model parameter optimization
-
-### Developer Experience
-
-- Comprehensive example code for multiple languages (Python, JavaScript)
-- Detailed API documentation with parameter descriptions and usage examples
-- Health check endpoints for system monitoring and alerts
-- Beginner-friendly documentation following the requested multi-skill level approach
-
-### Monetization Strategy
-
-The API endpoints now support our monetization strategy with:
-- Tiered access controls for features
-- Usage tracking for billing purposes
-- Rate limiting based on subscription level
-- Batch processing with tier-specific limits
-
-### Next Steps
-
-- Add comprehensive integration tests for all endpoints
-- Implement caching for improved performance
-- Add streaming capabilities for real-time responses
-- Extend documentation with additional language examples
-
-This implementation completes the core AI API infrastructure, providing a solid foundation for the TechSaaS platform's AI capabilities with proper security, validation, and monetization features.
-
-{{ ... }}
-
-## AI Task Endpoints Implementation (2025-05-03)
-
 Today I focused on implementing secure and efficient AI task endpoints for the Flask API service, ensuring proper integration with LangChain components. This work addresses our requirements for comprehensive API documentation, security best practices, and monetization strategies.
 
 #### Key Accomplishments
 
 1. **AI Endpoint Implementation**:
-   - Enhanced `/api/v1/ai/chat` for conversational AI with memory persistence
-   - Improved `/api/v1/ai/completion` for text generation with advanced parameters 
-   - Updated `/api/v1/ai/analyze` for text analysis with multiple analysis types
-   - Added `/api/v1/ai/models` to list available AI models and capabilities
-   - Implemented `/api/v1/ai/batch` for processing multiple inputs as a batch
-   - Created `/api/v1/ai/health` for service health monitoring
-   - Built `/api/v1/ai/example/beginner` with comprehensive code examples
+   - Enhanced `/api/v1/ai/chat` endpoint for conversational AI with memory persistence
+   - Improved `/api/v1/ai/completion` endpoint for text generation with advanced parameters 
+   - Updated `/api/v1/ai/analyze` endpoint for text analysis with multiple analysis types
+   - Added `/api/v1/ai/models` endpoint to list available AI models and capabilities
+   - Implemented `/api/v1/ai/batch` endpoint for processing multiple inputs as a batch
+   - Created `/api/v1/ai/health` endpoint for service health monitoring
+   - Built `/api/v1/ai/example/beginner` endpoint with comprehensive code examples
 
-2. **Monetization Features**:
-   - Structured API documentation with tiered feature availability (Basic/Pro/Enterprise)
+2. **Operational Support Endpoints**:
    - Added usage cost information for each endpoint
    - Implemented tier-specific limitations for features like batch processing
    - Set up proper tracking for token usage to support pay-per-use billing
@@ -1429,203 +1374,6 @@ MEMORY_DIR=/path/to/memory
 ## LangChain Compatibility Implementation
 
 After identifying version compatibility issues between LangChain packages, we implemented a robust compatibility layer that ensures seamless operation regardless of the installed package versions.
-
-### Compatibility Layer Architecture
-
-The compatibility layer in `langchain/compat.py` provides several critical functions:
-
-```python
-# Version detection and monkey patching for compatibility
-def detect_langchain_version():
-    """Detect the installed LangChain version and return the version numbers."""
-    try:
-        # Check for langchain package
-        if importlib.util.find_spec('langchain') is not None:
-            import langchain
-            version = getattr(langchain, "__version__", "0.0.0")
-            major, minor, patch = map(int, version.split("."))
-            return major, minor, patch
-           
-        # Check for langchain_core package (newer versions)
-        elif importlib.util.find_spec('langchain_core') is not None:
-            import langchain_core
-            version = getattr(langchain_core, "__version__", "0.0.0")
-            return 1, 0, 0  # Consider new package structure as 1.0.0+
-           
-        # Neither found
-        else:
-            logger.warning("No LangChain packages found")
-            return 0, 0, 0
-       
-    except (ImportError, ValueError) as e:
-        logger.warning(f"Error detecting LangChain version: {str(e)}")
-        return 0, 0, 0
-```
-
-This approach allows us to detect the installed version and apply appropriate patches for backward compatibility.
-
-### API Normalization Strategies
-
-To provide a consistent API surface across different versions, we implemented standardized wrappers:
-
-```python
-def get_llm_model_name(llm):
-    """Get model name from LLM object regardless of version."""
-    try:
-        # Modern LangChain version
-        if hasattr(llm, "model_name"):
-            return llm.model_name
-        # Legacy version
-        elif hasattr(llm, "model"):
-            return llm.model
-        # Fallback for custom LLMs
-        else:
-            return str(llm.__class__.__name__)
-    except Exception as e:
-        logger.warning(f"Could not extract model name: {e}")
-        return "unknown"
-```
-
-### Usage Tracking Database Implementation
-
-To support our monetization strategy, we implemented a comprehensive usage tracking system:
-
-```python
-# Usage Tracking Database Schema
-class APIUsage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(50), nullable=False, index=True)
-    endpoint = db.Column(db.String(255), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    tier = db.Column(db.String(20), nullable=False)
-    tokens_input = db.Column(db.Integer, nullable=True)
-    tokens_output = db.Column(db.Integer, nullable=True)
-    processing_time = db.Column(db.Float, nullable=True)
-    status_code = db.Column(db.Integer, nullable=False)
-    model_id = db.Column(db.String(100), nullable=True)
-    request_size = db.Column(db.Integer, nullable=True)
-    response_size = db.Column(db.Integer, nullable=True)
-    billable = db.Column(db.Boolean, default=True)
-```
-
-This schema captures all relevant metrics for billing purposes while providing detailed analytics for both internal and customer-facing dashboards.
-
-### Middleware Integration
-
-Usage tracking is implemented via middleware that automatically captures request and response metrics:
-
-```python
-@app.before_request
-def track_api_usage():
-    g.request_start_time = time.time()
-
-@app.after_request
-def record_api_usage(response):
-    if request.endpoint and request.endpoint.startswith('api.v1'):
-        # Record usage metrics
-        elapsed = time.time() - g.get('request_start_time', time.time())
-        
-        # Extract user info from auth token
-        user_id = get_user_id_from_request()
-        tier = get_user_tier(user_id)
-        
-        # Create usage record
-        usage = APIUsage(
-            user_id=user_id,
-            endpoint=request.endpoint,
-            tier=tier,
-            tokens_input=g.get('tokens_input', 0),
-            tokens_output=g.get('tokens_output', 0),
-            processing_time=elapsed,
-            status_code=response.status_code,
-            model_id=g.get('model_id', None),
-            request_size=request.content_length,
-            response_size=response.content_length,
-            billable=is_billable_request()
-        )
-        
-        db.session.add(usage)
-        db.session.commit()
-    
-    return response
-```
-
-### Comprehensive Testing Strategy
-
-We implemented a multi-layered testing approach to ensure robustness:
-
-```python
-# Testing Strategy Overview
-1. Unit Tests
-   - Individual component testing with mocked dependencies
-   - Validation of processing logic and error handling
-   - Parameter validation and edge case handling
-
-2. Integration Tests
-   - End-to-end testing of API endpoints
-   - Real LangChain and Ollama interactions
-   - Model loading and inference verification
-
-3. Performance Tests
-   - Load testing with simulated traffic
-   - Memory usage monitoring
-   - Response time benchmarking
-
-4. Security Tests
-   - Input validation and sanitization testing
-   - Authentication and authorization verification
-   - Rate limiting and quota enforcement
-
-5. Monetization Tests
-   - Usage tracking accuracy validation
-   - Tier-based access control verification
-   - Billing calculation correctness
-```
-
-### LangChain Factory Implementation
-
-The LangChain factory module (`api/v1/services/langchain_factory.py`) provides a centralized interface for creating and managing LangChain components:
-
-```python
-def create_language_model(model_id=None, provider=None, **kwargs):
-    """Create a language model instance based on model_id or provider."""
-    if not model_id and not provider:
-        model_id = current_app.config.get('DEFAULT_LLM_MODEL', 'ollama/llama2')
-    
-    # Extract provider from model_id if not explicitly provided
-    if model_id and not provider:
-        provider = extract_provider_from_model_id(model_id)
-    
-    # Get the appropriate provider-specific factory
-    if provider == 'ollama':
-        return create_ollama_llm(model_id, **kwargs)
-    elif provider == 'openai':
-        return create_openai_llm(model_id, **kwargs)
-    elif provider == 'huggingface':
-        return create_huggingface_llm(model_id, **kwargs)
-    else:
-        raise ValueError(f"Unsupported provider: {provider}")
-```
-
-This factory pattern allows for easy extension to support additional model providers while abstracting away the implementation details.
-
-## Next Implementation Steps
-
-For the next development session, we will focus on:
-
-1. Implementing streaming response capabilities for real-time AI interactions
-2. Adding a response caching layer to improve performance and reduce costs
-3. Creating an admin dashboard for monitoring usage and revenue
-4. Implementing advanced security features including content filtering
-
-These enhancements will build on our solid foundation and move us closer to a production-ready AI service that meets all our requirements.
-
-```
-{{ ... }}
-
-## LangChain Compatibility Layer Implementation - Expanded
-
-Building on our previous work, we've enhanced the LangChain compatibility layer to address several issues that were causing test failures. The enhanced implementation provides more robust compatibility between different versions of LangChain packages and improves memory management.
 
 ### Key Enhancements
 
@@ -1771,3 +1519,299 @@ git add ai-service/tests/test_langchain_service.py
 git add docs/journal/DEVELOPER_JOURNAL.md
 git commit -m "Implement enhanced LangChain compatibility layer with improved memory management"
 ```
+
+```
+
+### May 3, 2025 - API Response Formatting and Error Handling Implementation
+
+#### Tasks Completed
+
+We've implemented a comprehensive response formatting and error handling system for the TechSaaS API. This standardizes our API responses across all endpoints and provides detailed error information in a consistent format.
+
+1. **Response Formatter Utility**
+   - Created `ResponseFormatter` class in `api/v1/utils/response_formatter.py`
+   - Implemented consistent success response format with standardized metadata
+   - Added specialized error response methods for different error types (validation, authentication, permission, etc.)
+   - Included processing time tracking in all responses
+
+2. **Custom Error Handling**
+   - Implemented custom error classes in `api/v1/middleware/error_handlers.py`
+   - Created middleware for centralized error handling with appropriate HTTP status codes
+   - Added detailed error information with error type classification
+   - Implemented stack trace capture for internal development use
+
+3. **Request Context Middleware**
+   - Implemented request tracking in `api/v1/middleware/request_context.py`
+   - Added request timing and metadata collection
+   - Set up user context propagation through the request pipeline
+
+4. **Standardized Response Format**
+   - Success responses: `{"status": "success", "message": "...", "data": {...}, "metadata": {...}}`
+   - Error responses: `{"status": "error", "message": "...", "error": {...}, "metadata": {...}}`
+   - Consistent metadata including processing time, request ID, and timestamps
+
+5. **Integration with Monetization**
+   - Added tier limit error format with subscription information
+   - Included usage tracking metadata in responses
+   - Added upgrade URL for users who exceed their tier limits
+
+6. **Comprehensive Testing**
+   - Created test suite in `ai-service/tests/test_response_formatting.py`
+   - Implemented tests for all response types (success, validation error, tier limit, etc.)
+   - Added integration tests to verify interaction with other components
+
+#### Code Examples
+
+**Success Response Format**:
+```json
+{
+  "status": "success",
+  "message": "Request processed successfully",
+  "data": {
+    "example": "This is example data",
+    "items": [
+      {"id": 1, "name": "Item 1"},
+      {"id": 2, "name": "Item 2"}
+    ]
+  },
+  "metadata": {
+    "processing_time_ms": 45,
+    "timestamp": 1746307575.074,
+    "token_count": 150,
+    "model": "llama3:8b"
+  }
+}
+```
+
+**Validation Error Format**:
+```json
+{
+  "status": "error",
+  "message": "Validation failed",
+  "error": {
+    "type": "validation_error",
+    "details": "Validation failed",
+    "validation_errors": {
+      "email": "Invalid email format",
+      "name": "Name is required"
+    }
+  },
+  "metadata": {
+    "processing_time_ms": 12,
+    "timestamp": 1746307575.074
+  }
+}
+```
+
+**Tier Limit Error Format**:
+```json
+{
+  "status": "error",
+  "message": "You have exceeded the rate limit for your subscription tier",
+  "error": {
+    "type": "tier_limit_error",
+    "tier": "basic",
+    "limit_type": "requests_per_minute",
+    "current_usage": 120,
+    "allowed_limit": 100,
+    "details": "Tier limit exceeded: 120/100 requests_per_minute",
+    "upgrade_url": "https://techsaas.tech/pricing"
+  },
+  "metadata": {
+    "processing_time_ms": 5,
+    "timestamp": 1746307575.074
+  }
+}
+```
+
+#### Git Activity
+```bash
+git checkout -b feature/api-response-formatting
+git add ai-service/api/v1/utils/response_formatter.py
+git add ai-service/api/v1/middleware/error_handlers.py
+git add ai-service/api/v1/middleware/request_context.py
+git add ai-service/api/v1/routes/response_example.py
+git add ai-service/api/v1/routes/live_demo.py
+git add ai-service/tests/test_response_formatting.py
+git add ai-service/tests/integration_test.py
+git commit -m "Implement standardized API response formatting and error handling"
+```
+
+#### Next Steps
+1. **Security Layer Implementation**:
+   - Implement the API gateway to use the new response format
+   - Add authentication middleware that leverages our error handling
+   - Integrate with the tier-based access control system
+
+2. **API Documentation**:
+   - Create comprehensive API documentation with response examples
+   - Add Swagger/OpenAPI specifications
+   - Document error codes and troubleshooting information
+
+3. **Client Library Updates**:
+   - Update client libraries to parse the standardized response format
+   - Add user-friendly error handling in client code
+   - Create helper methods for common API interactions
+
+#### Technical Decisions and Trade-offs
+
+1. **Standardized Format vs. Brevity**:
+   We chose a verbose response format that includes detailed metadata for every response. This increases payload size slightly but provides consistent debugging information and usage metrics.
+
+2. **Centralized vs. Distributed Error Handling**:
+   We implemented centralized error handling via middleware rather than handling errors at each endpoint. This ensures consistency but requires careful exception propagation.
+
+3. **Processing Time Tracking**:
+   We track and expose processing time in all responses, which adds minimal overhead but provides valuable performance data for both developers and users.
+
+{{ ... }}
+
+```
+### May 3, 2025 - Implementing Standardized API Response Formatting
+
+### Task Overview
+Implementation of a comprehensive API response formatting system for the TechSaaS platform to ensure consistent response structures, error handling, and usage tracking to support our API monetization strategy.
+
+### Key Implementation Details
+
+#### 1. Response Formatter Structure
+Developed a centralized `ResponseFormatter` class with methods to standardize responses:
+```python
+class ResponseFormatter:
+    @staticmethod
+    def success_response(data=None, message="Operation successful", metadata=None, **kwargs):
+        # Standardized success response structure
+        return {
+            "status": "success",
+            "message": message,
+            "data": data,
+            "metadata": {
+                **metadata,
+                "timestamp": datetime.now().timestamp(),
+                "processing_time_ms": calculate_processing_time(kwargs.get("start_time"))
+            }
+        }
+        
+    @staticmethod
+    def error_response(message, error_type="general_error", status_code=400, **kwargs):
+        # Standardized error response structure
+        return {
+            "status": "error",
+            "message": message,
+            "error": {
+                "type": error_type,
+                "details": message,
+                **kwargs  # Additional error context
+            },
+            "metadata": {
+                "timestamp": datetime.now().timestamp(),
+                "processing_time_ms": calculate_processing_time(kwargs.get("start_time"))
+            }
+        }, status_code
+```
+
+#### 2. Specialized Error Types
+Implemented different error response types to support clear developer feedback and subscription tier enforcement:
+
+- **Validation Errors**: Field-specific validation messages
+- **Authentication Errors**: Token and credentials verification
+- **Authorization Errors**: Permission-based access control
+- **Tier Limit Errors**: Subscription tier enforcement with upgrade paths
+- **Rate Limit Errors**: API call frequency control
+- **Processing Errors**: Issues during request handling
+
+#### 3. Usage Tracking for Monetization
+Each response includes usage metrics to support our API monetization strategy:
+
+```json
+"metadata": {
+  "token_count": 63,
+  "model": "llama3.2:3b",
+  "processing_time_ms": 618,
+  "request_id": "req_1746308955",
+  "timestamp": 1746308955.548576
+}
+```
+
+This enables:
+- Token-based billing for API usage
+- Processing time monitoring
+- Request tracking for analytics
+- Model-specific usage metrics
+
+#### 4. Blueprint-based Demo Implementation
+Created a live demo blueprint to showcase the response format capabilities:
+
+- `/api/live-demo/health`: Health check endpoint
+- `/api/live-demo/demo/success`: Success response demonstration
+- `/api/live-demo/demo/error/<error_type>`: Error response demonstration (validation, tier_limit, etc.)
+- `/api/live-demo/demo/simulate-processing`: POST endpoint for realistic processing simulation
+
+#### 5. Integration with LangChain Service
+Modified the LangChain service to use the standardized response format, ensuring consistent API behavior:
+
+- Added token usage tracking
+- Implemented proper error handling for model failures
+- Added context metadata for request identification
+
+### Testing Strategy
+Created comprehensive tests for the response formatter functionality:
+
+1. **Unit Tests**:
+   - Test each response formatter method independently
+   - Verify metadata structure and completeness
+   - Validate error type conformance
+
+2. **Integration Tests**:
+   - Test API endpoints for proper response formatting
+   - Verify error handling across different scenarios
+   - Confirm usage tracking accuracy
+
+3. **Load Tests**:
+   - Measure performance impact of response formatting
+   - Ensure consistent behavior under load
+
+### Technical Decisions and Trade-offs
+
+1. **Centralized vs. Distributed Response Handling**:
+   We opted for a centralized `ResponseFormatter` class rather than distributed formatters to ensure consistency across all endpoints. While this creates a dependency, it guarantees that all API responses follow the same structure.
+
+2. **Processing Time Calculation**:
+   We added processing time tracking for all requests, measuring from request receipt to response generation. This adds a slight overhead but provides valuable data for usage tracking and performance optimization.
+
+3. **Error Type Extensibility**:
+   The error response system was designed to be extensible, allowing for new error types to be added without changing the core structure. This flexibility supports future API expansion while maintaining backward compatibility.
+
+4. **Blueprint Integration**:
+   By creating a dedicated blueprint for live demos, we've made it easier for developers to understand and test API functionality directly, supporting our goal of comprehensive documentation.
+
+### Next Steps
+
+1. **API Gateway Integration**:
+   - Implement security middleware with authentication
+   - Add rate limiting based on subscription tiers
+   - Integrate API key validation
+
+2. **Documentation Generation**:
+   - Create comprehensive API docs with response examples
+   - Add code samples in multiple languages
+   - Include troubleshooting guides
+
+3. **Client Library Development**:
+   - Build client libs leveraging the standardized format
+   - Add helper methods for error handling
+   - Implement automatic retry logic for tier limit errors
+
+### Git Activity
+```bash
+git checkout -b feature/api-response-formatting
+git add ai-service/api/v1/utils/response_formatter.py
+git add ai-service/api/v1/routes/live_demo.py
+git add ai-service/api/v1/routes/__init__.py
+git add ai-service/app.py
+git add tests/integration_test.py
+git add docs/journal/DEVELOPER_JOURNAL.md
+git commit -m "Implement standardized API response formatting with demo endpoints"
+git push origin feature/api-response-formatting
+```
+{{ ... }}
