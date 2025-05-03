@@ -202,6 +202,33 @@ async def home(request: Request):
         </div>
         
         <script>
+            // Clear any stale polling jobs from previous sessions
+            function clearStaleSessions() {
+                // Get all session keys from localStorage
+                const keys = Object.keys(localStorage);
+                const now = new Date().getTime();
+                
+                // Look for job poller keys
+                for (const key of keys) {
+                    if (key.startsWith('job_poller_')) {
+                        try {
+                            const data = JSON.parse(localStorage.getItem(key));
+                            // If the data is older than 5 minutes, remove it
+                            if (data.timestamp && (now - data.timestamp > 5 * 60 * 1000)) {
+                                console.log('Removing stale session:', key);
+                                localStorage.removeItem(key);
+                            }
+                        } catch (e) {
+                            // If the data is corrupted, remove it
+                            localStorage.removeItem(key);
+                        }
+                    }
+                }
+            }
+            
+            // Run cleanup on page load
+            clearStaleSessions();
+            
             document.getElementById('videoForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -235,6 +262,19 @@ async def home(request: Request):
                         const jobId = data.job_id;
                         document.getElementById('jobStatus').innerHTML = 'Job submitted. Job ID: ' + jobId;
                         
+                        // Clear any existing interval with this job ID
+                        const existingPoller = localStorage.getItem('job_poller_' + jobId);
+                        if (existingPoller) {
+                            try {
+                                const pollerData = JSON.parse(existingPoller);
+                                if (pollerData.intervalId) {
+                                    clearInterval(pollerData.intervalId);
+                                }
+                            } catch (e) {
+                                console.error('Error clearing existing interval:', e);
+                            }
+                        }
+                        
                         // Store the interval ID so we can clear it
                         let statusInterval;
                         let retryCount = 0;
@@ -249,6 +289,9 @@ async def home(request: Request):
                                         retryCount++;
                                         if (retryCount >= MAX_RETRIES) {
                                             clearInterval(statusInterval);
+                                            // Also remove from localStorage
+                                            localStorage.removeItem('job_poller_' + jobId);
+                                            
                                             document.getElementById('jobStatus').className = 'status error';
                                             document.getElementById('jobStatus').innerHTML = 'Job not found or expired. Please try again.';
                                             return null;
@@ -272,6 +315,9 @@ async def home(request: Request):
                                     // If job is complete
                                     if (statusData.status === 'completed') {
                                         clearInterval(statusInterval);
+                                        // Also remove from localStorage
+                                        localStorage.removeItem('job_poller_' + jobId);
+                                        
                                         document.getElementById('jobStatus').className = 'status success';
                                         
                                         // Get the results
@@ -302,6 +348,9 @@ async def home(request: Request):
                                     // If job failed
                                     else if (statusData.status === 'failed') {
                                         clearInterval(statusInterval);
+                                        // Also remove from localStorage
+                                        localStorage.removeItem('job_poller_' + jobId);
+                                        
                                         document.getElementById('jobStatus').className = 'status error';
                                         document.getElementById('jobStatus').innerHTML = 'Job failed: ' + statusData.error;
                                     }
@@ -310,17 +359,44 @@ async def home(request: Request):
                                     retryCount++;
                                     if (retryCount >= MAX_RETRIES) {
                                         clearInterval(statusInterval);
+                                        // Also remove from localStorage
+                                        localStorage.removeItem('job_poller_' + jobId);
+                                        
                                         document.getElementById('jobStatus').className = 'status error';
                                         document.getElementById('jobStatus').innerHTML = 'Error checking job status: ' + error.message;
                                     }
                                 });
                         }, 2000);
+                        
+                        // Store the interval ID in localStorage with timestamp
+                        localStorage.setItem('job_poller_' + jobId, JSON.stringify({
+                            intervalId: statusInterval,
+                            timestamp: new Date().getTime()
+                        }));
                     }
                 })
                 .catch(error => {
                     document.getElementById('jobStatus').innerHTML = 'Error: ' + error.message;
                     document.getElementById('jobStatus').className = 'status error';
                 });
+            });
+            
+            // Add event listener to handle page unload/close
+            window.addEventListener('beforeunload', function() {
+                // Clear all intervals by getting all job pollers from localStorage
+                const keys = Object.keys(localStorage);
+                for (const key of keys) {
+                    if (key.startsWith('job_poller_')) {
+                        try {
+                            const data = JSON.parse(localStorage.getItem(key));
+                            if (data.intervalId) {
+                                clearInterval(data.intervalId);
+                            }
+                        } catch (e) {
+                            console.error('Error clearing interval:', e);
+                        }
+                    }
+                }
             });
         </script>
     </body>

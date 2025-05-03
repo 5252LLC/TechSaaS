@@ -1,18 +1,35 @@
 {
   "name": "web-interface",
   "version": "1.0.0",
-  "description": "",
+  "description": "Web interface for TechSaaS platform with multimodal analysis capabilities",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "webpack --mode production",
+    "watch": "webpack --watch --mode development"
   },
-  "keywords": [],
+  "keywords": ["video-analysis", "multimodal", "react", "langchain"],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.7",
+    "@babel/preset-react": "^7.23.7",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "nodemon": "^3.0.2",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }

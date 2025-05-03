@@ -1,7 +1,24 @@
-# Python
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# Dependency directories
+node_modules/
+venv/
+*/venv/
+.venv/
+env/
+ENV/
+
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 *.so
 .Python
 build/
@@ -20,43 +37,54 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-ENV/
-env/
-
 # Environment variables
 .env
-.env.*
-!.env.example
+.env.local
+.env.template
+*.env
 
-# Node.js
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-package-lock.json
-
-# IDE specific files
+# Editor directories and files
 .idea/
 .vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 *.swp
-*.swo
+.cursor/
+
+# OS specific
 .DS_Store
+Thumbs.db
 
-# Project specific
-*.db
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+
+# Configuration files
+config/cookies_*.txt
+config/yt-dlp_*.conf
+
+# Task Master
+.taskmasterconfig
+.taskmaster-config.json
+task-master-config.json
+
+# Downloaded content
+downloads/
+*/downloads/
+
+# Database
+*.sqlite
 *.sqlite3
-*.log
-.task-master-cache/
+*.db
 
-# Security
-*/security/keys/
-*/security/certs/
-*/security/tokens/
+# Task files that should be generated
+tasks/*.txt
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# External git repositories
 video-scraper/hitomi-integration/

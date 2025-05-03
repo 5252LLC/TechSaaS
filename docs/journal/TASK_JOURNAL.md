@@ -356,6 +356,106 @@ To prevent future loss of task management:
 3. Include task system verification in our regular testing process
 4. Maintain consistency between our documentation and tasks.json
 
+### May 3, 2025 - Task Master CLI Setup and Best Practices
+
+#### Task Master Installation and Configuration
+
+To ensure consistent task management across the development workflow, the Task Master CLI has been properly set up for this project:
+
+```bash
+# Install Task Master CLI packages
+npm install task-master-ai --save-dev
+# Note: claude-task-master is included for backward compatibility
+
+# Configure package.json scripts for easy access
+# "scripts": {
+#   "dev": "npx task-master",
+#   "list": "npx task-master list",
+#   "analyze": "npx task-master analyze-complexity --research",
+#   "expand": "npx task-master expand",
+#   "set-status": "npx task-master set-status",
+#   "show": "npx task-master show",
+#   "generate": "npx task-master generate",
+#   "fix-deps": "npx task-master fix-dependencies",
+#   "parse-prd": "npx task-master parse-prd"
+# }
+```
+
+#### Task Master Workflow Best Practices
+
+To avoid issues with Task Master in the future, follow these best practices:
+
+1. **Always Use npm Scripts**:
+   ```bash
+   # CORRECT WAY
+   npm run list
+   npm run set-status -- --id=7.3 --status=done
+
+   # AVOID
+   node scripts/dev.js list  # Legacy approach, may cause errors
+   ```
+
+2. **Task Status Management**:
+   - Always update task status when work begins/completes: `npm run set-status -- --id=<id> --status=<status>`
+   - Valid statuses: 'pending', 'in-progress', 'done', 'deferred'
+   - Update subtasks individually before marking parent task complete
+
+3. **Task Expansion for Complex Work**:
+   - For complex tasks, use `npm run expand -- --id=<id> --subtasks=<number>`
+   - Include research flag for better AI-powered recommendations: `--research`
+   - Clear existing subtasks if needed: `npm run expand -- --id=<id> --clear-subtasks`
+
+4. **Dependency Management**:
+   - Respect task dependencies when planning work
+   - Update dependent tasks when implementation differs: `npm run update -- --from=<id> --prompt="<changes>"`
+   - Fix broken dependencies if needed: `npm run fix-deps`
+
+5. **Documentation Integration**:
+   - After using Task Master commands, update the relevant journal entries
+   - Include command usage in commit messages when changing task status
+   - When marking milestones complete, note Task Master commands used
+
+#### Current Task Status and Next Steps
+
+The Task Master system shows the following current state:
+
+1. **Task #7: Web Tools for LangChain (In Progress)**
+   - 7.3 Development of Error Handling and Loading States is pending completion
+
+2. **Next Steps for Task #7.3 Completion**:
+   - Finish implementing error handling and loading states for visualization components
+   - Run the test suite to verify all visualization components work properly
+   - Mark task as complete: `npm run set-status -- --id=7.3 --status=done`
+   - Update documentation with implementation details
+
+3. **Upcoming Work (Task #11)**
+   - After completing Task #7, prepare to work on multimodal processing integration
+   - Run task expansion to break this down: `npm run expand -- --id=11 --subtasks=5 --research`
+   - Review generated subtasks and adjust as needed
+
+#### Troubleshooting Common Task Master Issues
+
+If you encounter issues with Task Master:
+
+1. **Script Execution Errors**:
+   - Check Node.js version compatibility (v16+ recommended)
+   - Verify the package is installed: `npm list task-master-ai`
+   - Try reinstalling: `npm install task-master-ai --save-dev`
+
+2. **File Permission Issues**:
+   - Ensure tasks/tasks.json is writable: `chmod 644 tasks/tasks.json`
+   - Check directory permissions: `chmod 755 tasks/`
+
+3. **Command Not Found Errors**:
+   - Use npx explicitly: `npx task-master <command>`
+   - Verify the script is in PATH: `which task-master`
+   - Check package.json scripts are correctly defined
+
+4. **Data Integrity Issues**:
+   - Backup tasks.json regularly: `cp tasks/tasks.json tasks/tasks.json.bak`
+   - Use Git for version control of task files
+   - Validate JSON structure if manually editing: `npx jsonlint tasks/tasks.json`
+
 ### Task #7: Develop Web Tools for LangChain
 
 **Status**: In-Progress  

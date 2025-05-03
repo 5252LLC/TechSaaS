@@ -1,0 +1,27 @@
+{
+  "name": "saas",
+  "version": "1.0.0",
+  "description": "14day",
+  "author": "5252BTC",
+  "scripts": {
+    "dev": "npx task-master",
+    "list": "npx task-master list",
+    "analyze": "npx task-master analyze-complexity --research",
+    "expand": "npx task-master expand",
+    "set-status": "npx task-master set-status",
+    "show": "npx task-master show",
+    "generate": "npx task-master generate",
+    "fix-deps": "npx task-master fix-dependencies",
+    "parse-prd": "npx task-master parse-prd"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.10.0",
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "task-master-ai": "^1.0.0",
+    "claude-task-master": "^1.6.4"
+  }
+}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}TechSaaS - Video Analysis{% endblock %}
+
+{% block video_analysis_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/video-analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- React Root Element -->
+<div id="video-analysis-react-root"></div>
+
+<!-- Loading React Scripts -->
+<script src="{{ url_for('static', filename='dist/video-analysis.bundle.js') }}" defer></script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/video-analysis.js') }}"></script>
+{% endblock %}

@@ -1,11 +1,43 @@
 # Task ID: 8
 # Title: Create Flask API for AI Service
-# Status: pending
+# Status: in-progress
 # Dependencies: 6, 7
-# Priority: medium
-# Description: Develop a Flask API to expose LangChain functionality through REST endpoints.
+# Priority: high
+# Description: Develop a Flask API for the AI service
 # Details:
-Implement the Flask app for the AI service. Create endpoints for different AI tasks including chat, analysis, and tool usage. Initialize LangChain components and chains for different templates. Implement proper request handling, validation, and response formatting. Configure the service according to the architecture specifications.
+Create a Flask API for the AI service with endpoints for queries, document processing, and result retrieval.
 
 # Test Strategy:
-Test each API endpoint with valid and invalid inputs. Verify correct responses and error handling. Test integration with the LangChain service. Confirm the API can handle different types of requests and templates.
+
+
+# Subtasks:
+## 1. Set up basic Flask application structure [done]
+### Dependencies: None
+### Description: Create the foundational Flask application with necessary configurations and directory structure
+### Details:
+Initialize a Flask application, set up environment variables, configure CORS, create logging, implement error handling, and organize the project structure with appropriate directories for routes, models, and utilities.
+
+## 2. Implement request validation middleware [done]
+### Dependencies: 8.1
+### Description: Create middleware for validating incoming API requests
+### Details:
+Develop validation schemas for different endpoint requests, implement middleware to validate request formats, handle validation errors gracefully, and provide meaningful error messages for invalid requests.
+
+## 3. Initialize LangChain components [done]
+### Dependencies: 8.1
+### Description: Set up and configure the necessary LangChain components for AI tasks
+### Details:
+Initialize language models, configure embeddings, set up vector stores if needed, create chain templates for different AI tasks, and implement utility functions for LangChain operations.
+
+## 4. Implement AI task endpoints [done]
+### Dependencies: 8.2, 8.3
+### Description: Create API endpoints for different AI functionalities
+### Details:
+Implement endpoints for text generation, summarization, question answering, and other AI tasks. Each endpoint should handle specific AI functionality, process the validated request, and call appropriate LangChain components.
+
+## 5. Develop response formatting and error handling [pending]
+### Dependencies: 8.4
+### Description: Create standardized response formats and comprehensive error handling
+### Details:
+Implement consistent JSON response structures, handle various error scenarios (API errors, LangChain errors, timeout errors), add appropriate HTTP status codes, and include metadata in responses such as processing time and token usage.
+
