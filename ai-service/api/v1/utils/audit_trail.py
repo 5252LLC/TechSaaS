@@ -50,6 +50,67 @@ class AuditEvent:
     OUTCOME_ERROR = "error"
     OUTCOME_WARNING = "warning"
     
+    @classmethod
+    def create(cls, actor_id, action, ip_address=None, details=None, outcome=OUTCOME_SUCCESS):
+        """
+        Create and log an audit event.
+        
+        Args:
+            actor_id: ID of the user or system performing the action
+            action: Specific action performed (login, logout, view, update, etc.)
+            ip_address: IP address of the client
+            details: Additional details specific to the event
+            outcome: Outcome of the action (success, failure, error)
+            
+        Returns:
+            The created audit event
+        """
+        # Determine event type based on action
+        if action in ('login', 'logout', 'authentication', 'registration', 
+                    'password_reset', 'authentication_failure', 'authentication_success'):
+            event_type = cls.USER_AUTHENTICATION
+        elif action in ('authorization', 'permission_check', 'access_control', 
+                      'role_change', 'authorization_failure'):
+            event_type = cls.USER_AUTHORIZATION
+        elif action in ('api_call', 'rate_limit', 'api_usage'):
+            event_type = cls.API_USAGE
+        elif action in ('data_breach', 'intrusion_attempt', 'suspicious_activity'):
+            event_type = cls.SECURITY_EVENT
+        else:
+            # Default to security event if unrecognized action
+            event_type = cls.SECURITY_EVENT
+            
+        # Create the event
+        event = cls(
+            event_type=event_type,
+            action=action,
+            actor_id=actor_id,
+            actor_type="user" if actor_id else "system",
+            outcome=outcome,
+            details=details or {},
+            ip_address=ip_address
+        )
+        
+        # Log to audit trail if available
+        try:
+            from api.v1.utils.audit_trail import get_audit_trail
+            audit_trail = get_audit_trail()
+            if audit_trail:
+                audit_trail.log_event(event)
+            else:
+                # Fall back to logging if audit trail not initialized
+                log_level = logging.WARNING if outcome != cls.OUTCOME_SUCCESS else logging.INFO
+                logger.log(log_level, f"AUDIT: {event}")
+        except (ImportError, AttributeError) as e:
+            # Fall back to logging if audit trail module not available
+            log_level = logging.WARNING if outcome != cls.OUTCOME_SUCCESS else logging.INFO
+            logger.log(log_level, f"AUDIT (fallback): {event}")
+        except Exception as e:
+            # Ensure audit failures don't break the application
+            logger.error(f"Failed to log audit event: {str(e)}")
+            
+        return event
+    
     def __init__(
             self,
             event_type: str,

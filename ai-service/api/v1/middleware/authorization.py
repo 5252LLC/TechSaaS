@@ -7,12 +7,14 @@ for the TechSaaS API. Works with the JWT authentication system.
 import time
 import logging
 import json
+import jwt
 from functools import wraps
 from flask import request, jsonify, g, current_app, abort
-from datetime import datetime
+from datetime import datetime, timezone, UTC
 
 from api.v1.utils.response_formatter import ResponseFormatter
-from api.v1.utils.config import TIER_FEATURES
+from api.v1.utils.config import TIER_FEATURES, JWT_SECRET_KEY, JWT_ALGORITHM
+from api.v1.utils.audit_trail import AuditEvent
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -103,6 +105,100 @@ ROLE_PERMISSIONS = {
     'superadmin': Permissions.ADMIN_PERMISSIONS.union({Permissions.DELETE})
 }
 
+# Role hierarchy for vertical privilege escalation checks
+ROLE_HIERARCHY = {
+    'user': 1,
+    'premium': 2,
+    'admin': 3,
+    'superadmin': 4
+}
+
+# Token blacklist (in-memory for now, would be in Redis/DB in production)
+token_blacklist = set()
+
+def verify_jwt_token(token, required_type='access'):
+    """
+    Verify JWT token and return payload if valid
+    
+    Args:
+        token: JWT token to verify
+        required_type: Required token type ('access' or 'refresh')
+        
+    Returns:
+        dict or None: Token payload if valid, None if invalid
+    """
+    if not token or not isinstance(token, str):
+        return None
+        
+    # Check if token is in the expected format
+    # JWT tokens have 3 parts separated by dots
+    if token.count('.') != 2:
+        logger.warning("JWT token has incorrect format")
+        return None
+        
+    # Check if token is blacklisted
+    if token in token_blacklist:
+        logger.warning("Token is blacklisted")
+        return None
+    
+    try:
+        # Decode token with strict verification
+        payload = jwt.decode(
+            token, 
+            JWT_SECRET_KEY, 
+            algorithms=[JWT_ALGORITHM],
+            options={
+                'verify_signature': True,
+                'verify_exp': True,
+                'verify_iat': True,
+                'require': ['exp', 'iat', 'sub', 'type']
+            }
+        )
+        
+        # Check if token ID is blacklisted
+        if 'jti' in payload and payload['jti'] in token_blacklist:
+            logger.warning(f"Token with blacklisted JTI {payload['jti']} rejected")
+            return None
+        
+        # Verify token type
+        if payload.get('type') != required_type:
+            logger.warning(f"Token type mismatch: expected {required_type}, got {payload.get('type')}")
+            return None
+            
+        # Additional validation for access tokens
+        if required_type == 'access':
+            if 'role' not in payload:
+                logger.warning("Access token missing role field")
+                return None
+                
+            if 'tier' not in payload:
+                logger.warning("Access token missing tier field")
+                return None
+            
+            # Validate role is a known role
+            if payload.get('role') not in ROLE_HIERARCHY:
+                logger.warning(f"Invalid role in token: {payload.get('role')}")
+                return None
+            
+            # Validate tier is a known tier
+            if payload.get('tier') not in TIER_PERMISSIONS:
+                logger.warning(f"Invalid tier in token: {payload.get('tier')}")
+                return None
+        
+        # Log successful token verification
+        logger.debug(f"Token verified successfully: {payload.get('sub')}")
+        return payload
+        
+    except jwt.ExpiredSignatureError:
+        logger.info("Token has expired")
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.warning(f"Invalid token: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error during token verification: {str(e)}")
+        return None
+
 def get_user_permissions(user_data):
     """
     Get all permissions for a user based on their tier and role
@@ -124,6 +220,152 @@ def get_user_permissions(user_data):
     
     return permissions
 
+def jwt_required(f):
+    """
+    Decorator to require JWT authentication
+    
+    Args:
+        f: Function to decorate
+        
+    Returns:
+        function: Decorated function
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        start_time = datetime.now(UTC).timestamp()
+        
+        # Get authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("Missing Authorization header")
+            AuditEvent.create(
+                None,  # No user ID since authentication failed
+                "authentication_failure", 
+                request.remote_addr,
+                details={
+                    "reason": "Missing Authorization header",
+                    "path": request.path,
+                    "method": request.method,
+                    "severity": "warning"
+                }
+            )
+            return ResponseFormatter.error_response(
+                message="Authorization header is missing",
+                error_type="authentication_error",
+                status_code=401,
+                start_time=start_time
+            )
+            
+        # Verify header format
+        if not auth_header.startswith('Bearer '):
+            logger.warning("Invalid Authorization scheme")
+            AuditEvent.create(
+                None,  # No user ID since authentication failed
+                "authentication_failure", 
+                request.remote_addr,
+                details={
+                    "reason": "Invalid Authorization scheme",
+                    "scheme": auth_header.split(' ')[0] if ' ' in auth_header else auth_header,
+                    "path": request.path,
+                    "method": request.method,
+                    "severity": "warning"
+                }
+            )
+            return ResponseFormatter.error_response(
+                message="Invalid authentication scheme, expected 'Bearer'",
+                error_type="authentication_error",
+                status_code=401,
+                start_time=start_time
+            )
+        
+        # Extract token
+        parts = auth_header.split(' ')
+        if len(parts) != 2:
+            logger.warning("Invalid Authorization header format")
+            AuditEvent.create(
+                None,  # No user ID since authentication failed
+                "authentication_failure", 
+                request.remote_addr,
+                details={
+                    "reason": "Invalid Authorization header format",
+                    "path": request.path,
+                    "method": request.method,
+                    "severity": "warning"
+                }
+            )
+            return ResponseFormatter.error_response(
+                message="Invalid Authorization header format",
+                error_type="authentication_error",
+                status_code=401,
+                start_time=start_time
+            )
+            
+        token = parts[1]
+        if not token:
+            logger.warning("Empty token")
+            AuditEvent.create(
+                None,  # No user ID since authentication failed
+                "authentication_failure", 
+                request.remote_addr,
+                details={
+                    "reason": "Empty token",
+                    "path": request.path,
+                    "method": request.method,
+                    "severity": "warning"
+                }
+            )
+            return ResponseFormatter.error_response(
+                message="Authentication token is missing",
+                error_type="authentication_error",
+                status_code=401,
+                start_time=start_time
+            )
+        
+        # Verify token
+        payload = verify_jwt_token(token)
+        if not payload:
+            logger.warning("Invalid or expired token")
+            AuditEvent.create(
+                None,  # No user ID since authentication failed
+                "authentication_failure", 
+                request.remote_addr,
+                details={
+                    "reason": "Invalid or expired token",
+                    "path": request.path,
+                    "method": request.method,
+                    "severity": "warning"
+                }
+            )
+            return ResponseFormatter.error_response(
+                message="Invalid or expired token",
+                error_type="authentication_error",
+                status_code=401,
+                start_time=start_time
+            )
+            
+        # Set current user in request context
+        g.user = payload
+        g.token = token
+        
+        # Log successful authentication
+        user_id = payload.get('sub')
+        logger.info(f"Authentication successful for user {user_id}")
+        
+        # Create audit event for successful authentication
+        AuditEvent.create(
+            user_id,
+            "authentication_success", 
+            request.remote_addr,
+            details={
+                "path": request.path,
+                "method": request.method,
+                "severity": "info"
+            }
+        )
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
 def has_permission(permission):
     """
     Decorator to check if the user has a specific permission
@@ -137,25 +379,44 @@ def has_permission(permission):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            start_time = datetime.now().timestamp()
+            start_time = datetime.now(UTC).timestamp()
             
             # Check if user is authenticated
             if not hasattr(g, 'user'):
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message="Authentication required",
                     error_type="authentication_error",
                     error="No valid authentication token provided",
                     status_code=401,
                     start_time=start_time
                 )
-                return response
             
             # Get user permissions
             user_permissions = get_user_permissions(g.user)
             
             # Check permission
             if permission not in user_permissions:
-                logger.warning(f"Permission denied: {permission} for user {g.user.get('sub')}")
+                user_id = g.user.get('sub')
+                role = g.user.get('role')
+                tier = g.user.get('tier')
+                
+                logger.warning(f"Permission denied: {permission} for user {user_id} (role: {role}, tier: {tier})")
+                
+                # Log authorization failure
+                AuditEvent.create(
+                    user_id,
+                    "authorization_failure", 
+                    request.remote_addr,
+                    details={
+                        "permission": permission,
+                        "role": role,
+                        "tier": tier,
+                        "path": request.path,
+                        "method": request.method,
+                        "severity": "warning"
+                    }
+                )
+                
                 response = ResponseFormatter.error_response(
                     message=f"You don't have the required permission: {permission}",
                     error_type="authorization_error",
@@ -184,39 +445,58 @@ def has_any_permission(permissions):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            start_time = datetime.now().timestamp()
+            start_time = datetime.now(UTC).timestamp()
             
             # Check if user is authenticated
             if not hasattr(g, 'user'):
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message="Authentication required",
                     error_type="authentication_error",
                     error="No valid authentication token provided",
                     status_code=401,
                     start_time=start_time
                 )
-                return response
             
             # Get user permissions
             user_permissions = get_user_permissions(g.user)
             
-            # Check permissions
-            for permission in permissions:
-                if permission in user_permissions:
-                    # User has at least one required permission
-                    return f(*args, **kwargs)
+            # Check if user has any of the required permissions
+            has_perms = any(perm in user_permissions for perm in permissions)
             
-            # No matching permissions found
-            logger.warning(f"Permission denied: User {g.user.get('sub')} has none of the required permissions: {permissions}")
-            response = ResponseFormatter.error_response(
-                message=f"You don't have any of the required permissions",
-                error_type="authorization_error",
-                error="Required permissions not granted",
-                status_code=403,
-                required_permissions=permissions,
-                start_time=start_time
-            )
-            return response
+            if not has_perms:
+                user_id = g.user.get('sub')
+                role = g.user.get('role')
+                tier = g.user.get('tier')
+                
+                logger.warning(f"Permission denied: user {user_id} needs one of {permissions}")
+                
+                # Log authorization failure
+                AuditEvent.create(
+                    user_id,
+                    "authorization_failure", 
+                    request.remote_addr,
+                    details={
+                        "required_permissions": list(permissions),
+                        "role": role,
+                        "tier": tier,
+                        "path": request.path,
+                        "method": request.method,
+                        "severity": "warning"
+                    }
+                )
+                
+                response = ResponseFormatter.error_response(
+                    message=f"You don't have any of the required permissions",
+                    error_type="authorization_error",
+                    error=f"Access denied",
+                    required_permissions=list(permissions),
+                    status_code=403,
+                    start_time=start_time
+                )
+                return response
+            
+            # Permission granted, continue
+            return f(*args, **kwargs)
         return decorated_function
     return decorator
 
@@ -233,18 +513,17 @@ def has_all_permissions(permissions):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            start_time = datetime.now().timestamp()
+            start_time = datetime.now(UTC).timestamp()
             
             # Check if user is authenticated
             if not hasattr(g, 'user'):
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message="Authentication required",
                     error_type="authentication_error",
                     error="No valid authentication token provided",
                     status_code=401,
                     start_time=start_time
                 )
-                return response
             
             # Get user permissions
             user_permissions = get_user_permissions(g.user)
@@ -252,13 +531,33 @@ def has_all_permissions(permissions):
             # Check if user has all required permissions
             missing_permissions = [p for p in permissions if p not in user_permissions]
             if missing_permissions:
-                logger.warning(f"Permission denied: User {g.user.get('sub')} missing permissions: {missing_permissions}")
+                user_id = g.user.get('sub')
+                role = g.user.get('role')
+                tier = g.user.get('tier')
+                
+                logger.warning(f"Permission denied: user {user_id} missing permissions: {missing_permissions}")
+                
+                # Log authorization failure
+                AuditEvent.create(
+                    user_id,
+                    "authorization_failure", 
+                    request.remote_addr,
+                    details={
+                        "missing_permissions": list(missing_permissions),
+                        "role": role,
+                        "tier": tier,
+                        "path": request.path,
+                        "method": request.method,
+                        "severity": "warning"
+                    }
+                )
+                
                 response = ResponseFormatter.error_response(
                     message=f"You don't have all required permissions",
                     error_type="authorization_error",
-                    error="Missing required permissions",
+                    error=f"Missing required permissions",
+                    missing_permissions=list(missing_permissions),
                     status_code=403,
-                    missing_permissions=missing_permissions,
                     start_time=start_time
                 )
                 return response
@@ -281,18 +580,17 @@ def check_feature_access(feature_name):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            start_time = datetime.now().timestamp()
+            start_time = datetime.now(UTC).timestamp()
             
             # Check if user is authenticated
             if not hasattr(g, 'user'):
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message="Authentication required",
                     error_type="authentication_error",
                     error="No valid authentication token provided",
                     status_code=401,
                     start_time=start_time
                 )
-                return response
             
             # Get user tier
             user_tier = g.user.get('tier', 'free')
@@ -339,6 +637,22 @@ def check_feature_access(feature_name):
                         break
                 
                 logger.warning(f"Feature access denied: {feature_name} for user tier {user_tier}")
+                
+                # Log authorization failure
+                user_id = g.user.get('sub')
+                AuditEvent.create(
+                    user_id,
+                    "authorization_failure", 
+                    request.remote_addr,
+                    details={
+                        "feature": feature_name,
+                        "required_tier": required_tier,
+                        "path": request.path,
+                        "method": request.method,
+                        "severity": "warning"
+                    }
+                )
+                
                 response = ResponseFormatter.tier_limit_error(
                     tier=user_tier,
                     required_tier=required_tier,
@@ -373,18 +687,17 @@ def limit_request_rate(limit_per_minute=None, limit_per_hour=None, limit_per_day
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            start_time = datetime.now().timestamp()
+            start_time = datetime.now(UTC).timestamp()
             
             # Check if user is authenticated
             if not hasattr(g, 'user'):
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message="Authentication required",
                     error_type="authentication_error",
                     error="No valid authentication token provided",
                     status_code=401,
                     start_time=start_time
                 )
-                return response
             
             # Get user and tier info
             user_id = g.user.get('sub')
@@ -417,6 +730,22 @@ def limit_request_rate(limit_per_minute=None, limit_per_hour=None, limit_per_day
                 
                 if g._rate_limits[minute_key] > limit_per_minute:
                     logger.warning(f"Rate limit exceeded (per minute): {user_id} at {endpoint}")
+                    
+                    # Log rate limit exceeded
+                    AuditEvent.create(
+                        user_id,
+                        "rate_limit_exceeded", 
+                        request.remote_addr,
+                        details={
+                            "limit_type": "requests_per_minute",
+                            "current_usage": g._rate_limits[minute_key],
+                            "allowed_limit": limit_per_minute,
+                            "path": request.path,
+                            "method": request.method,
+                            "severity": "warning"
+                        }
+                    )
+                    
                     response = ResponseFormatter.tier_limit_error(
                         tier=user_tier,
                         limit_type="requests_per_minute",
@@ -439,6 +768,22 @@ def limit_request_rate(limit_per_minute=None, limit_per_hour=None, limit_per_day
                 
                 if g._rate_limits[hour_key] > limit_per_hour:
                     logger.warning(f"Rate limit exceeded (per hour): {user_id} at {endpoint}")
+                    
+                    # Log rate limit exceeded
+                    AuditEvent.create(
+                        user_id,
+                        "rate_limit_exceeded", 
+                        request.remote_addr,
+                        details={
+                            "limit_type": "requests_per_hour",
+                            "current_usage": g._rate_limits[hour_key],
+                            "allowed_limit": limit_per_hour,
+                            "path": request.path,
+                            "method": request.method,
+                            "severity": "warning"
+                        }
+                    )
+                    
                     response = ResponseFormatter.tier_limit_error(
                         tier=user_tier,
                         limit_type="requests_per_hour",
@@ -461,6 +806,22 @@ def limit_request_rate(limit_per_minute=None, limit_per_hour=None, limit_per_day
                 
                 if g._rate_limits[day_key] > limit_per_day:
                     logger.warning(f"Rate limit exceeded (per day): {user_id} at {endpoint}")
+                    
+                    # Log rate limit exceeded
+                    AuditEvent.create(
+                        user_id,
+                        "rate_limit_exceeded", 
+                        request.remote_addr,
+                        details={
+                            "limit_type": "requests_per_day",
+                            "current_usage": g._rate_limits[day_key],
+                            "allowed_limit": limit_per_day,
+                            "path": request.path,
+                            "method": request.method,
+                            "severity": "warning"
+                        }
+                    )
+                    
                     response = ResponseFormatter.tier_limit_error(
                         tier=user_tier,
                         limit_type="requests_per_day",
@@ -544,18 +905,17 @@ def resource_owner(resource_type):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            start_time = datetime.now().timestamp()
+            start_time = datetime.now(UTC).timestamp()
             
             # Check if user is authenticated
             if not hasattr(g, 'user'):
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message="Authentication required",
                     error_type="authentication_error",
                     error="No valid authentication token provided",
                     status_code=401,
                     start_time=start_time
                 )
-                return response
             
             # Get resource ID from URL parameters or request data
             resource_id = kwargs.get(f"{resource_type}_id")
@@ -563,14 +923,13 @@ def resource_owner(resource_type):
                 resource_id = request.json.get(f"{resource_type}_id")
             
             if not resource_id:
-                response = ResponseFormatter.error_response(
+                return ResponseFormatter.error_response(
                     message=f"No {resource_type} ID provided",
                     error_type="validation_error",
                     error="Missing resource ID",
                     status_code=400,
                     start_time=start_time
                 )
-                return response
             
             # Get user info
             user_id = g.user.get('sub')
@@ -598,14 +957,29 @@ def resource_owner(resource_type):
             # If user doesn't own the resource
             if owner_id != user_id:
                 logger.warning(f"Resource access denied: User {user_id} tried to access {resource_type} {resource_id} owned by {owner_id}")
-                response = ResponseFormatter.error_response(
+                
+                # Log authorization failure
+                AuditEvent.create(
+                    user_id,
+                    "authorization_failure", 
+                    request.remote_addr,
+                    details={
+                        "resource_type": resource_type,
+                        "resource_id": resource_id,
+                        "owner_id": owner_id,
+                        "path": request.path,
+                        "method": request.method,
+                        "severity": "warning"
+                    }
+                )
+                
+                return ResponseFormatter.error_response(
                     message=f"You do not have permission to access this {resource_type}",
                     error_type="authorization_error",
                     error="Resource access denied",
                     status_code=403,
                     start_time=start_time
                 )
-                return response
             
             # User is the resource owner, continue
             return f(*args, **kwargs)
