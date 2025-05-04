@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechSaaS API - Swagger UI</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+  <link rel="icon" type="image/png" href="/static/favicon.ico" />
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+    
+    body {
+      margin: 0;
+      background: #fafafa;
+    }
+    
+    .swagger-ui .topbar {
+      background-color: #222;
+    }
+    
+    .swagger-ui .topbar .download-url-wrapper .select-label select {
+      border: 2px solid #4990e2;
+    }
+    
+    .swagger-ui .info .title {
+      color: #4990e2;
+    }
+    
+    .swagger-ui .opblock.opblock-get {
+      border-color: #4990e2;
+      background: rgba(73, 144, 226, 0.1);
+    }
+    
+    .swagger-ui .opblock.opblock-get .opblock-summary-method {
+      background: #4990e2;
+    }
+    
+    .swagger-ui .btn.execute {
+      background-color: #4990e2;
+      color: #fff;
+      border-color: #4990e2;
+    }
+    
+    .swagger-ui .btn.authorize {
+      color: #4990e2;
+      border-color: #4990e2;
+    }
+    
+    .swagger-ui section.models h4 {
+      color: #4990e2;
+    }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  
+  <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" charset="UTF-8"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+  <script>
+    window.onload = function() {
+      const ui = SwaggerUIBundle({
+        url: "/api/docs/openapi.json",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout",
+        tagsSorter: "alpha",
+        operationsSorter: "alpha",
+        docExpansion: "list",
+        defaultModelsExpandDepth: 1,
+        defaultModelExpandDepth: 1,
+        displayRequestDuration: true,
+        filter: true,
+        persistAuthorization: true,
+        requestInterceptor: (request) => {
+          // Add any request interceptors here if needed
+          return request;
+        },
+        responseInterceptor: (response) => {
+          // Add any response interceptors here if needed
+          return response;
+        }
+      });
+      
+      // Add TechSaaS logo to the topbar
+      const logo = document.createElement('img');
+      logo.src = '/static/logo.png';
+      logo.alt = 'TechSaaS Logo';
+      logo.height = 30;
+      logo.style.marginRight = '10px';
+      
+      const topbar = document.querySelector('.swagger-ui .topbar');
+      if (topbar) {
+        const firstChild = topbar.firstChild;
+        topbar.insertBefore(logo, firstChild);
+      }
+      
+      window.ui = ui;
+    };
+  </script>
+</body>
+</html>
