@@ -1,0 +1,121 @@
+name: Security Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  # Schedule security tests to run weekly
+  schedule:
+    - cron: '0 4 * * 1'  # Run at 4 AM every Monday
+
+jobs:
+  security-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      # Start API service for testing
+      api:
+        image: techsaas/api:latest
+        ports:
+          - 5000:5000
+        env:
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY || 'test-secret-key-for-ci-environment' }}
+          TESTING: 'true'
+        # If using Docker Compose setup
+        # options: --health-cmd "curl -f http://localhost:5000/api/v1/status || exit 1" --health-interval 10s --health-timeout 5s --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest coverage requests
+      
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/dependency-check-action@v2.5.1
+        with:
+          project: 'TechSaaS'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Run Security Tests
+        run: |
+          # Export environment variables for testing
+          export TECHSAAS_API_URL=http://localhost:5000
+          export TESTING=true
+          
+          # Run security tests with HTML and JUnit reports
+          python ai-service/tests/security_test_suite.py --all --report=junit
+          
+          # Check if any security tests failed
+          if [ $? -ne 0 ]; then
+            echo "Security tests failed!"
+            exit 1
+          fi
+      
+      - name: Run Bandit - Python Security Linter
+        run: |
+          pip install bandit
+          bandit -r ai-service/ -f json -o security-bandit.json
+          bandit -r ai-service/ -f html -o security-bandit.html
+      
+      - name: Run Safety - Check Python dependencies
+        run: |
+          pip install safety
+          safety check -r requirements.txt --output json > safety-report.json
+      
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: security-test-reports
+          path: |
+            security_test_report.*
+            security-bandit.*
+            safety-report.json
+            reports/
+      
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: security_test_report.xml
+      
+      - name: Send Slack notification on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.18.0
+        with:
+          payload: |
+            {
+              "text": "🚨 Security tests failed for ${{ github.repository }}!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚨 *Security tests failed for ${{ github.repository }}!*\n\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.workflow }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "View workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL || 'https://hooks.slack.com/services/placeholder' }}
