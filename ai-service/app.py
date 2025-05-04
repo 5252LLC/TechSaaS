@@ -21,6 +21,28 @@ load_dotenv(override=True)
 # Initialize Flask app
 app = Flask(__name__)
 
+# Load configuration
+from config import get_config
+app.config.from_object(get_config())
+
+# Configure logging system
+try:
+    from api.v1.utils.logging.integration import init_app as init_logging
+    # Initialize logging system
+    init_logging(app)
+    print("Logging system initialized successfully")
+except ImportError as e:
+    print(f"Error importing logging system: {e}")
+
+# Configure monitoring system
+try:
+    from api.v1.utils.monitoring.integration import init_app as init_monitoring
+    # Initialize monitoring system
+    init_monitoring(app)
+    print("Monitoring system initialized successfully")
+except ImportError as e:
+    print(f"Error importing monitoring system: {e}")
+
 # Try to import response formatter
 try:
     from api.v1.utils.response_formatter import ResponseFormatter
@@ -66,15 +88,60 @@ except ImportError as e:
     
     ResponseFormatter = SimpleResponseFormatter
 
-# Import response formatter and live demo blueprint
+# Initialize all application routes
 try:
-    from api.v1.routes.live_demo import live_demo_bp
+    # Import route registration function
+    from api.v1.routes import register_routes
     
-    # Register the live demo blueprint
-    app.register_blueprint(live_demo_bp, url_prefix='/api/live-demo')
-    print("Registered live demo blueprint successfully")
+    # Register all API routes
+    register_routes(app)
+    print("Registered all API routes successfully")
 except ImportError as e:
-    print(f"Error importing modules: {e}")
+    print(f"Error importing route modules: {e}")
+
+# Initialize security middleware
+try:
+    from api.v1.middleware.security_init import init_app_security
+    
+    # Initialize security middleware
+    if init_app_security(app):
+        print("Security middleware initialized successfully")
+    else:
+        print("WARNING: Failed to initialize security middleware")
+except ImportError as e:
+    print(f"Error importing security middleware: {e}")
+
+# Initialize anomaly detection middleware
+try:
+    from api.v1.middleware.anomaly_detection_middleware import AnomalyDetectionMiddleware
+    
+    # Initialize anomaly detection middleware
+    anomaly_middleware = AnomalyDetectionMiddleware(app)
+    print("Anomaly detection middleware initialized successfully")
+except ImportError as e:
+    print(f"Error importing anomaly detection middleware: {e}")
+
+# Initialize anomaly detection routes
+try:
+    from api.v1.routes.anomaly_detection import init_app as init_anomaly_routes
+    
+    # Register anomaly detection routes
+    init_anomaly_routes(app)
+    print("Anomaly detection routes registered successfully")
+except ImportError as e:
+    print(f"Error registering anomaly detection routes: {e}")
+
+# Initialize rate limiter, usage tracker, and billing services
+try:
+    from api.v1.utils.service_init import init_app_services
+    
+    # Initialize services
+    if init_app_services(app):
+        print("Service components initialized successfully")
+    else:
+        print("WARNING: Some service components failed to initialize")
+except ImportError as e:
+    print(f"Error importing service initialization module: {e}")
 
 # Configuration
 PORT = int(os.getenv('AI_SERVICE_PORT', 5550))
@@ -86,6 +153,16 @@ AI_TEMPERATURE = float(os.getenv('AI_TEMPERATURE', 0.2))
 @app.route('/api/status')
 def status():
     """Status endpoint for health checks"""
+    # Get the application logger
+    from utils.logging import get_logger
+    logger = get_logger(__name__)
+    
+    # Log the status check
+    logger.info("Health check request received", extra={
+        "endpoint": "/api/status",
+        "service_status": "operational"
+    })
+    
     return jsonify({
         "service": "TechSaaS AI Service",
         "version": "1.0.0",
@@ -97,6 +174,13 @@ def status():
 @app.route('/api/debug/routes')
 def debug_routes():
     """Debug endpoint to list all registered routes"""
+    # Get the application logger
+    from utils.logging import get_logger
+    logger = get_logger(__name__)
+    
+    # Log the debug routes request
+    logger.info("Debug routes request received")
+    
     routes = []
     for rule in app.url_map.iter_rules():
         routes.append({
@@ -104,6 +188,8 @@ def debug_routes():
             'methods': list(rule.methods),
             'path': str(rule)
         })
+    
+    logger.info(f"Returning {len(routes)} registered routes")
     return jsonify({
         'total_routes': len(routes),
         'routes': routes
@@ -115,17 +201,34 @@ def analyze():
     Analyze content using LangChain and Ollama
     Expects JSON with content and optional parameters
     """
+    # Get the application logger
+    from utils.logging import get_logger
+    logger = get_logger(__name__)
+    
     try:
         data = request.get_json()
         
         if not data or 'content' not in data:
+            logger.warning("Invalid analyze request - missing content", extra={
+                "client_ip": request.remote_addr
+            })
             return jsonify({"error": "Content is required"}), 400
             
         content = data.get('content')
         task = data.get('task', 'summarize')
         
+        logger.info("Processing analyze request", extra={
+            "task_type": task,
+            "content_length": len(content),
+            "client_ip": request.remote_addr
+        })
+        
         # This is a placeholder for actual LangChain + Ollama integration
         # Will be implemented in Task #7
+        
+        logger.info("Analyze request completed successfully", extra={
+            "task_type": task
+        })
         
         return jsonify({
             "task": task,
@@ -133,28 +236,78 @@ def analyze():
             "model_used": AI_MODEL
         })
     except Exception as e:
+        logger.error(f"Error processing analyze request: {str(e)}", exc_info=True, extra={
+            "client_ip": request.remote_addr
+        })
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """Chat interface for conversational AI"""
+    # Get the application logger and audit logging function
+    from utils.logging import get_logger
+    from utils.logging.integration import log_audit_event
+    logger = get_logger(__name__)
+    
     try:
         data = request.get_json()
         
         if not data or 'message' not in data:
+            logger.warning("Invalid chat request - missing message", extra={
+                "client_ip": request.remote_addr
+            })
             return jsonify({"error": "Message is required"}), 400
             
         message = data.get('message')
         history = data.get('history', [])
+        user_id = data.get('user_id')
+        
+        # Log the chat request
+        logger.info("Processing chat request", extra={
+            "message_length": len(message),
+            "history_length": len(history),
+            "client_ip": request.remote_addr
+        })
         
         # Placeholder for actual chat implementation with LangChain
         response = f"This is a placeholder response to your message: {message}"
+        
+        # Log an audit event for the chat interaction
+        if user_id:
+            log_audit_event(
+                event_type="ai_interaction",
+                user_id=user_id,
+                details={
+                    "interaction_type": "chat",
+                    "message_length": len(message),
+                    "response_length": len(response)
+                },
+                success=True
+            )
+        
+        logger.info("Chat request completed successfully")
         
         return jsonify({
             "response": response,
             "model_used": AI_MODEL
         })
     except Exception as e:
+        logger.error(f"Error processing chat request: {str(e)}", exc_info=True, extra={
+            "client_ip": request.remote_addr
+        })
+        
+        # Log audit event for failed request if user_id is available
+        if 'user_id' in locals() and user_id:
+            log_audit_event(
+                event_type="ai_interaction",
+                user_id=user_id,
+                details={
+                    "interaction_type": "chat",
+                    "error": str(e)
+                },
+                success=False
+            )
+            
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/models')
