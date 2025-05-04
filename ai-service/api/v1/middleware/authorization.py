@@ -113,6 +113,22 @@ ROLE_HIERARCHY = {
     'superadmin': 4
 }
 
+# Define role hierarchy for privilege escalation prevention
+ROLE_HIERARCHY_PREVENTION = {
+    'user': ['user'],
+    'moderator': ['user', 'moderator'],
+    'admin': ['user', 'moderator', 'admin'],
+    'superadmin': ['user', 'moderator', 'admin', 'superadmin']
+}
+
+# Map tiers to hierarchy for privilege escalation prevention
+TIER_HIERARCHY_PREVENTION = {
+    'free': ['free'],
+    'basic': ['free', 'basic'],
+    'premium': ['free', 'basic', 'premium'],
+    'enterprise': ['free', 'basic', 'premium', 'enterprise']
+}
+
 # Token blacklist (in-memory for now, would be in Redis/DB in production)
 token_blacklist = set()
 
@@ -1037,6 +1053,126 @@ def log_access(level="info", include_body=False):
                 logger.warning(f"API Access: {json.dumps(log_data)}")
             
             # Call the original function
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+def role_required(required_role):
+    """
+    Decorator to require a specific role for accessing an endpoint
+    
+    Args:
+        required_role: The role required for access
+        
+    Returns:
+        function: Decorated function
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Ensure the user is authenticated
+            if not hasattr(g, 'user') or not g.user:
+                AuditEvent.create(
+                    event_type="SECURITY_VIOLATION",
+                    severity="WARNING",
+                    details=f"Attempt to access role-protected endpoint without authentication: {request.path}"
+                )
+                return ResponseFormatter.error_response(
+                    message="Authentication required",
+                    status_code=401
+                ), 401
+            
+            # Get the user's role
+            user_role = g.user.get('role', '')
+            
+            # Verify role hierarchy to prevent privilege escalation
+            if user_role not in ROLE_HIERARCHY_PREVENTION:
+                logger.warning(f"Invalid role '{user_role}' in token for user {g.user.get('sub')}")
+                AuditEvent.create(
+                    event_type="SECURITY_VIOLATION",
+                    severity="HIGH",
+                    details=f"Invalid role '{user_role}' in token for user {g.user.get('sub')}"
+                )
+                return ResponseFormatter.error_response(
+                    message="Invalid role",
+                    status_code=403
+                ), 403
+                
+            # Check if the user's role has the required level
+            if required_role not in ROLE_HIERARCHY_PREVENTION[user_role]:
+                logger.warning(f"Insufficient role: {user_role} (required: {required_role})")
+                AuditEvent.create(
+                    event_type="AUTHORIZATION_FAILURE",
+                    severity="MEDIUM",
+                    details=f"Role escalation attempt: {user_role} tried to access {required_role} resource",
+                    user_id=g.user.get('sub')
+                )
+                return ResponseFormatter.error_response(
+                    message="Insufficient permissions",
+                    status_code=403
+                ), 403
+                
+            # Role is valid, proceed with the request
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+def tier_required(required_tier):
+    """
+    Decorator to require a specific subscription tier for accessing an endpoint
+    
+    Args:
+        required_tier: The minimum tier required for access
+        
+    Returns:
+        function: Decorated function
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Ensure the user is authenticated
+            if not hasattr(g, 'user') or not g.user:
+                AuditEvent.create(
+                    event_type="SECURITY_VIOLATION",
+                    severity="WARNING",
+                    details=f"Attempt to access tier-protected endpoint without authentication: {request.path}"
+                )
+                return ResponseFormatter.error_response(
+                    message="Authentication required",
+                    status_code=401
+                ), 401
+            
+            # Get the user's tier
+            user_tier = g.user.get('tier', '')
+            
+            # Verify tier validity
+            if user_tier not in TIER_HIERARCHY_PREVENTION:
+                logger.warning(f"Invalid tier '{user_tier}' in token for user {g.user.get('sub')}")
+                AuditEvent.create(
+                    event_type="SECURITY_VIOLATION",
+                    severity="MEDIUM",
+                    details=f"Invalid tier '{user_tier}' in token for user {g.user.get('sub')}"
+                )
+                return ResponseFormatter.error_response(
+                    message="Invalid subscription tier",
+                    status_code=403
+                ), 403
+                
+            # Check if the user's tier meets the required level
+            if required_tier not in TIER_HIERARCHY_PREVENTION or required_tier not in TIER_HIERARCHY_PREVENTION[user_tier]:
+                logger.warning(f"Insufficient tier: {user_tier} (required: {required_tier})")
+                AuditEvent.create(
+                    event_type="AUTHORIZATION_FAILURE",
+                    severity="LOW",
+                    details=f"Tier escalation attempt: {user_tier} tried to access {required_tier} feature",
+                    user_id=g.user.get('sub')
+                )
+                return ResponseFormatter.error_response(
+                    message="This feature requires a higher subscription tier",
+                    status_code=403
+                ), 403
+                
+            # Tier is valid, proceed with the request
             return f(*args, **kwargs)
         return decorated_function
     return decorator

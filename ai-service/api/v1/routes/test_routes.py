@@ -7,7 +7,7 @@ should only be enabled in test environments.
 """
 
 from flask import Blueprint, jsonify, g
-from ..middleware.authorization import jwt_required, has_permission, check_feature_access
+from ..middleware.authorization import jwt_required, has_permission, role_required, tier_required
 from ..utils.response_formatter import ResponseFormatter
 
 test_bp = Blueprint('test', __name__)
@@ -51,7 +51,7 @@ def user_dashboard():
 # Premium routes (premium tier or higher required)
 @test_bp.route('/api/v1/premium/features')
 @jwt_required
-@check_feature_access('premium_features')
+@tier_required('premium')
 def premium_features():
     """Premium endpoint - requires premium tier"""
     return ResponseFormatter.success_response(
@@ -61,7 +61,7 @@ def premium_features():
 
 @test_bp.route('/api/v1/premium/reports')
 @jwt_required
-@check_feature_access('premium_reports')
+@tier_required('premium')
 def premium_reports():
     """Premium endpoint - requires premium tier"""
     return ResponseFormatter.success_response(
@@ -72,7 +72,7 @@ def premium_reports():
 # Admin routes (admin role required)
 @test_bp.route('/api/v1/admin/dashboard')
 @jwt_required
-@has_permission('admin:view')
+@role_required('admin')
 def admin_dashboard():
     """Admin endpoint - requires admin role"""
     return ResponseFormatter.success_response(
@@ -82,16 +82,17 @@ def admin_dashboard():
 
 @test_bp.route('/api/v1/admin/users')
 @jwt_required
-@has_permission('admin:view')
+@role_required('admin')
 def admin_users():
     """Admin endpoint - requires admin role"""
     return ResponseFormatter.success_response(
-        message="Admin users accessed",
+        message="Admin users list accessed",
         data={"role": g.user.get('role')}
     )
 
 @test_bp.route('/api/v1/admin/settings')
 @jwt_required
+@role_required('admin')
 @has_permission('admin:edit')
 def admin_settings():
     """Admin endpoint - requires admin role with edit permissions"""
