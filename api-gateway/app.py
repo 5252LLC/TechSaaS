@@ -3,70 +3,107 @@ TechSaaS Platform - API Gateway Service
 Main API Gateway service that routes requests to appropriate microservices
 """
 import os
+import logging
 from flask import Flask, request, jsonify, render_template
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv(override=True)
+# Import middleware and services
+from middleware.request_transform import init_request_middleware
+from middleware.response_transform import init_response_middleware
+from middleware.security import init_security_middleware
+from services.service_discovery import init_service_discovery
+from routes.api_routes import register_routes as register_api_routes
+from routes.docs_routes import register_routes as register_docs_routes
+from routes.monetization_routes import register_routes as register_monetization_routes
 
-# Initialize Flask app
-app = Flask(__name__)
+# Import configuration
+from config.services import (
+    API_GATEWAY_PORT, 
+    SERVICES, 
+    LOG_LEVEL, 
+    LOG_FORMAT,
+    ENABLE_SERVICE_DISCOVERY,
+    ENABLE_CIRCUIT_BREAKER,
+    ENABLE_RATE_LIMITING,
+    RATE_LIMIT_PER_MINUTE,
+    JWT_SECRET_KEY,
+    AUTH_REQUIRED_PATHS
+)
 
-# Configuration
-PORT = int(os.getenv('API_GATEWAY_PORT', 5000))
-VIDEO_SCRAPER_URL = f"http://localhost:{os.getenv('VIDEO_SCRAPER_PORT', 5501)}"
-WEB_INTERFACE_URL = f"http://localhost:{os.getenv('WEB_INTERFACE_PORT', 5252)}"
-WEB_SCRAPER_URL = f"http://localhost:{os.getenv('WEB_SCRAPER_PORT', 5502)}"
+# Configure logging
+logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
+logger = logging.getLogger("api_gateway")
 
-@app.route('/')
-def index():
-    """Root endpoint that provides API documentation"""
-    return jsonify({
-        "service": "TechSaaS API Gateway",
-        "version": "1.0.0",
-        "endpoints": {
-            "/api/video-scraper": "Video scraping service",
-            "/api/web-interface": "Web browser interface",
-            "/api/web-scraper": "Web content scraping service",
-            "/api/ai": "AI analysis service"
-        }
+def create_app():
+    """
+    Create and configure the Flask application
+    
+    Returns:
+        Flask: The configured Flask application
+    """
+    app = Flask(__name__)
+    
+    # Configure the application
+    app.config.update({
+        'API_GATEWAY_PORT': API_GATEWAY_PORT,
+        'API_GATEWAY_VERSION': '1.0.0',
+        'API_VERSION': 'v1',
+        'ENABLE_SERVICE_DISCOVERY': ENABLE_SERVICE_DISCOVERY,
+        'ENABLE_CIRCUIT_BREAKER': ENABLE_CIRCUIT_BREAKER,
+        'ENABLE_RATE_LIMITING': ENABLE_RATE_LIMITING,
+        'RATE_LIMIT_PER_MINUTE': RATE_LIMIT_PER_MINUTE,
+        'JWT_SECRET_KEY': JWT_SECRET_KEY,
+        'AUTH_REQUIRED_PATHS': AUTH_REQUIRED_PATHS,
     })
-
-@app.route('/api/health')
-def health_check():
-    """Health check endpoint for monitoring"""
-    return jsonify({"status": "healthy"})
-
-@app.route('/api/<path:service_path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def api_gateway(service_path):
-    """
-    Main gateway function that routes API requests to appropriate microservices
-    based on the service path
-    """
-    try:
-        # Route based on service path prefix
-        if service_path.startswith('video-scraper'):
-            # Forward to video scraper service
-            target_url = f"{VIDEO_SCRAPER_URL}/{service_path.replace('video-scraper/', '', 1)}"
-        elif service_path.startswith('web-interface'):
-            # Forward to web interface service
-            target_url = f"{WEB_INTERFACE_URL}/{service_path.replace('web-interface/', '', 1)}"
-        elif service_path.startswith('web-scraper'):
-            # Forward to web scraper service
-            target_url = f"{WEB_SCRAPER_URL}/{service_path.replace('web-scraper/', '', 1)}"
-        else:
-            return jsonify({"error": "Invalid service path"}), 404
-            
-        # Implementation will forward requests to appropriate services
-        # This is a placeholder for actual service forwarding logic
+    
+    # Initialize middleware
+    init_request_middleware(app)
+    init_response_middleware(app)
+    init_security_middleware(app)
+    
+    # Initialize service discovery
+    init_service_discovery(app)
+    
+    # Register routes
+    register_api_routes(app)
+    register_docs_routes(app)
+    register_monetization_routes(app)
+    
+    # Root route
+    @app.route('/')
+    def index():
+        """Root endpoint that provides API documentation"""
         return jsonify({
-            "message": f"Request would be forwarded to {target_url}",
-            "service_path": service_path,
-            "method": request.method
+            "name": "TechSaaS API Gateway",
+            "version": app.config.get('API_GATEWAY_VERSION'),
+            "documentation": "/api/docs",
+            "services": list(SERVICES.keys()),
+            "monetization": "/api/monetization/tiers"
         })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            "status": "error",
+            "message": "Resource not found",
+            "error": str(error)
+        }), 404
+    
+    @app.errorhandler(500)
+    def server_error(error):
+        logger.error(f"Server error: {str(error)}")
+        return jsonify({
+            "status": "error",
+            "message": "Internal server error",
+            "error": str(error)
+        }), 500
+    
+    logger.info(f"API Gateway initialized with configuration: {app.config}")
+    return app
 
 if __name__ == '__main__':
-    print(f"Starting API Gateway service on port {PORT}")
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    app = create_app()
+    port = app.config.get('API_GATEWAY_PORT', 5000)
+    
+    logger.info(f"Starting API Gateway service on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=True)
