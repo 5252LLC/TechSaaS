@@ -3,6 +3,10 @@ PII Masking Module for TechSaaS Logging
 
 This module provides functionality to mask personally identifiable information (PII)
 and other sensitive data in log records to ensure compliance with privacy regulations.
+
+SECURITY NOTE: This file contains regex patterns for DETECTING sensitive information.
+It does NOT contain any actual credentials, API keys, or sensitive data.
+These patterns are used solely to identify and mask such information in logs and responses.
 """
 
 import re
@@ -10,6 +14,7 @@ import copy
 from typing import Dict, Any, List, Union, Pattern, Callable, Tuple
 
 # Define PII patterns
+# SECURITY NOTE: These are detection patterns only, not actual sensitive data
 PII_PATTERNS = {
     # Credit Card Numbers (major cards)
     'credit_card': re.compile(r'\b(?:\d{4}[ -]?){3}\d{4}\b'),
@@ -46,6 +51,7 @@ PII_PATTERNS = {
 }
 
 # Define sensitive field names (case-insensitive keys)
+# SECURITY NOTE: These are field names to look for, not actual values
 SENSITIVE_FIELDS = {
     # Authentication
     'password', 'passwd', 'pwd', 'secret', 'api_key', 'apikey', 'api_secret',
