@@ -13,6 +13,7 @@ Features:
 """
 
 import datetime
+from datetime import datetime, timezone, UTC
 import json
 import logging
 import os
@@ -39,26 +40,26 @@ class AuditEvent:
     ADMIN_ACTION = "admin_action"
     PAYMENT_TRANSACTION = "payment_transaction"
     
-    # Event outcomes
+    # Outcome types
     OUTCOME_SUCCESS = "success"
     OUTCOME_FAILURE = "failure"
     OUTCOME_ERROR = "error"
     OUTCOME_WARNING = "warning"
     
     def __init__(
-        self,
-        event_type: str,
-        action: str,
-        actor_id: Optional[str] = None,
-        actor_type: str = "user",
-        resource_id: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        outcome: str = OUTCOME_SUCCESS,
-        details: Optional[Dict[str, Any]] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        request_id: Optional[str] = None
-    ):
+            self,
+            event_type: str,
+            action: str,
+            actor_id: Optional[str] = None,
+            actor_type: str = "user",
+            resource_id: Optional[str] = None,
+            resource_type: Optional[str] = None,
+            outcome: str = OUTCOME_SUCCESS,
+            details: Optional[Dict[str, Any]] = None,
+            ip_address: Optional[str] = None,
+            user_agent: Optional[str] = None,
+            request_id: Optional[str] = None
+        ):
         """
         Initialize a new audit event.
         
@@ -76,7 +77,8 @@ class AuditEvent:
             request_id: Unique ID for the request
         """
         self.event_id = str(uuid.uuid4())
-        self.timestamp = datetime.datetime.utcnow().isoformat() + 'Z'
+        # Use timezone-aware datetime object instead of deprecated utcnow()
+        self.timestamp = datetime.now(UTC).isoformat() + 'Z'
         self.event_type = event_type
         self.action = action
         self.actor_id = actor_id or "anonymous"
@@ -98,48 +100,52 @@ class AuditEvent:
         
         # Generate hash for tamper evidence
         self._generate_hash()
-    
+
     def _generate_hash(self):
         """Generate a hash of the event data for tamper evidence"""
+        # Create a dictionary with the event data
         event_data = {
-            "event_id": self.event_id,
-            "timestamp": self.timestamp,
-            "event_type": self.event_type,
-            "action": self.action,
-            "actor_id": self.actor_id,
-            "resource_id": self.resource_id,
-            "outcome": self.outcome,
-            "details": self.details
+            'event_id': self.event_id,
+            'timestamp': self.timestamp,
+            'event_type': self.event_type,
+            'action': self.action,
+            'actor_id': self.actor_id,
+            'actor_type': self.actor_type,
+            'resource_id': self.resource_id,
+            'resource_type': self.resource_type,
+            'outcome': self.outcome,
+            'details': self.details,
+            'ip_address': self.ip_address,
+            'user_agent': self.user_agent,
+            'request_id': self.request_id
         }
         
-        # Convert to stable JSON string (sorted keys)
-        json_data = json.dumps(event_data, sort_keys=True)
+        # Convert to JSON and hash
+        data_str = json.dumps(event_data, sort_keys=True)
+        self.hash = hashlib.sha256(data_str.encode()).hexdigest()
         
-        # Generate SHA-256 hash
-        self.hash = hashlib.sha256(json_data.encode()).hexdigest()
-    
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self):
         """Convert event to dictionary for storage/serialization"""
         return {
-            "event_id": self.event_id,
-            "timestamp": self.timestamp,
-            "event_type": self.event_type,
-            "action": self.action,
-            "actor_id": self.actor_id,
-            "actor_type": self.actor_type,
-            "resource_id": self.resource_id,
-            "resource_type": self.resource_type,
-            "outcome": self.outcome,
-            "details": self.details,
-            "ip_address": self.ip_address,
-            "user_agent": self.user_agent,
-            "request_id": self.request_id,
-            "hash": self.hash
+            'event_id': self.event_id,
+            'timestamp': self.timestamp,
+            'event_type': self.event_type,
+            'action': self.action,
+            'actor_id': self.actor_id,
+            'actor_type': self.actor_type,
+            'resource_id': self.resource_id,
+            'resource_type': self.resource_type,
+            'outcome': self.outcome,
+            'details': self.details,
+            'ip_address': self.ip_address,
+            'user_agent': self.user_agent,
+            'request_id': self.request_id,
+            'hash': self.hash
         }
-    
-    def __str__(self) -> str:
+        
+    def __str__(self):
         """String representation of the audit event"""
-        return f"AuditEvent({self.event_type}, {self.action}, {self.outcome})"
+        return f"AuditEvent({self.event_type}/{self.action}) by {self.actor_type}:{self.actor_id}"
 
 
 class AuditTrail:
@@ -233,7 +239,7 @@ class AuditTrail:
         if not self.retention_days:
             return 0
             
-        cutoff_date = datetime.datetime.utcnow() - datetime.timedelta(days=self.retention_days)
+        cutoff_date = datetime.now(UTC) - datetime.timedelta(days=self.retention_days)
         return self.storage.delete_events_before(cutoff_date.isoformat() + 'Z')
     
     def verify_integrity(self, start_id=None, end_id=None) -> Dict[str, Any]:
@@ -584,3 +590,263 @@ def audit_security_event(event_name, severity, details=None, actor_id=None):
     )
     
     return audit_trail.log_event(event)
+
+
+class AuditStorage:
+    """Abstract base class for audit storage backends"""
+    
+    def store_event(self, event: AuditEvent) -> bool:
+        """Store an audit event"""
+        raise NotImplementedError("Subclasses must implement store_event()")
+    
+    def get_event_by_id(self, event_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve an event by ID"""
+        raise NotImplementedError("Subclasses must implement get_event_by_id()")
+    
+    def get_events(self, filters: Dict[str, Any], page: int = 1, page_size: int = 50) -> List[Dict[str, Any]]:
+        """Get events matching filters with pagination"""
+        raise NotImplementedError("Subclasses must implement get_events()")
+    
+    def count_events(self, filters: Dict[str, Any]) -> int:
+        """Count events matching filters"""
+        raise NotImplementedError("Subclasses must implement count_events()")
+    
+    def delete_events_before(self, timestamp: str) -> int:
+        """Delete events before timestamp, returns count of deleted events"""
+        raise NotImplementedError("Subclasses must implement delete_events_before()")
+    
+    def get_stats(self, start_time: Optional[str] = None, end_time: Optional[str] = None) -> Dict[str, Any]:
+        """Get statistics on audit events"""
+        raise NotImplementedError("Subclasses must implement get_stats()")
+
+
+class DatabaseAuditStorage(AuditStorage):
+    """Store audit events in database"""
+    
+    def __init__(self, db=None):
+        """Initialize database storage"""
+        self.db = db
+        
+    def store_event(self, event: AuditEvent) -> bool:
+        """Store an audit event in database"""
+        from api.v1.models.audit import AuditEvent as AuditEventModel
+        
+        try:
+            # Create database model from event
+            event_model = AuditEventModel(
+                event_id=event.event_id,
+                timestamp=event.timestamp,
+                event_type=event.event_type,
+                action=event.action,
+                actor_id=event.actor_id,
+                actor_type=event.actor_type,
+                resource_id=event.resource_id,
+                resource_type=event.resource_type,
+                outcome=event.outcome,
+                details=event.details,
+                ip_address=event.ip_address,
+                user_agent=event.user_agent,
+                request_id=event.request_id,
+                hash=event.hash
+            )
+            
+            # Save to database
+            if self.db:
+                self.db.session.add(event_model)
+                self.db.session.commit()
+                return True
+            else:
+                # Log error but don't fail application if DB not available
+                logger.error("No database available for audit storage")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error storing audit event: {str(e)}")
+            if self.db and hasattr(self.db, 'session'):
+                self.db.session.rollback()
+            return False
+    
+    def get_event_by_id(self, event_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve an event by ID from database"""
+        from api.v1.models.audit import AuditEvent as AuditEventModel
+        
+        if not self.db:
+            return None
+            
+        try:
+            event = AuditEventModel.query.filter_by(event_id=event_id).first()
+            if event:
+                return event.to_dict()
+            return None
+        except Exception as e:
+            logger.error(f"Error retrieving audit event: {str(e)}")
+            return None
+    
+    def get_events(self, filters: Dict[str, Any], page: int = 1, page_size: int = 50) -> List[Dict[str, Any]]:
+        """Get events matching filters with pagination from database"""
+        from api.v1.models.audit import AuditEvent as AuditEventModel
+        
+        if not self.db:
+            return []
+            
+        try:
+            query = AuditEventModel.query
+            
+            # Apply filters
+            if 'event_type' in filters:
+                query = query.filter_by(event_type=filters['event_type'])
+            if 'action' in filters:
+                query = query.filter_by(action=filters['action'])
+            if 'actor_id' in filters:
+                query = query.filter_by(actor_id=filters['actor_id'])
+            if 'outcome' in filters:
+                query = query.filter_by(outcome=filters['outcome'])
+            if 'start_time' in filters:
+                query = query.filter(AuditEventModel.timestamp >= filters['start_time'])
+            if 'end_time' in filters:
+                query = query.filter(AuditEventModel.timestamp <= filters['end_time'])
+                
+            # Apply pagination
+            query = query.order_by(AuditEventModel.timestamp.desc())
+            events = query.paginate(page=page, per_page=page_size)
+            
+            return [event.to_dict() for event in events.items]
+            
+        except Exception as e:
+            logger.error(f"Error retrieving audit events: {str(e)}")
+            return []
+    
+    def count_events(self, filters: Dict[str, Any]) -> int:
+        """Count events matching filters in database"""
+        from api.v1.models.audit import AuditEvent as AuditEventModel
+        
+        if not self.db:
+            return 0
+            
+        try:
+            query = AuditEventModel.query
+            
+            # Apply filters
+            if 'event_type' in filters:
+                query = query.filter_by(event_type=filters['event_type'])
+            if 'action' in filters:
+                query = query.filter_by(action=filters['action'])
+            if 'actor_id' in filters:
+                query = query.filter_by(actor_id=filters['actor_id'])
+            if 'outcome' in filters:
+                query = query.filter_by(outcome=filters['outcome'])
+            if 'start_time' in filters:
+                query = query.filter(AuditEventModel.timestamp >= filters['start_time'])
+            if 'end_time' in filters:
+                query = query.filter(AuditEventModel.timestamp <= filters['end_time'])
+                
+            return query.count()
+            
+        except Exception as e:
+            logger.error(f"Error counting audit events: {str(e)}")
+            return 0
+    
+    def delete_events_before(self, timestamp: str) -> int:
+        """Delete events before timestamp from database, returns count of deleted events"""
+        from api.v1.models.audit import AuditEvent as AuditEventModel
+        
+        if not self.db:
+            return 0
+            
+        try:
+            # Instead of deleting, move to archive
+            from api.v1.models.audit import AuditEventArchive
+            
+            # Find events to archive
+            events_to_archive = AuditEventModel.query.filter(
+                AuditEventModel.timestamp < timestamp
+            ).all()
+            
+            count = len(events_to_archive)
+            
+            # Archive each event
+            for event in events_to_archive:
+                # Create archive record
+                archive = AuditEventArchive(
+                    event_id=event.event_id,
+                    timestamp=event.timestamp,
+                    event_type=event.event_type,
+                    action=event.action,
+                    actor_id=event.actor_id,
+                    actor_type=event.actor_type,
+                    resource_id=event.resource_id,
+                    resource_type=event.resource_type,
+                    outcome=event.outcome,
+                    details=event.details,
+                    ip_address=event.ip_address,
+                    user_agent=event.user_agent,
+                    request_id=event.request_id,
+                    hash=event.hash,
+                    archived_at=datetime.now(UTC).isoformat() + 'Z'
+                )
+                
+                self.db.session.add(archive)
+                self.db.session.delete(event)
+            
+            self.db.session.commit()
+            return count
+            
+        except Exception as e:
+            logger.error(f"Error archiving audit events: {str(e)}")
+            if self.db and hasattr(self.db, 'session'):
+                self.db.session.rollback()
+            return 0
+    
+    def get_stats(self, start_time: Optional[str] = None, end_time: Optional[str] = None) -> Dict[str, Any]:
+        """Get statistics on audit events from database"""
+        from api.v1.models.audit import AuditEvent as AuditEventModel
+        from sqlalchemy import func, and_
+        
+        if not self.db:
+            return {}
+            
+        try:
+            # Set default time range if not provided
+            if not start_time:
+                # Use 30 days ago
+                thirty_days_ago = datetime.now(UTC) - datetime.timedelta(days=30)
+                start_time = thirty_days_ago.isoformat() + 'Z'
+                
+            if not end_time:
+                end_time = datetime.now(UTC).isoformat() + 'Z'
+                
+            # Build query filters
+            filters = [
+                AuditEventModel.timestamp >= start_time,
+                AuditEventModel.timestamp <= end_time
+            ]
+            
+            # Get total count
+            total_count = AuditEventModel.query.filter(and_(*filters)).count()
+            
+            # Get counts by event type
+            type_counts = self.db.session.query(
+                AuditEventModel.event_type,
+                func.count(AuditEventModel.event_id)
+            ).filter(and_(*filters)).group_by(AuditEventModel.event_type).all()
+            
+            # Get counts by outcome
+            outcome_counts = self.db.session.query(
+                AuditEventModel.outcome,
+                func.count(AuditEventModel.event_id)
+            ).filter(and_(*filters)).group_by(AuditEventModel.outcome).all()
+            
+            # Format results
+            return {
+                'total_count': total_count,
+                'by_type': {t[0]: t[1] for t in type_counts},
+                'by_outcome': {o[0]: o[1] for o in outcome_counts},
+                'time_range': {
+                    'start': start_time,
+                    'end': end_time
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error retrieving audit stats: {str(e)}")
+            return {}
