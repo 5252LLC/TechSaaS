@@ -253,22 +253,20 @@ def openapi_spec():
 @docs_blueprint.route('/swagger')
 def swagger_ui():
     """Swagger UI endpoint"""
-    # In a real implementation, this would serve the Swagger UI HTML page
-    # For now, we'll just return a placeholder
-    return jsonify({
-        "message": "Swagger UI would be served here",
-        "installation_instructions": "Install Swagger UI and serve the static files here"
-    })
+    try:
+        return send_from_directory(DOCS_DIR, 'swagger.html')
+    except Exception as e:
+        logger.error(f"Error serving Swagger UI: {str(e)}")
+        return jsonify({"error": "Error serving Swagger UI"}), 500
 
 @docs_blueprint.route('/redoc')
 def redoc():
     """ReDoc endpoint"""
-    # In a real implementation, this would serve the ReDoc HTML page
-    # For now, we'll just return a placeholder
-    return jsonify({
-        "message": "ReDoc would be served here",
-        "installation_instructions": "Install ReDoc and serve the static files here"
-    })
+    try:
+        return send_from_directory(DOCS_DIR, 'redoc.html')
+    except Exception as e:
+        logger.error(f"Error serving ReDoc: {str(e)}")
+        return jsonify({"error": "Error serving ReDoc"}), 500
 
 @docs_blueprint.route('/examples/<service_id>')
 def service_examples(service_id):

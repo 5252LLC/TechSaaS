@@ -322,42 +322,75 @@ class DBConnector:
             return success
     
     def validate_api_key(self, api_key):
-        """Validate an API key and return key information"""
-        with db_lock:
-            conn = self._get_connection()
-            cursor = conn.cursor()
+        """
+        Validate an API key and return key information
+        
+        Args:
+            api_key (str): The API key to validate
             
-            cursor.execute('''
-            SELECT key_id, user_id, tier, status
-            FROM api_keys
-            WHERE api_key = ? AND status = 'active'
-            ''', (api_key,))
+        Returns:
+            dict: API key information if valid, None otherwise
+        """
+        logger = logging.getLogger("api_gateway.db")
+        logger.debug(f"Validating API key: {'*****' + api_key[-5:] if api_key else None}")
+        
+        if not api_key:
+            logger.warning("Empty API key provided for validation")
+            return None
             
-            row = cursor.fetchone()
-            
-            if row:
-                # Update last used time
-                now = int(time.time())
+        try:
+            with db_lock:
+                conn = self._get_connection()
+                conn.execute("PRAGMA timeout=5000")  # 5 second timeout for queries
+                cursor = conn.cursor()
+                
                 cursor.execute('''
-                UPDATE api_keys
-                SET last_used = ?
-                WHERE key_id = ?
-                ''', (now, row['key_id']))
+                SELECT key_id, name, user_id, tier, status, created_at
+                FROM api_keys
+                WHERE api_key = ? AND status = 'active'
+                ''', (api_key,))
                 
-                conn.commit()
+                row = cursor.fetchone()
                 
-                result = dict(row)
+                if not row:
+                    logger.warning("Invalid API key attempted")
+                    conn.close()
+                    return None
+                
+                # Convert row to dict
+                result = dict(zip([column[0] for column in cursor.description], row))
+                
+                # Update last used time
+                try:
+                    now = int(time.time())
+                    cursor.execute('''
+                    UPDATE api_keys
+                    SET last_used = ?
+                    WHERE key_id = ?
+                    ''', (now, result['key_id']))
+                    
+                    conn.commit()
+                except Exception as e:
+                    logger.error(f"Error updating last_used time: {str(e)}")
+                    # Continue anyway, this is non-critical
+                    conn.rollback()
                 
                 # Get tier details
-                tier_id = result.get('tier')
-                tier = self.get_subscription_tier(tier_id)
-                if tier:
-                    result['rate_limit'] = tier.get('rate_limit')
+                try:
+                    tier_id = result.get('tier')
+                    tier = self.get_subscription_tier(tier_id)
+                    if tier:
+                        result['rate_limit'] = tier.get('rate_limit')
+                except Exception as e:
+                    logger.error(f"Error fetching tier details: {str(e)}")
+                    # Use default rate limit
+                    result['rate_limit'] = 60
                 
                 conn.close()
                 return result
-            
-            conn.close()
+                
+        except Exception as e:
+            logger.error(f"Error validating API key: {str(e)}", exc_info=True)
             return None
     
     def track_api_usage(self, key_id, endpoint, count=1, date=None):

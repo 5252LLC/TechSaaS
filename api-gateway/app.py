@@ -30,7 +30,8 @@ from config.services import (
 )
 
 # Configure logging
-logging.basicConfig(level=getattr(logging, LOG_LEVEL), format=LOG_FORMAT)
+log_level_value = getattr(logging, LOG_LEVEL.upper(), logging.INFO)
+logging.basicConfig(level=log_level_value, format=LOG_FORMAT)
 logger = logging.getLogger("api_gateway")
 
 def create_app():
@@ -51,7 +52,7 @@ def create_app():
         'ENABLE_CIRCUIT_BREAKER': ENABLE_CIRCUIT_BREAKER,
         'ENABLE_RATE_LIMITING': ENABLE_RATE_LIMITING,
         'RATE_LIMIT_PER_MINUTE': RATE_LIMIT_PER_MINUTE,
-        'JWT_SECRET_KEY': JWT_SECRET_KEY,
+        'JWT_SECRET_KEY': JWT_SECRET_KEY or 'techsaas-secure-jwt-key-for-development',
         'AUTH_REQUIRED_PATHS': AUTH_REQUIRED_PATHS,
     })
     
@@ -71,14 +72,38 @@ def create_app():
     # Root route
     @app.route('/')
     def index():
-        """Root endpoint that provides API documentation"""
-        return jsonify({
-            "name": "TechSaaS API Gateway",
-            "version": app.config.get('API_GATEWAY_VERSION'),
-            "documentation": "/api/docs",
-            "services": list(SERVICES.keys()),
-            "monetization": "/api/monetization/tiers"
-        })
+        """Root endpoint that provides a web interface to the API Gateway"""
+        # Get service statuses
+        service_statuses = {}
+        if app.config.get('ENABLE_SERVICE_DISCOVERY'):
+            from services.service_discovery import get_registry
+            registry = get_registry()
+            for service_id in SERVICES:
+                try:
+                    is_healthy = registry.check_service_health(service_id)
+                    service_statuses[service_id] = "Healthy" if is_healthy else "Unhealthy"
+                except Exception as e:
+                    logger.error(f"Error checking health for service {service_id}: {str(e)}")
+                    service_statuses[service_id] = "Unknown"
+        
+        # Check if this is an API client requesting JSON instead of HTML
+        accept_header = request.headers.get('Accept', '')
+        if 'application/json' in accept_header:
+            # Return JSON response for API clients
+            return jsonify({
+                "name": "TechSaaS API Gateway",
+                "version": app.config.get('API_GATEWAY_VERSION'),
+                "documentation": "/api/docs",
+                "services": list(SERVICES.keys()),
+                "monetization": "/api/monetization/tiers"
+            })
+        
+        # For browser requests, render the HTML template
+        return render_template('index.html', 
+                               version=app.config.get('API_GATEWAY_VERSION'),
+                               services=SERVICES.keys(),
+                               service_statuses=service_statuses,
+                               status="Healthy")
     
     # Error handlers
     @app.errorhandler(404)

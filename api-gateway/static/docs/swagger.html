@@ -26,8 +26,44 @@
     
     .swagger-ui .topbar {
       background-color: #222;
+      padding: 10px;
+      display: flex;
+      align-items: center;
     }
     
+    /* Logo container styles */
+    .topbar-logo {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      margin-right: 20px;
+    }
+    
+    .topbar-logo img {
+      height: 30px;
+      margin-right: 10px;
+    }
+    
+    /* Override some Swagger UI styles to work better with our layout */
+    .swagger-ui .topbar .wrapper {
+      padding: 0;
+      max-width: none;
+    }
+    
+    /* Hide the default Swagger logo */
+    .swagger-ui .topbar a img {
+      display: none;
+    }
+    
+    .swagger-ui .topbar a span {
+      display: none;
+    }
+    
+    .swagger-ui .topbar a {
+      max-width: 50%;
+    }
+    
+    /* Theme customization */
     .swagger-ui .topbar .download-url-wrapper .select-label select {
       border: 2px solid #4990e2;
     }
@@ -49,15 +85,6 @@
       background-color: #4990e2;
       color: #fff;
       border-color: #4990e2;
-    }
-    
-    .swagger-ui .btn.authorize {
-      color: #4990e2;
-      border-color: #4990e2;
-    }
-    
-    .swagger-ui section.models h4 {
-      color: #4990e2;
     }
   </style>
 </head>
@@ -98,18 +125,38 @@
         }
       });
       
-      // Add TechSaaS logo to the topbar
-      const logo = document.createElement('img');
-      logo.src = '/static/logo.png';
-      logo.alt = 'TechSaaS Logo';
-      logo.height = 30;
-      logo.style.marginRight = '10px';
-      
-      const topbar = document.querySelector('.swagger-ui .topbar');
-      if (topbar) {
-        const firstChild = topbar.firstChild;
-        topbar.insertBefore(logo, firstChild);
+      // Function to add logo with retry mechanism
+      function addLogo() {
+        const topbar = document.querySelector('.swagger-ui .topbar');
+        if (topbar) {
+          // Create logo container
+          const logoContainer = document.createElement('div');
+          logoContainer.className = 'topbar-logo';
+          
+          // Add title text (without logo)
+          const titleText = document.createElement('span');
+          titleText.textContent = 'TechSaaS API';
+          titleText.style.color = 'white';
+          titleText.style.fontSize = '1.2em';
+          titleText.style.fontWeight = 'bold';
+          logoContainer.appendChild(titleText);
+          
+          // Insert at beginning of topbar
+          if (topbar.firstChild) {
+            topbar.insertBefore(logoContainer, topbar.firstChild);
+          } else {
+            topbar.appendChild(logoContainer);
+          }
+          
+          console.log('API title added successfully');
+        } else {
+          console.log('Topbar not found, retrying in 100ms');
+          setTimeout(addLogo, 100); // Retry if topbar isn't ready yet
+        }
       }
+      
+      // Start adding logo after a short delay to ensure UI is rendered
+      setTimeout(addLogo, 100);
       
       window.ui = ui;
     };

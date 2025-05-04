@@ -12,12 +12,86 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     
+    #redoc-container {
+      min-height: 100vh;
+    }
+    
     .menu-content img {
       padding: 20px 0;
     }
     
     .api-info-wrapper {
       margin-top: 30px;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .loading-spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #4990e2;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .error-container {
+      display: none;
+      padding: 20px;
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: #fff1f0;
+      border: 1px solid #ffccc7;
+      border-radius: 4px;
+    }
+
+    .error-title {
+      font-size: 18px;
+      color: #cf1322;
+      margin-bottom: 10px;
+    }
+
+    .error-message {
+      font-family: monospace;
+      padding: 10px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .error-hint {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .retry-button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #4990e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
     
     :root {
@@ -41,112 +115,146 @@
         --code-color: #f0f0f0;
         --code-border-color: #444;
       }
+      
+      .loading-text {
+        color: #f0f0f0;
+      }
+      
+      .error-container {
+        background-color: rgba(255, 77, 79, 0.1);
+        border-color: rgba(255, 77, 79, 0.3);
+      }
     }
   </style>
 </head>
 <body>
-  <div id="redoc"></div>
+  <div class="loading-container" id="loading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading API documentation...</div>
+  </div>
   
-  <script src="https://cdn.jsdelivr.net/npm/redoc@2.0.0/bundles/redoc.standalone.js"></script>
+  <div class="error-container" id="error-container">
+    <div class="error-title">Error Loading API Documentation</div>
+    <div class="error-message" id="error-message">Failed to load the OpenAPI specification.</div>
+    <div class="error-hint">
+      Please check that the API Gateway is running and the OpenAPI specification is correctly formatted.
+    </div>
+    <button class="retry-button" onclick="loadDocs()">Retry</button>
+  </div>
+  
+  <div id="redoc-container"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
   <script>
-    Redoc.init(
-      '/api/docs/openapi.json',
-      {
-        scrollYOffset: 50,
-        theme: {
-          colors: {
-            primary: {
-              main: '#4990e2'
-            },
-            text: {
-              primary: 'var(--text-color)',
-              secondary: 'var(--text-color-secondary)'
-            },
-            border: {
-              dark: 'var(--border-color)',
-              light: 'var(--border-color)'
-            },
-            http: {
-              get: '#4990e2',
-              post: '#49cc90',
-              put: '#fca130',
-              delete: '#f93e3e'
-            },
-            responses: {
-              success: {
-                color: '#49cc90',
-                backgroundColor: 'rgba(73, 204, 144, 0.1)'
-              },
-              error: {
-                color: '#f93e3e',
-                backgroundColor: 'rgba(249, 62, 62, 0.1)'
-              },
-              redirect: {
-                color: '#fca130',
-                backgroundColor: 'rgba(252, 161, 48, 0.1)'
-              },
-              info: {
-                color: '#4990e2',
-                backgroundColor: 'rgba(73, 144, 226, 0.1)'
-              }
-            },
-            sidebar: {
-              backgroundColor: '#fafafa',
-              textColor: 'var(--text-color)'
-            }
-          },
-          typography: {
-            fontSize: '14px',
-            headings: {
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-              fontWeight: '600'
-            },
-            code: {
-              fontSize: '13px',
-              fontFamily: 'Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace',
-              color: 'var(--code-color)',
-              backgroundColor: 'var(--code-background)',
-              wrap: true
-            }
-          },
-          sidebar: {
-            width: '300px'
-          },
-          rightPanel: {
-            backgroundColor: 'var(--code-background)',
-            borderColor: 'var(--code-border-color)'
-          }
-        },
-        expandResponses: '200,201',
-        sortPropsAlphabetically: false,
-        hideDownloadButton: false,
-        requiredPropsFirst: true,
-        sortEnumValuesAlphabetically: true,
-        nativeScrollbars: false,
-        hideHostname: false,
-        noAutoAuth: false,
-        onlyRequiredInSamples: false,
-        pathInMiddlePanel: false,
-        hideLoading: false,
-        hideSearch: false
+    // Initial default spec if fetch fails
+    const defaultSpec = {
+      openapi: '3.0.0',
+      info: {
+        title: 'TechSaaS API Gateway',
+        version: '1.0.0',
+        description: 'API Gateway for the TechSaaS Platform'
       },
-      document.getElementById('redoc')
-    );
-    
-    // Add TechSaaS logo to the menu header
-    setTimeout(() => {
-      const menuContent = document.querySelector('.menu-content');
-      if (menuContent) {
-        const logo = document.createElement('img');
-        logo.src = '/static/logo.png';
-        logo.alt = 'TechSaaS Logo';
-        logo.height = 40;
-        logo.style.display = 'block';
-        logo.style.margin = '0 auto';
-        
-        menuContent.insertBefore(logo, menuContent.firstChild);
+      paths: {
+        '/health': {
+          get: {
+            summary: 'Health check endpoint',
+            responses: {
+              '200': {
+                description: 'API Gateway is healthy'
+              }
+            }
+          }
+        }
       }
-    }, 1000);
+    };
+    
+    function loadDocs() {
+      const loading = document.getElementById('loading');
+      const errorContainer = document.getElementById('error-container');
+      const errorMessage = document.getElementById('error-message');
+      const redocContainer = document.getElementById('redoc-container');
+      
+      loading.style.display = 'flex';
+      errorContainer.style.display = 'none';
+      redocContainer.innerHTML = '';
+      
+      // Helper function for RedocInit
+      function initRedoc(spec) {
+        try {
+          // Force use of a specific theme that works
+          const options = {
+            scrollYOffset: 50,
+            hideLoading: true,
+            expandResponses: '200,201',
+            theme: {
+              colors: {
+                primary: { main: '#4990e2' }
+              }
+            }
+          };
+
+          Redoc.init(spec, options, redocContainer)
+            .then(() => {
+              console.log("ReDoc initialized successfully");
+              loading.style.display = 'none';
+              
+              // Add TechSaaS logo
+              setTimeout(() => {
+                const menuContent = document.querySelector('.menu-content');
+                if (menuContent) {
+                  const logo = document.createElement('img');
+                  logo.src = '/static/logo.png';
+                  logo.alt = 'TechSaaS Logo';
+                  logo.height = 40;
+                  logo.style.display = 'block';
+                  logo.style.margin = '0 auto';
+                  
+                  menuContent.insertBefore(logo, menuContent.firstChild);
+                }
+              }, 1000);
+            })
+            .catch(error => {
+              console.error("ReDoc init error:", error);
+              loading.style.display = 'none';
+              errorContainer.style.display = 'block';
+              errorMessage.textContent = `ReDoc init error: ${error.message || error}`;
+            });
+        } catch (e) {
+          console.error("Exception in ReDoc init:", e);
+          loading.style.display = 'none';
+          errorContainer.style.display = 'block';
+          errorMessage.textContent = `Exception in ReDoc init: ${e.message || e}`;
+        }
+      }
+
+      // Try to fetch the OpenAPI spec
+      fetch('/api/docs/openapi.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(spec => {
+          console.log("OpenAPI spec loaded:", spec);
+          if (!spec || !spec.paths) {
+            throw new Error('Invalid OpenAPI spec structure');
+          }
+          initRedoc(spec);
+        })
+        .catch(error => {
+          console.error("Fetch error:", error);
+          console.log("Using default spec as fallback");
+          initRedoc(defaultSpec);
+        });
+    }
+    
+    // Start loading when page is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadDocs);
+    } else {
+      loadDocs();
+    }
   </script>
 </body>
 </html>
