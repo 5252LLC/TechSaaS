@@ -22,9 +22,13 @@ import hashlib
 from typing import Dict, Any, Optional, List, Union
 from flask import request, g
 import time
+import importlib
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Flag to enable/disable security alerts
+SECURITY_ALERTS_ENABLED = True
 
 class AuditEvent:
     """Represents a single audit event in the system"""
@@ -194,6 +198,18 @@ class AuditTrail:
         
         # Update chain hash
         self.last_chain_hash = event.hash
+        
+        # Process event for security alerts if enabled
+        if SECURITY_ALERTS_ENABLED:
+            try:
+                # Import here to avoid circular imports
+                from api.v1.utils.security_alerts import process_event_for_alerts
+                # Pass the event data to the security alerts module
+                process_event_for_alerts(event.to_dict())
+            except ImportError:
+                logger.warning("Security alerts module not available")
+            except Exception as e:
+                logger.error(f"Error processing event for security alerts: {e}")
         
         return event_id
     
