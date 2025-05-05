@@ -1,0 +1,184 @@
+<!-- Container Components -->
+<div class="col-12 component-example" id="containers">
+  <h3 class="component-example-header">Layout Containers</h3>
+  <div class="component-preview">
+    <div class="mb-5">
+      <h5>Container Types</h5>
+      <p>Bootstrap offers several container types to control the width of your content relative to the viewport.</p>
+      
+      <div class="example-container mb-4">
+        <div class="container p-3 border bg-light mb-3">
+          <div class="text-center">.container</div>
+          <p class="mb-0 small text-muted">Default responsive fixed width container</p>
+        </div>
+        
+        <div class="container-fluid p-3 border bg-light mb-3">
+          <div class="text-center">.container-fluid</div>
+          <p class="mb-0 small text-muted">Full width container, spanning the entire viewport</p>
+        </div>
+        
+        <div class="container-sm p-3 border bg-light mb-3">
+          <div class="text-center">.container-sm</div>
+          <p class="mb-0 small text-muted">100% width until small breakpoint</p>
+        </div>
+        
+        <div class="container-md p-3 border bg-light mb-3">
+          <div class="text-center">.container-md</div>
+          <p class="mb-0 small text-muted">100% width until medium breakpoint</p>
+        </div>
+        
+        <div class="container-lg p-3 border bg-light mb-3">
+          <div class="text-center">.container-lg</div>
+          <p class="mb-0 small text-muted">100% width until large breakpoint</p>
+        </div>
+        
+        <div class="container-xl p-3 border bg-light mb-3">
+          <div class="text-center">.container-xl</div>
+          <p class="mb-0 small text-muted">100% width until extra large breakpoint</p>
+        </div>
+        
+        <div class="container-xxl p-3 border bg-light">
+          <div class="text-center">.container-xxl</div>
+          <p class="mb-0 small text-muted">100% width until extra extra large breakpoint</p>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <p class="mb-0"><i class="fas fa-info-circle me-2"></i>Container breakpoints align with the grid system breakpoints: sm (576px), md (768px), lg (992px), xl (1200px), and xxl (1400px).</p>
+      </div>
+    </div>
+    
+    <div class="mb-5">
+      <h5>Container Examples</h5>
+      
+      <div class="example-container p-3 border mb-4">
+        <h6>Default Container with Content</h6>
+        <div class="container border bg-light p-3">
+          <div class="row">
+            <div class="col-md-8">
+              <h4>Welcome to TechSaaS</h4>
+              <p>This is an example of content within a standard container. The container provides a responsive fixed width with margins on the sides.</p>
+            </div>
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Quick Links</h5>
+                  <ul class="list-unstyled mb-0">
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Support</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="example-container p-3 border mb-4">
+        <h6>Fluid Container with Content</h6>
+        <div class="container-fluid border bg-light p-3">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Navigation</h5>
+                  <ul class="list-unstyled mb-0">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">About</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-9">
+              <h4>Full Width Content</h4>
+              <p>This is an example of content within a fluid container. The container spans the entire width of the viewport with no margin on the sides.</p>
+              <div class="alert alert-warning">
+                <p class="mb-0">Fluid containers are useful for full-width layouts like dashboards, admin panels, and landing pages.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="example-container p-3 border">
+        <h6>Nested Containers</h6>
+        <div class="container-fluid border bg-light p-3">
+          <h5 class="text-center">Outer Fluid Container</h5>
+          <div class="container border bg-white p-3 mt-3">
+            <h5 class="text-center">Inner Fixed Container</h5>
+            <p class="text-center mb-0">Containers can be nested, though it's not necessary in most cases.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-4">
+      <h5>Responsive Container Demo</h5>
+      <p>Resize your browser window to see how the container behaves at different viewport widths.</p>
+      
+      <div class="example-container p-3 border bg-light mb-3">
+        <div class="container border bg-white p-3">
+          <div class="text-center">
+            <div id="containerResponsiveDemo">
+              <h6>Container Width: <span id="containerWidth">calculating...</span></h6>
+              <div class="progress mt-2 mb-3">
+                <div class="progress-bar" id="containerWidthBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Container width percentage">0%</div>
+              </div>
+              <div id="breakpointIndicator">
+                <span class="badge bg-primary d-none d-sm-none d-md-none d-lg-none d-xl-none d-xxl-inline">XXL Breakpoint</span>
+                <span class="badge bg-info d-none d-sm-none d-md-none d-lg-none d-xl-inline d-xxl-none">XL Breakpoint</span>
+                <span class="badge bg-success d-none d-sm-none d-md-none d-lg-inline d-xl-none d-xxl-none">LG Breakpoint</span>
+                <span class="badge bg-warning d-none d-sm-none d-md-inline d-lg-none d-xl-none d-xxl-none">MD Breakpoint</span>
+                <span class="badge bg-danger d-none d-sm-inline d-md-none d-lg-none d-xl-none d-xxl-none">SM Breakpoint</span>
+                <span class="badge bg-secondary d-inline d-sm-none">XS Breakpoint</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <p class="mb-0"><i class="fas fa-lightbulb me-2"></i>Pro tip: For most web applications, use <code>.container</code> for a centered, responsive layout. Use <code>.container-fluid</code> when you need full-width content. Only use the specific breakpoint containers when you have special responsive requirements.</p>
+      </div>
+    </div>
+  </div>
+  <div class="component-code">
+&lt;!-- Default Container --&gt;
+&lt;div class="container"&gt;
+  &lt;!-- Content here --&gt;
+&lt;/div&gt;
+
+&lt;!-- Fluid Container (full width) --&gt;
+&lt;div class="container-fluid"&gt;
+  &lt;!-- Content here --&gt;
+&lt;/div&gt;
+
+&lt;!-- Responsive Containers --&gt;
+&lt;div class="container-sm"&gt;&lt;!-- 100% width until small breakpoint --&gt;&lt;/div&gt;
+&lt;div class="container-md"&gt;&lt;!-- 100% width until medium breakpoint --&gt;&lt;/div&gt;
+&lt;div class="container-lg"&gt;&lt;!-- 100% width until large breakpoint --&gt;&lt;/div&gt;
+&lt;div class="container-xl"&gt;&lt;!-- 100% width until extra large breakpoint --&gt;&lt;/div&gt;
+&lt;div class="container-xxl"&gt;&lt;!-- 100% width until extra extra large breakpoint --&gt;&lt;/div&gt;
+
+&lt;!-- Example of Container with Content --&gt;
+&lt;div class="container"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col-md-8"&gt;
+      &lt;h4&gt;Welcome to TechSaaS&lt;/h4&gt;
+      &lt;p&gt;This is an example of content within a standard container.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="col-md-4"&gt;
+      &lt;div class="card"&gt;
+        &lt;div class="card-body"&gt;
+          &lt;h5 class="card-title"&gt;Quick Links&lt;/h5&gt;
+          &lt;!-- Content here --&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+  </div>
+</div>

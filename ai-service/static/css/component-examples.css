@@ -1,0 +1,176 @@
+/* Component Examples CSS
+ * Additional styles for UI component showcase examples
+ * This file contains styles that were previously inline
+ */
+
+/* Progress Bar Variations */
+.progress-thin {
+  height: 1px;
+}
+
+.progress-thick {
+  height: 20px;
+}
+
+.progress-gradient .progress-bar {
+  background: linear-gradient(to right, #6610f2, #198754);
+}
+
+/* Custom width classes for progress bars */
+.w-15 {
+  width: 15%;
+}
+
+.w-40 {
+  width: 40%;
+}
+
+.w-60 {
+  width: 60%;
+}
+
+.w-66 {
+  width: 66%;
+}
+
+.w-70 {
+  width: 70%;
+}
+
+/* Flex Layout Examples */
+.flex-example {
+  height: 100px;
+}
+
+/* Grid Examples */
+.grid-example-row {
+  height: 100px;
+}
+
+/* Container Demo */
+.container-width-demo .progress-bar {
+  transition: width 0.3s ease;
+}
+
+/* Padding Examples */
+.padding-example {
+  height: 100px;
+  width: 100px;
+}
+
+/* Example Containers */
+.example-box {
+  min-height: 60px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Toast Demo Area */
+.toast-demo-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 1rem;
+  z-index: 1050;
+}
+
+/* Customizations for component showcase */
+.component-example {
+  margin-bottom: 3rem;
+}
+
+.component-preview {
+  padding: 1.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+  background-color: #f8f9fa;
+}
+
+.example-grid .container,
+.example-grid .container-fluid {
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  margin-bottom: 1rem;
+}
+
+.example-grid .row > [class^="col"] {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  background-color: rgba(39, 128, 227, 0.15);
+  border: 1px solid rgba(39, 128, 227, 0.3);
+}
+
+/* Responsive demo indicators */
+.responsive-indicator {
+  display: inline-block;
+  margin-right: 0.5rem;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+/* Vertical alignment example containers */
+.vertical-align-container {
+  height: 100px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Sizes */
+.demo-xs-visible {
+  display: inline-block;
+}
+
+.demo-sm-visible {
+  display: none;
+}
+
+.demo-md-visible {
+  display: none;
+}
+
+.demo-lg-visible {
+  display: none;
+}
+
+.demo-xl-visible {
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .demo-xs-visible {
+    display: none;
+  }
+  .demo-sm-visible {
+    display: inline-block;
+  }
+}
+
+@media (min-width: 768px) {
+  .demo-sm-visible {
+    display: none;
+  }
+  .demo-md-visible {
+    display: inline-block;
+  }
+}
+
+@media (min-width: 992px) {
+  .demo-md-visible {
+    display: none;
+  }
+  .demo-lg-visible {
+    display: inline-block;
+  }
+}
+
+@media (min-width: 1200px) {
+  .demo-lg-visible {
+    display: none;
+  }
+  .demo-xl-visible {
+    display: inline-block;
+  }
+}

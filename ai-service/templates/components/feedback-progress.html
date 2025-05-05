@@ -1,0 +1,301 @@
+<!-- Progress Components -->
+<div class="col-12 component-example" id="progress">
+  <h3 class="component-example-header">Progress Indicators</h3>
+  <div class="component-preview">
+    <div class="row">
+      <div class="col-lg-6">
+        <h5>Basic Progress Bars</h5>
+        
+        <!-- Default Progress Bar -->
+        <div class="mb-3">
+          <label class="form-label">Default Progress Bar (25%)</label>
+          <div class="progress" role="progressbar" aria-label="Basic progress bar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar w-25"></div>
+          </div>
+        </div>
+        
+        <!-- Colored Progress Bars -->
+        <div class="mb-3">
+          <label class="form-label">Success Progress Bar (40%)</label>
+          <div class="progress" role="progressbar" aria-label="Success progress bar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success w-40"></div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Info Progress Bar (50%)</label>
+          <div class="progress" role="progressbar" aria-label="Info progress bar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-info w-50"></div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Warning Progress Bar (60%)</label>
+          <div class="progress" role="progressbar" aria-label="Warning progress bar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-warning w-60"></div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Danger Progress Bar (70%)</label>
+          <div class="progress" role="progressbar" aria-label="Danger progress bar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-danger w-70"></div>
+          </div>
+        </div>
+        
+        <!-- Progress Bar with Label -->
+        <div class="mb-3">
+          <label class="form-label">Progress Bar with Label (75%)</label>
+          <div class="progress" role="progressbar" aria-label="Progress bar with label" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar w-75">75%</div>
+          </div>
+        </div>
+        
+        <!-- Striped Progress Bar -->
+        <div class="mb-3">
+          <label class="form-label">Striped Progress Bar (50%)</label>
+          <div class="progress" role="progressbar" aria-label="Striped progress bar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar progress-bar-striped w-50"></div>
+          </div>
+        </div>
+        
+        <!-- Animated Striped Progress Bar -->
+        <div class="mb-3">
+          <label class="form-label">Animated Striped Progress Bar (75%)</label>
+          <div class="progress" role="progressbar" aria-label="Animated striped progress bar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar progress-bar-striped progress-bar-animated w-75"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <h5>Advanced Progress Examples</h5>
+        
+        <!-- Height Variations -->
+        <div class="mb-3">
+          <label class="form-label">Thin Progress Bar (1px)</label>
+          <div class="progress progress-thin" role="progressbar" aria-label="Thin progress bar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar w-25"></div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Thick Progress Bar (20px)</label>
+          <div class="progress progress-thick" role="progressbar" aria-label="Thick progress bar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar w-25"></div>
+          </div>
+        </div>
+        
+        <!-- Multiple Bars -->
+        <div class="mb-3">
+          <label class="form-label">Multiple Progress Bars</label>
+          <div class="progress" role="progressbar" aria-label="Multiple progress bars" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar w-15">15%</div>
+            <div class="progress-bar bg-success w-30">30%</div>
+            <div class="progress-bar bg-info w-20">20%</div>
+          </div>
+        </div>
+        
+        <!-- Custom Styling -->
+        <div class="mb-4">
+          <label class="form-label">Custom Styled Progress Bar</label>
+          <div class="progress rounded-pill shadow-sm" style="height: 15px;" role="progressbar" aria-label="Custom styled progress bar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-gradient w-60" style="background: linear-gradient(to right, #6610f2, #198754);"></div>
+          </div>
+        </div>
+        
+        <!-- Interactive Progress Bar Demo -->
+        <div class="mb-3">
+          <label class="form-label">Interactive Progress Bar</label>
+          <div class="progress mb-2" role="progressbar" id="interactiveProgressBar" aria-label="Interactive progress bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" id="interactiveProgressBarValue">0%</div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-primary" id="decreaseProgress">-10%</button>
+            <button class="btn btn-sm btn-success" id="resetProgress">Reset</button>
+            <button class="btn btn-sm btn-primary" id="increaseProgress">+10%</button>
+          </div>
+        </div>
+        
+        <!-- Progress with Steps -->
+        <div class="mb-3 mt-4">
+          <label class="form-label">Progress with Steps</label>
+          <div class="d-flex justify-content-between mb-1">
+            <span>Step 1</span>
+            <span>Step 2</span>
+            <span>Step 3</span>
+            <span>Complete</span>
+          </div>
+          <div class="progress" role="progressbar" aria-label="Progress with steps" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar w-66"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Spinners Section -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <h5>Spinners</h5>
+        <div class="d-flex flex-wrap gap-4 align-items-center mb-4">
+          <!-- Border Spinners -->
+          <div>
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-border text-secondary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-border text-danger" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-border text-warning" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-border text-info" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Growing Spinners -->
+        <div class="d-flex flex-wrap gap-4 align-items-center mb-4">
+          <div>
+            <div class="spinner-grow text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-grow text-secondary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-grow text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-grow text-danger" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-grow text-warning" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          
+          <div>
+            <div class="spinner-grow text-info" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Spinner Sizes -->
+        <div class="d-flex flex-wrap gap-4 align-items-center mb-4">
+          <div>
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-2">Small</span>
+          </div>
+          
+          <div>
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-2">Default</span>
+          </div>
+          
+          <div>
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-2">Large (Custom)</span>
+          </div>
+        </div>
+        
+        <!-- Spinners with Buttons -->
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <button class="btn btn-primary" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="visually-hidden">Loading...</span>
+          </button>
+          
+          <button class="btn btn-primary" type="button" disabled>
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Loading...
+          </button>
+          
+          <button class="btn btn-success" type="button" disabled>
+            <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
+            Processing...
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="component-code">
+&lt;!-- Basic Progress Bar --&gt;
+&lt;div class="progress" role="progressbar" aria-label="Basic progress bar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar w-25"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Colored Progress Bar --&gt;
+&lt;div class="progress" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar bg-success w-40"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Striped and Animated Progress Bar --&gt;
+&lt;div class="progress" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar progress-bar-striped progress-bar-animated w-75"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Multiple Progress Bars --&gt;
+&lt;div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;
+  &lt;div class="progress-bar w-15"&gt;15%&lt;/div&gt;
+  &lt;div class="progress-bar bg-success w-30"&gt;30%&lt;/div&gt;
+  &lt;div class="progress-bar bg-info w-20"&gt;20%&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Border Spinner --&gt;
+&lt;div class="spinner-border text-primary" role="status"&gt;
+  &lt;span class="visually-hidden"&gt;Loading...&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Growing Spinner --&gt;
+&lt;div class="spinner-grow text-success" role="status"&gt;
+  &lt;span class="visually-hidden"&gt;Loading...&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Spinner in Button --&gt;
+&lt;button class="btn btn-primary" type="button" disabled&gt;
+  &lt;span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"&gt;&lt;/span&gt;
+  Loading...
+&lt;/button&gt;
+  </div>
+</div>

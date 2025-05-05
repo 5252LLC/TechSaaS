@@ -1,0 +1,247 @@
+<!-- Modal Components -->
+<div class="col-12 component-example" id="modals">
+  <h3 class="component-example-header">Modals</h3>
+  <div class="component-preview">
+    <!-- Modal Triggers -->
+    <div class="mb-4">
+      <h5 class="mb-3">Modal Examples</h5>
+      <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Basic Modal
+      </button>
+      
+      <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#staticBackdropModal">
+        Static Backdrop
+      </button>
+      
+      <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#centeredModal">
+        Vertically Centered
+      </button>
+      
+      <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#scrollableModal">
+        Scrollable Content
+      </button>
+      
+      <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#xlModal">
+        Extra Large Modal
+      </button>
+      
+      <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#smModal">
+        Small Modal
+      </button>
+      
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fullscreenModal">
+        Fullscreen Modal
+      </button>
+    </div>
+    
+    <div class="mb-4">
+      <h5 class="mb-3">Custom Modals</h5>
+      <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#successModal">
+        Success Modal
+      </button>
+      
+      <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#dangerModal">
+        Danger Modal
+      </button>
+      
+      <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#warningModal">
+        Warning Modal
+      </button>
+      
+      <button type="button" class="btn btn-info me-2" data-bs-toggle="modal" data-bs-target="#dynamicModal" 
+        data-modal-title="Custom Dynamic Title" 
+        data-modal-content="This content was set dynamically from the button attributes.">
+        Dynamic Content Modal
+      </button>
+      
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formModal">
+        Form Modal
+      </button>
+    </div>
+    
+    <!-- Live Modal Examples -->
+    <!-- Basic Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Basic Modal Example</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>This is a basic modal example. Modals are used to display content that requires user interaction before they can proceed.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Static Backdrop Modal -->
+    <div class="modal fade" id="staticBackdropModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Static Backdrop Modal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>This modal has a static backdrop, which means clicking outside the modal will not dismiss it. Additionally, the Escape key is disabled.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Understood</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Vertically Centered Modal -->
+    <div class="modal fade" id="centeredModal" tabindex="-1" aria-labelledby="centeredModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="centeredModalLabel">Vertically Centered Modal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>This modal is vertically centered in the viewport, making it more visually balanced.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Understood</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="successModalLabel"><i class="fas fa-check-circle me-2"></i>Success</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Your action has been completed successfully! Here are the details:</p>
+            <ul>
+              <li>Item has been saved</li>
+              <li>All systems are operational</li>
+              <li>You can proceed to the next step</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-success">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Form Modal -->
+    <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="formModalLabel">Submit Request</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="recipient-name" class="col-form-label">Recipient:</label>
+                <input type="text" class="form-control" id="recipient-name">
+              </div>
+              <div class="mb-3">
+                <label for="request-type" class="col-form-label">Request Type:</label>
+                <select class="form-select" id="request-type">
+                  <option value="" selected>Select type...</option>
+                  <option value="feature">Feature Request</option>
+                  <option value="bug">Bug Report</option>
+                  <option value="support">Support Request</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="message-text" class="col-form-label">Message:</label>
+                <textarea class="form-control" id="message-text" rows="5"></textarea>
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" value="" id="urgent-check">
+                <label class="form-check-label" for="urgent-check">
+                  Mark as urgent
+                </label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary">Submit Request</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dynamic Content Modal -->
+    <div class="modal fade" id="dynamicModal" tabindex="-1" aria-labelledby="dynamicModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="dynamicModalLabel">Default Title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>This modal's content is loaded dynamically from the triggering element's data attributes.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="component-code">
+&lt;!-- Modal Trigger Button --&gt;
+&lt;button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"&gt;
+  Launch Modal
+&lt;/button&gt;
+
+&lt;!-- Basic Modal --&gt;
+&lt;div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title" id="exampleModalLabel"&gt;Basic Modal Example&lt;/h5&gt;
+        &lt;button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body"&gt;
+        &lt;p&gt;This is a basic modal example.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary" data-bs-dismiss="modal"&gt;Close&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;Save changes&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Vertically Centered Modal --&gt;
+&lt;div class="modal-dialog modal-dialog-centered"&gt;
+  &lt;!-- Modal content --&gt;
+&lt;/div&gt;
+
+&lt;!-- Static Backdrop Modal --&gt;
+&lt;div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false"&gt;
+  &lt;!-- Modal content --&gt;
+&lt;/div&gt;
+
+&lt;!-- Colored Header Modal --&gt;
+&lt;div class="modal-header bg-success text-white"&gt;
+  &lt;h5 class="modal-title"&gt;&lt;i class="fas fa-check-circle me-2"&gt;&lt;/i&gt;Success&lt;/h5&gt;
+  &lt;button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+&lt;/div&gt;
+  </div>
+</div>

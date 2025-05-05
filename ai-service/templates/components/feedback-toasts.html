@@ -1,0 +1,163 @@
+<!-- Toast Components -->
+<div class="col-12 component-example" id="toasts">
+  <h3 class="component-example-header">Toasts</h3>
+  <div class="component-preview">
+    <div class="toast-container position-static">
+      <!-- Basic Toast -->
+      <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <img src="/static/images/techsaas-logo.png" class="rounded me-2" alt="TechSaaS" height="20">
+          <strong class="me-auto">TechSaaS</strong>
+          <small>11 mins ago</small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          Hello, world! This is a basic toast message.
+        </div>
+      </div>
+      
+      <!-- Success Toast -->
+      <div class="toast show text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header text-bg-success">
+          <i class="fas fa-check-circle me-2"></i>
+          <strong class="me-auto">Success</strong>
+          <small>Just now</small>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          The operation was completed successfully.
+        </div>
+      </div>
+      
+      <!-- Error Toast -->
+      <div class="toast show text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header text-bg-danger">
+          <i class="fas fa-times-circle me-2"></i>
+          <strong class="me-auto">Error</strong>
+          <small>Just now</small>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          There was an error processing your request.
+        </div>
+      </div>
+      
+      <!-- Warning Toast -->
+      <div class="toast show text-bg-warning" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header text-bg-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong class="me-auto">Warning</strong>
+          <small>Just now</small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          Your API usage is approaching the limit.
+        </div>
+      </div>
+      
+      <!-- Info Toast -->
+      <div class="toast show text-bg-info" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header text-bg-info">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong class="me-auto">Information</strong>
+          <small>Just now</small>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          New version of TechSaaS is available.
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5>Live Toast Examples</h5>
+      <p>Click the buttons below to show different toast types:</p>
+      <div class="mb-3">
+        <button type="button" class="btn btn-primary toast-trigger me-2" data-toast-type="default">Show Default</button>
+        <button type="button" class="btn btn-success toast-trigger me-2" data-toast-type="success">Show Success</button>
+        <button type="button" class="btn btn-danger toast-trigger me-2" data-toast-type="error">Show Error</button>
+        <button type="button" class="btn btn-warning toast-trigger me-2" data-toast-type="warning">Show Warning</button>
+        <button type="button" class="btn btn-info toast-trigger" data-toast-type="info">Show Info</button>
+      </div>
+      
+      <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <!-- Live toast notifications will appear here -->
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5>Toast Placement Options</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Placement</strong>
+            <small class="text-muted">Customize</small>
+          </div>
+          <div class="toast-body">
+            Toasts can be placed in any corner or center of the viewport.
+          </div>
+        </div>
+        
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Stacking</strong>
+            <small class="text-muted">Multiple</small>
+          </div>
+          <div class="toast-body">
+            Multiple toasts will automatically stack vertically.
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-3 alert alert-info">
+        <p class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>
+          For positioning toasts in your application, use the following CSS classes: <code>position-fixed top-0 end-0 p-3</code> (top-right), <code>position-fixed bottom-0 end-0 p-3</code> (bottom-right), <code>position-fixed top-0 start-0 p-3</code> (top-left), or <code>position-fixed bottom-0 start-0 p-3</code> (bottom-left).
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="component-code">
+&lt;!-- Basic Toast --&gt;
+&lt;div class="toast-container"&gt;
+  &lt;div class="toast show" role="alert" aria-live="assertive" aria-atomic="true"&gt;
+    &lt;div class="toast-header"&gt;
+      &lt;img src="/static/images/techsaas-logo.png" class="rounded me-2" alt="TechSaaS" height="20"&gt;
+      &lt;strong class="me-auto"&gt;TechSaaS&lt;/strong&gt;
+      &lt;small&gt;11 mins ago&lt;/small&gt;
+      &lt;button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="toast-body"&gt;
+      Hello, world! This is a basic toast message.
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Colored Toast --&gt;
+&lt;div class="toast show text-bg-success" role="alert" aria-live="assertive" aria-atomic="true"&gt;
+  &lt;div class="toast-header text-bg-success"&gt;
+    &lt;i class="fas fa-check-circle me-2"&gt;&lt;/i&gt;
+    &lt;strong class="me-auto"&gt;Success&lt;/strong&gt;
+    &lt;small&gt;Just now&lt;/small&gt;
+    &lt;button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"&gt;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="toast-body"&gt;
+    The operation was completed successfully.
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Positioning Toasts --&gt;
+&lt;div class="toast-container position-fixed bottom-0 end-0 p-3"&gt;
+  &lt;!-- Toast content --&gt;
+&lt;/div&gt;
+
+&lt;!-- JavaScript to Show Toast --&gt;
+&lt;script&gt;
+  // Show a toast notification
+  function showToast(type) {
+    const toast = new bootstrap.Toast(document.querySelector('.toast'));
+    toast.show();
+  }
+&lt;/script&gt;
+  </div>
+</div>

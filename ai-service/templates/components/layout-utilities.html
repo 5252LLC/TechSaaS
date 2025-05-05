@@ -1,0 +1,284 @@
+<!-- Layout Utilities Components -->
+<div class="col-12 component-example" id="layout-utilities">
+  <h3 class="component-example-header">Layout Utilities</h3>
+  <div class="component-preview">
+    <div class="mb-5">
+      <h5>Spacing Utilities</h5>
+      <p>Bootstrap includes a wide range of shorthand responsive margin and padding utility classes to modify an element's appearance.</p>
+      
+      <div class="example-grid mb-4">
+        <h6 class="mt-3">Margin Examples</h6>
+        <div class="container border p-4">
+          <div class="d-flex flex-wrap">
+            <div class="m-0 p-2 bg-primary text-white">m-0</div>
+            <div class="m-1 p-2 bg-primary text-white">m-1</div>
+            <div class="m-2 p-2 bg-primary text-white">m-2</div>
+            <div class="m-3 p-2 bg-primary text-white">m-3</div>
+            <div class="m-4 p-2 bg-primary text-white">m-4</div>
+            <div class="m-5 p-2 bg-primary text-white">m-5</div>
+          </div>
+          
+          <h6 class="mt-4">Margin Top (mt-*)</h6>
+          <div class="d-flex flex-column bg-light border">
+            <div class="mt-0 p-2 bg-success text-white">mt-0</div>
+            <div class="mt-2 p-2 bg-success text-white">mt-2</div>
+            <div class="mt-4 p-2 bg-success text-white">mt-4</div>
+          </div>
+          
+          <h6 class="mt-4">Margin Right/Left (me-*/ms-*)</h6>
+          <div class="d-flex flex-row bg-light border">
+            <div class="me-0 p-2 bg-info text-white">me-0</div>
+            <div class="me-2 p-2 bg-info text-white">me-2</div>
+            <div class="ms-auto p-2 bg-info text-white">ms-auto</div>
+          </div>
+          
+          <h6 class="mt-4">Margin Bottom (mb-*)</h6>
+          <div class="d-flex flex-column bg-light border">
+            <div class="mb-0 p-2 bg-warning text-dark">mb-0</div>
+            <div class="mb-3 p-2 bg-warning text-dark">mb-3</div>
+            <div class="mb-5 p-2 bg-warning text-dark">mb-5</div>
+          </div>
+          
+          <h6 class="mt-4">Horizontal & Vertical Margins (mx-*/my-*)</h6>
+          <div class="d-flex flex-column bg-light border">
+            <div class="mx-auto my-2 p-2 bg-danger text-white" style="width: 200px;">mx-auto my-2</div>
+            <div class="mx-4 my-3 p-2 bg-danger text-white">mx-4 my-3</div>
+          </div>
+        </div>
+        
+        <h6 class="mt-4">Padding Examples</h6>
+        <div class="container border mt-3">
+          <div class="d-flex flex-wrap">
+            <div class="m-1 p-0 bg-light border">p-0</div>
+            <div class="m-1 p-1 bg-light border">p-1</div>
+            <div class="m-1 p-2 bg-light border">p-2</div>
+            <div class="m-1 p-3 bg-light border">p-3</div>
+            <div class="m-1 p-4 bg-light border">p-4</div>
+            <div class="m-1 p-5 bg-light border">p-5</div>
+          </div>
+          
+          <div class="d-flex flex-wrap mt-3">
+            <div class="m-1 pt-3 bg-light border" style="height: 100px; width: 100px;">pt-3</div>
+            <div class="m-1 pb-3 bg-light border" style="height: 100px; width: 100px;">pb-3</div>
+            <div class="m-1 ps-3 bg-light border" style="height: 100px; width: 100px;">ps-3</div>
+            <div class="m-1 pe-3 bg-light border" style="height: 100px; width: 100px;">pe-3</div>
+            <div class="m-1 px-3 bg-light border" style="height: 100px; width: 100px;">px-3</div>
+            <div class="m-1 py-3 bg-light border" style="height: 100px; width: 100px;">py-3</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <p class="mb-0"><i class="fas fa-info-circle me-2"></i>Spacing utilities follow the pattern: <code>{property}{sides}-{size}</code></p>
+        <ul class="mb-0 mt-2">
+          <li><strong>Property:</strong> m (margin) or p (padding)</li>
+          <li><strong>Sides:</strong> t (top), b (bottom), s (start/left), e (end/right), x (horizontal), y (vertical), blank (all sides)</li>
+          <li><strong>Size:</strong> 0-5 (0 = 0, 1 = 0.25rem, 2 = 0.5rem, 3 = 1rem, 4 = 1.5rem, 5 = 3rem), auto</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mb-5">
+      <h5>Display Utilities</h5>
+      <p>Quickly and responsively toggle the display value of components and more with display utilities.</p>
+      
+      <div class="example-grid mb-4">
+        <div class="container border p-3">
+          <div class="mb-3">
+            <div class="d-inline p-2 bg-primary text-white">d-inline</div>
+            <div class="d-inline p-2 bg-success text-white">d-inline</div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="d-block p-2 bg-primary text-white">d-block</div>
+            <div class="d-block p-2 bg-success text-white">d-block</div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="d-flex p-2 bg-info text-white">
+              <div class="p-2 border-white">Flex item 1</div>
+              <div class="p-2 border-white">Flex item 2</div>
+              <div class="p-2 border-white">Flex item 3</div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="d-grid gap-2">
+              <button class="btn btn-primary" type="button">d-grid button 1</button>
+              <button class="btn btn-primary" type="button">d-grid button 2</button>
+            </div>
+          </div>
+          
+          <div>
+            <div class="d-none p-2 bg-danger text-white">d-none (hidden)</div>
+          </div>
+        </div>
+        
+        <h6 class="mt-4">Responsive Display</h6>
+        <div class="container border p-3">
+          <div class="d-none d-sm-block p-2 bg-primary text-white mb-2">Hidden on xs, shown on sm and up</div>
+          <div class="d-block d-md-none p-2 bg-success text-white mb-2">Shown on xs and sm, hidden on md and up</div>
+          <div class="d-none d-lg-block d-xl-none p-2 bg-info text-white">Hidden except on lg screens</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-5">
+      <h5>Flexbox Utilities</h5>
+      <p>Bootstrap's flex utilities enable building layouts, aligning content, and adjusting components with a wide range of responsive flexbox utilities.</p>
+      
+      <div class="example-grid mb-4">
+        <h6 class="mt-3">Flex Direction</h6>
+        <div class="container border p-3 mb-3">
+          <div class="d-flex flex-row bg-light p-2 mb-2">
+            <div class="p-2 bg-primary text-white">Flex item 1</div>
+            <div class="p-2 bg-primary text-white">Flex item 2</div>
+            <div class="p-2 bg-primary text-white">Flex item 3</div>
+          </div>
+          
+          <div class="d-flex flex-row-reverse bg-light p-2">
+            <div class="p-2 bg-secondary text-white">Flex item 1</div>
+            <div class="p-2 bg-secondary text-white">Flex item 2</div>
+            <div class="p-2 bg-secondary text-white">Flex item 3</div>
+          </div>
+        </div>
+        
+        <div class="container border p-3 mb-3">
+          <div class="d-flex flex-column bg-light p-2 mb-2">
+            <div class="p-2 bg-success text-white">Flex item 1</div>
+            <div class="p-2 bg-success text-white">Flex item 2</div>
+            <div class="p-2 bg-success text-white">Flex item 3</div>
+          </div>
+          
+          <div class="d-flex flex-column-reverse bg-light p-2">
+            <div class="p-2 bg-info text-white">Flex item 1</div>
+            <div class="p-2 bg-info text-white">Flex item 2</div>
+            <div class="p-2 bg-info text-white">Flex item 3</div>
+          </div>
+        </div>
+        
+        <h6 class="mt-4">Justify Content</h6>
+        <div class="container border p-3">
+          <div class="d-flex justify-content-start bg-light p-2 mb-2">
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+          </div>
+          
+          <div class="d-flex justify-content-center bg-light p-2 mb-2">
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+          </div>
+          
+          <div class="d-flex justify-content-end bg-light p-2 mb-2">
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+          </div>
+          
+          <div class="d-flex justify-content-between bg-light p-2 mb-2">
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+          </div>
+          
+          <div class="d-flex justify-content-around bg-light p-2">
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+            <div class="p-2 bg-warning text-dark">Flex item</div>
+          </div>
+        </div>
+        
+        <h6 class="mt-4">Align Items</h6>
+        <div class="container border p-3">
+          <div class="d-flex align-items-start bg-light border" style="height: 100px;">
+            <div class="p-2 bg-danger text-white">Flex item</div>
+            <div class="p-2 bg-danger text-white">Flex item</div>
+            <div class="p-2 bg-danger text-white">Flex item</div>
+          </div>
+          
+          <div class="d-flex align-items-center bg-light border mt-2" style="height: 100px;">
+            <div class="p-2 bg-danger text-white">Flex item</div>
+            <div class="p-2 bg-danger text-white">Flex item</div>
+            <div class="p-2 bg-danger text-white">Flex item</div>
+          </div>
+          
+          <div class="d-flex align-items-end bg-light border mt-2" style="height: 100px;">
+            <div class="p-2 bg-danger text-white">Flex item</div>
+            <div class="p-2 bg-danger text-white">Flex item</div>
+            <div class="p-2 bg-danger text-white">Flex item</div>
+          </div>
+        </div>
+        
+        <h6 class="mt-4">Flex Wrap</h6>
+        <div class="container border p-3">
+          <div class="d-flex flex-nowrap bg-light border p-2" style="width: 100%;">
+            <div class="p-2 bg-secondary text-white">Flex item with longer content</div>
+            <div class="p-2 bg-secondary text-white">Flex item</div>
+            <div class="p-2 bg-secondary text-white">Flex item with longer content</div>
+            <div class="p-2 bg-secondary text-white">Flex item</div>
+          </div>
+          
+          <div class="d-flex flex-wrap bg-light border p-2 mt-2" style="width: 100%;">
+            <div class="p-2 bg-secondary text-white">Flex item with longer content</div>
+            <div class="p-2 bg-secondary text-white">Flex item</div>
+            <div class="p-2 bg-secondary text-white">Flex item with longer content</div>
+            <div class="p-2 bg-secondary text-white">Flex item</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <p class="mb-0"><i class="fas fa-lightbulb me-2"></i>Pro tip: Utility classes are powerful for rapid prototyping and consistent styling. They allow you to apply styles without writing custom CSS.</p>
+      </div>
+    </div>
+  </div>
+  <div class="component-code">
+&lt;!-- Margin Utilities --&gt;
+&lt;div class="m-0"&gt;No margin&lt;/div&gt;
+&lt;div class="m-3"&gt;Margin on all sides (1rem)&lt;/div&gt;
+&lt;div class="mt-4"&gt;Margin top (1.5rem)&lt;/div&gt;
+&lt;div class="mb-5"&gt;Margin bottom (3rem)&lt;/div&gt;
+&lt;div class="ms-2"&gt;Margin left/start (0.5rem)&lt;/div&gt;
+&lt;div class="me-2"&gt;Margin right/end (0.5rem)&lt;/div&gt;
+&lt;div class="mx-auto"&gt;Horizontal margin auto (centering)&lt;/div&gt;
+&lt;div class="my-3"&gt;Vertical margin (1rem)&lt;/div&gt;
+
+&lt;!-- Padding Utilities --&gt;
+&lt;div class="p-3"&gt;Padding on all sides (1rem)&lt;/div&gt;
+&lt;div class="pt-4"&gt;Padding top (1.5rem)&lt;/div&gt;
+&lt;div class="pb-2"&gt;Padding bottom (0.5rem)&lt;/div&gt;
+&lt;div class="ps-3"&gt;Padding left/start (1rem)&lt;/div&gt;
+&lt;div class="pe-3"&gt;Padding right/end (1rem)&lt;/div&gt;
+&lt;div class="px-4"&gt;Horizontal padding (1.5rem)&lt;/div&gt;
+&lt;div class="py-5"&gt;Vertical padding (3rem)&lt;/div&gt;
+
+&lt;!-- Display Utilities --&gt;
+&lt;div class="d-none"&gt;Hidden on all screen sizes&lt;/div&gt;
+&lt;div class="d-block"&gt;Block display&lt;/div&gt;
+&lt;div class="d-inline"&gt;Inline display&lt;/div&gt;
+&lt;div class="d-flex"&gt;Flex display&lt;/div&gt;
+&lt;div class="d-grid"&gt;Grid display&lt;/div&gt;
+&lt;div class="d-md-none d-lg-block"&gt;Hidden on medium, visible on large&lt;/div&gt;
+
+&lt;!-- Flexbox Utilities --&gt;
+&lt;div class="d-flex flex-row"&gt;
+  &lt;div&gt;Flex item 1&lt;/div&gt;
+  &lt;div&gt;Flex item 2&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="d-flex justify-content-between"&gt;
+  &lt;div&gt;Start&lt;/div&gt;
+  &lt;div&gt;End&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="d-flex align-items-center" style="height: 100px;"&gt;
+  &lt;div&gt;Vertically centered&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="d-flex flex-wrap"&gt;
+  &lt;div&gt;Items that wrap to new line when needed&lt;/div&gt;
+&lt;/div&gt;
+  </div>
+</div>

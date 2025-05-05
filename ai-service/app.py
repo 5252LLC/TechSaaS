@@ -4,7 +4,7 @@ LangChain and Ollama integration for AI capabilities
 """
 import os
 import sys
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 import time
 import random
@@ -99,6 +99,15 @@ try:
 except ImportError as e:
     print(f"Error importing route modules: {e}")
 
+# Web UI routes
+@app.route('/component-showcase')
+def component_showcase():
+    """
+    Render the UI Component Showcase page
+    Provides developers with a comprehensive guide to all available UI components
+    """
+    return render_template('component-showcase.html')
+
 # Initialize security middleware
 try:
     from api.v1.middleware.security_init import init_app_security
@@ -129,7 +138,17 @@ try:
     init_anomaly_routes(app)
     print("Anomaly detection routes registered successfully")
 except ImportError as e:
-    print(f"Error registering anomaly detection routes: {e}")
+    print(f"Error importing anomaly detection routes: {e}")
+
+# Initialize incident response routes
+try:
+    from api.v1.routes.incident_response_controller import init_app as init_incident_routes
+    
+    # Register incident response routes
+    init_incident_routes(app)
+    print("Incident Response routes registered successfully")
+except ImportError as e:
+    print(f"Error importing incident response routes: {e}")
 
 # Initialize rate limiter, usage tracker, and billing services
 try:
