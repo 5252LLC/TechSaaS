@@ -21,6 +21,10 @@
   width: 15%;
 }
 
+.w-30 {
+  width: 30%;
+}
+
 .w-40 {
   width: 40%;
 }
@@ -116,6 +120,43 @@
   background-color: #f8f9fa;
   border: 1px solid #dee2e6;
   margin-bottom: 1rem;
+}
+
+/* Progress components */
+.progress-demo {
+  height: 15px;
+}
+
+.container-width-bar {
+  width: 0%;
+}
+
+.spinner-demo {
+  margin: 0.25rem;
+}
+
+.bg-gradient {
+  background: linear-gradient(to right, #6610f2, #198754);
+}
+
+/* Width utilities */
+.w-60 {
+  width: 60%;
+}
+
+.w-200px {
+  width: 200px;
+}
+
+.h-100 {
+  height: 100px;
+}
+
+/* Responsive box */
+.responsive-box {
+  width: 100px;
+  height: 100px;
+  margin: 0.25rem;
 }
 
 /* Responsive Sizes */
