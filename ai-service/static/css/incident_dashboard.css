@@ -1,0 +1,227 @@
+/**
+ * TechSaaS Incident Dashboard Stylesheet
+ * 
+ * Provides styling for the Security Incident Management Dashboard
+ * 
+ * Author: TechSaaS Security Team
+ * Date: May 5, 2025
+ */
+
+/* Card customizations */
+.card .card-header {
+    font-weight: 500;
+}
+
+/* Badges for incident status */
+.badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* Severity badges */
+.incident-severity-critical { 
+    background-color: #dc3545; 
+}
+
+.incident-severity-high { 
+    background-color: #fd7e14; 
+}
+
+.incident-severity-medium { 
+    background-color: #ffc107; 
+    color: #212529; 
+}
+
+.incident-severity-low { 
+    background-color: #6c757d; 
+}
+
+/* Status badges */
+.incident-status-new { 
+    background-color: #0d6efd; 
+}
+
+.incident-status-investigating { 
+    background-color: #fd7e14; 
+}
+
+.incident-status-contained { 
+    background-color: #6610f2; 
+}
+
+.incident-status-resolved { 
+    background-color: #198754; 
+}
+
+.incident-status-false_positive { 
+    background-color: #6c757d; 
+}
+
+/* Incident type badges */
+.incident-type-data_breach { 
+    background-color: #d63384; 
+}
+
+.incident-type-account_compromise { 
+    background-color: #20c997; 
+}
+
+.incident-type-api_abuse { 
+    background-color: #0dcaf0; 
+    color: #212529; 
+}
+
+.incident-type-infrastructure_attack { 
+    background-color: #fd7e14; 
+}
+
+.incident-type-malware { 
+    background-color: #dc3545; 
+}
+
+.incident-type-denial_of_service { 
+    background-color: #6610f2; 
+}
+
+.incident-type-other { 
+    background-color: #6c757d; 
+}
+
+/* Timeline styling */
+.timeline-container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.timeline {
+    position: relative;
+    padding: 1rem 0;
+    margin: 0;
+    list-style: none;
+}
+
+.timeline:before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 1.25rem;
+    width: 2px;
+    content: "";
+    background-color: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 3.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item-marker {
+    position: absolute;
+    top: 0;
+    left: 1.25rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    transform: translateX(-50%);
+}
+
+.timeline-item-content {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border-left: 3px solid #0d6efd;
+}
+
+/* Event type specific styling */
+.timeline-item.event-detection .timeline-item-marker {
+    background-color: #dc3545;
+}
+
+.timeline-item.event-status_change .timeline-item-marker {
+    background-color: #0d6efd;
+}
+
+.timeline-item.event-assignment .timeline-item-marker {
+    background-color: #198754;
+}
+
+.timeline-item.event-containment_action .timeline-item-marker {
+    background-color: #fd7e14;
+}
+
+.timeline-item.event-evidence_collection .timeline-item-marker {
+    background-color: #6610f2;
+}
+
+.timeline-item.event-investigation .timeline-item-marker {
+    background-color: #20c997;
+}
+
+/* Table customizations */
+.table th {
+    font-weight: 500;
+}
+
+.incident-row:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+    cursor: pointer;
+}
+
+/* Containment action status */
+.action-status-pending {
+    color: #6c757d;
+}
+
+.action-status-in_progress {
+    color: #0d6efd;
+}
+
+.action-status-completed {
+    color: #198754;
+}
+
+.action-status-failed {
+    color: #dc3545;
+}
+
+/* Evidence styling */
+.evidence-type {
+    font-weight: 500;
+}
+
+/* Dashboard statistics */
+.dashboard-stat-card {
+    transition: transform 0.2s;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Utility classes */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .timeline:before {
+        left: 0.75rem;
+    }
+    
+    .timeline-item {
+        padding-left: 2.5rem;
+    }
+    
+    .timeline-item-marker {
+        left: 0.75rem;
+    }
+}
