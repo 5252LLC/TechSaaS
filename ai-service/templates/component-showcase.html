@@ -8,6 +8,9 @@
 {% endblock %}
 
 {% block content %}
+<!-- Skip link for keyboard users -->
+<a href="#components-section" class="skip-to-content">Skip to components</a>
+
 <div class="container-fluid py-5">
   <!-- Component Showcase Header -->
   <div class="row mb-5">
@@ -16,7 +19,7 @@
       <p class="lead mb-4 animate-slide-up" data-index="2">A comprehensive guide to our UI components, styles, and design patterns.</p>
       
       <!-- Component Search -->
-      <div class="col-md-8 mx-auto mb-4 animate-slide-up" data-index="2.5">
+      <div class="col-md-8 mx-auto mb-4 animate-slide-up component-search-wrapper" data-index="2.5">
         <div class="input-group">
           <span class="input-group-text" id="search-addon"><i class="fas fa-search"></i></span>
           <input type="search" class="form-control" id="component-search" placeholder="Search for components..." aria-label="Search components" aria-describedby="search-addon">
@@ -108,58 +111,58 @@
     </div>
   </div>
 
-  <!-- ===== COMPONENT SECTIONS ===== -->
-  <!-- Each section will be included via separate template files -->
-  
-  <!-- Navigation Components Section -->
-  <section id="navigation-components" class="component-section mb-5">
-    <h2 class="section-title">Navigation Components</h2>
-    <p class="section-description">Components that help users navigate through the application.</p>
-    
-    <!-- Navigation component examples will be included here -->
-    {% include "components/navigation.html" %}
-  </section>
+  <!-- Component categories section -->
+  <div id="components-section" class="row" tabindex="-1">
+    <!-- Navigation Components Section -->
+    <section id="navigation-components" class="component-section mb-5">
+      <h2 class="section-title">Navigation Components</h2>
+      <p class="section-description">Components that help users navigate through the application.</p>
+      
+      <!-- Navigation component examples will be included here -->
+      {% include "components/navigation.html" %}
+    </section>
 
-  <!-- Form Components Section -->
-  <section id="form-components" class="component-section mb-5">
-    <h2 class="section-title">Form Components</h2>
-    <p class="section-description">Components used for data input and form creation.</p>
-    
-    <!-- Form component examples will be included here -->
-    {% include "components/forms.html" %}
-  </section>
+    <!-- Form Components Section -->
+    <section id="form-components" class="component-section mb-5">
+      <h2 class="section-title">Form Components</h2>
+      <p class="section-description">Components used for data input and form creation.</p>
+      
+      <!-- Form component examples will be included here -->
+      {% include "components/forms.html" %}
+    </section>
 
-  <!-- Data Display Components Section -->
-  <section id="data-components" class="component-section mb-5">
-    <h2 class="section-title">Data Display Components</h2>
-    <p class="section-description">Components used to display and visualize data.</p>
-    
-    <!-- Data component examples will be included here -->
-    {% include "components/data-display.html" %}
-  </section>
+    <!-- Data Display Components Section -->
+    <section id="data-components" class="component-section mb-5">
+      <h2 class="section-title">Data Display Components</h2>
+      <p class="section-description">Components used to display and visualize data.</p>
+      
+      <!-- Data component examples will be included here -->
+      {% include "components/data-display.html" %}
+    </section>
 
-  <!-- Feedback Components Section -->
-  <section id="feedback-components" class="component-section mb-5">
-    <h2 class="section-title">Feedback Components</h2>
-    <p class="section-description">Components that provide feedback to user actions.</p>
-    
-    <!-- Feedback component examples will be included here -->
-    {% include "components/feedback-alerts.html" %}
-    {% include "components/feedback-toasts.html" %}
-    {% include "components/feedback-modals.html" %}
-    {% include "components/feedback-progress.html" %}
-  </section>
+    <!-- Feedback Components Section -->
+    <section id="feedback-components" class="component-section mb-5">
+      <h2 class="section-title">Feedback Components</h2>
+      <p class="section-description">Components that provide feedback to user actions.</p>
+      
+      <!-- Feedback component examples will be included here -->
+      {% include "components/feedback-alerts.html" %}
+      {% include "components/feedback-toasts.html" %}
+      {% include "components/feedback-modals.html" %}
+      {% include "components/feedback-progress.html" %}
+    </section>
 
-  <!-- Layout Components Section -->
-  <section id="layout-components" class="component-section mb-5">
-    <h2 class="section-title">Layout Components</h2>
-    <p class="section-description">Components that help structure the page layout.</p>
-    
-    <!-- Layout component examples will be included here -->
-    {% include "components/layout-containers.html" %}
-    {% include "components/layout-grid.html" %}
-    {% include "components/layout-utilities.html" %}
-  </section>
+    <!-- Layout Components Section -->
+    <section id="layout-components" class="component-section mb-5">
+      <h2 class="section-title">Layout Components</h2>
+      <p class="section-description">Components that help structure the page layout.</p>
+      
+      <!-- Layout component examples will be included here -->
+      {% include "components/layout-containers.html" %}
+      {% include "components/layout-grid.html" %}
+      {% include "components/layout-utilities.html" %}
+    </section>
+  </div>
 </div>
 {% endblock %}
 
