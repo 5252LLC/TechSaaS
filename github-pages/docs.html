@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechSaaS Documentation - API Reference, Getting Started Guides, and Developer Resources">
+    <title>TechSaaS - Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="docs.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header class="docs-header">
+        <nav>
+            <div class="logo">
+                <img src="images/techsaas-logo.svg" alt="TechSaaS Logo">
+                <span>TechSaaS.Tech</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#products">Products</a>
+                <a href="docs.html" class="active">Documentation</a>
+                <a href="tools/index.html">Tools</a>
+                <a href="services.html">Services</a>
+                <a href="contact.html" class="contact-btn">Contact</a>
+            </div>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <div class="docs-container">
+        <aside class="docs-sidebar">
+            <div class="sidebar-section">
+                <h3>Getting Started</h3>
+                <ul>
+                    <li><a href="#beginner-guides" class="active">Beginner Guides</a></li>
+                    <li><a href="#quick-start">Quick Start</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>API Reference</h3>
+                <ul>
+                    <li><a href="#web-scraping-api">Web Scraping API</a></li>
+                    <li><a href="#video-extraction-api">Video Extraction API</a></li>
+                    <li><a href="#sentiment-analysis-api">Sentiment Analysis API</a></li>
+                    <li><a href="#agent-capabilities-api">Agent Capabilities API</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Implementation Guides</h3>
+                <ul>
+                    <li><a href="#code-snippets">Code Snippets</a></li>
+                    <li><a href="#use-cases">Use Cases</a></li>
+                    <li><a href="#integration-patterns">Integration Patterns</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>Professional References</h3>
+                <ul>
+                    <li><a href="#api-monetization">API Monetization</a></li>
+                    <li><a href="#architecture">Architecture Diagrams</a></li>
+                    <li><a href="#best-practices">Best Practices</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="docs-content">
+            <section id="beginner-guides" class="doc-section">
+                <h2>Beginner Guides</h2>
+                <p class="section-description">Step-by-step tutorials for those just starting their journey with TechSaaS.</p>
+
+                <div class="guide-cards">
+                    <div class="guide-card">
+                        <div class="guide-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Getting Started with TechSaaS</h3>
+                        <p>Learn the basics of the TechSaaS platform and how to set up your first project.</p>
+                        <div class="guide-meta">
+                            <span class="difficulty beginner">Beginner</span>
+                            <span class="duration">15 min</span>
+                        </div>
+                        <a href="#" class="btn secondary">View Tutorial</a>
+                    </div>
+
+                    <div class="guide-card">
+                        <div class="guide-icon">
+                            <i class="fas fa-spider"></i>
+                        </div>
+                        <h3>Your First Web Scraper</h3>
+                        <p>Build a simple web scraper using TechSaaS APIs with complete step-by-step instructions.</p>
+                        <div class="guide-meta">
+                            <span class="difficulty beginner">Beginner</span>
+                            <span class="duration">20 min</span>
+                        </div>
+                        <a href="#" class="btn secondary">View Tutorial</a>
+                    </div>
+
+                    <div class="guide-card">
+                        <div class="guide-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h3>Video Extraction Basics</h3>
+                        <p>Learn how to extract videos from websites using our simple API endpoints.</p>
+                        <div class="guide-meta">
+                            <span class="difficulty beginner">Beginner</span>
+                            <span class="duration">15 min</span>
+                        </div>
+                        <a href="#" class="btn secondary">View Tutorial</a>
+                    </div>
+                </div>
+
+                <div class="beginner-resources">
+                    <h3>Visual Learning Resources</h3>
+                    <div class="resources-grid">
+                        <div class="resource-item">
+                            <i class="fas fa-play-circle"></i>
+                            <h4>Video Tutorials</h4>
+                            <p>Watch step-by-step video guides for common tasks</p>
+                        </div>
+                        <div class="resource-item">
+                            <i class="fas fa-images"></i>
+                            <h4>Visual Walkthroughs</h4>
+                            <p>Follow illustrated guides with screenshots</p>
+                        </div>
+                        <div class="resource-item">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <h4>Interactive Demos</h4>
+                            <p>Try the platform with guided interactive demos</p>
+                        </div>
+                        <div class="resource-item">
+                            <i class="fas fa-book-open"></i>
+                            <h4>Glossary</h4>
+                            <p>Learn technical terms with simple explanations</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="api-monetization" class="doc-section">
+                <h2>API Monetization</h2>
+                <p class="section-description">Monetize your capabilities through our tiered API access system.</p>
+
+                <div class="api-monetization-intro">
+                    <div class="monetization-diagram">
+                        <img src="images/api-monetization-diagram.svg" alt="API Monetization Diagram" onerror="this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\' viewBox=\'0 0 400 300\'%3E%3Crect width=\'400\' height=\'300\' fill=\'%231e293b\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'14\' text-anchor=\'middle\' fill=\'%23cbd5e1\'%3EAPI Monetization Diagram%3C/text%3E%3C/svg%3E';">
+                    </div>
+                    <div class="monetization-content">
+                        <h3>Transform Your Capabilities into Revenue</h3>
+                        <p>The TechSaaS API monetization system allows you to expose your capabilities as scalable API endpoints with flexible pricing tiers, usage tracking, and comprehensive security.</p>
+                        
+                        <h4>Key Features</h4>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Usage-based billing (pay-per-use model)</li>
+                            <li><i class="fas fa-check-circle"></i> Tiered subscription levels with different rate limits</li>
+                            <li><i class="fas fa-check-circle"></i> Comprehensive usage tracking</li>
+                            <li><i class="fas fa-check-circle"></i> Secure API key management</li>
+                            <li><i class="fas fa-check-circle"></i> Professional API documentation generation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="pricing-tiers">
+                    <h3>API Pricing Tiers</h3>
+                    <div class="tier-cards">
+                        <div class="tier-card">
+                            <div class="tier-header">
+                                <h4>Basic</h4>
+                                <div class="tier-price">$9.99<span>/month</span></div>
+                            </div>
+                            <div class="tier-features">
+                                <ul>
+                                    <li><i class="fas fa-check"></i> 100 requests per day</li>
+                                    <li><i class="fas fa-check"></i> Standard response time</li>
+                                    <li><i class="fas fa-check"></i> Basic support</li>
+                                    <li><i class="fas fa-check"></i> Web scraping APIs</li>
+                                    <li class="disabled"><i class="fas fa-times"></i> Video extraction APIs</li>
+                                    <li class="disabled"><i class="fas fa-times"></i> Sentiment analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="tier-card popular">
+                            <div class="tier-badge">Popular</div>
+                            <div class="tier-header">
+                                <h4>Premium</h4>
+                                <div class="tier-price">$49.99<span>/month</span></div>
+                            </div>
+                            <div class="tier-features">
+                                <ul>
+                                    <li><i class="fas fa-check"></i> 1,000 requests per day</li>
+                                    <li><i class="fas fa-check"></i> Priority response time</li>
+                                    <li><i class="fas fa-check"></i> Email support</li>
+                                    <li><i class="fas fa-check"></i> Web scraping APIs</li>
+                                    <li><i class="fas fa-check"></i> Video extraction APIs</li>
+                                    <li class="disabled"><i class="fas fa-times"></i> Sentiment analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="tier-card">
+                            <div class="tier-header">
+                                <h4>Enterprise</h4>
+                                <div class="tier-price">$499.99<span>/month</span></div>
+                            </div>
+                            <div class="tier-features">
+                                <ul>
+                                    <li><i class="fas fa-check"></i> 10,000 requests per day</li>
+                                    <li><i class="fas fa-check"></i> Dedicated response time</li>
+                                    <li><i class="fas fa-check"></i> Priority support</li>
+                                    <li><i class="fas fa-check"></i> All APIs included</li>
+                                    <li><i class="fas fa-check"></i> Custom integrations</li>
+                                    <li><i class="fas fa-check"></i> White-labeling options</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-implementation">
+                    <h3>Implementation Example</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="language">JavaScript</span>
+                            <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#api-monetization-code">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <pre><code id="api-monetization-code">// Initialize the TechSaaS API client
+const techSaas = new TechSaasAPI({
+  apiKey: 'your_api_key_here',
+  tier: 'premium'
+});
+
+// Create an API endpoint from your capability
+const endpointConfig = {
+  name: 'Market Analysis API',
+  description: 'Advanced market analysis with sentiment scoring',
+  path: '/api/v1/market-analysis',
+  pricing: {
+    basic: { requestsPerDay: 50, price: 9.99 },
+    premium: { requestsPerDay: 500, price: 49.99 },
+    enterprise: { requestsPerDay: 5000, price: 499.99 }
+  }
+};
+
+// Register your endpoint
+techSaas.createMonetizedEndpoint(endpointConfig)
+  .then(endpoint => {
+    console.log(`Endpoint created: ${endpoint.path}`);
+    console.log(`Documentation URL: ${endpoint.documentation_url}`);
+    
+    // Start tracking usage and revenue
+    techSaas.monitorEndpoint(endpoint.id);
+  })
+  .catch(error => {
+    console.error('Failed to create endpoint:', error);
+  });</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quick-start" class="doc-section">
+                <h2>Quick Start</h2>
+                <p class="section-description">Get up and running with TechSaaS in minutes.</p>
+                
+                <div class="quick-start-guide">
+                    <div class="step-container">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Sign Up for an API Key</h3>
+                                <p>Register for an account and get your API key from the dashboard.</p>
+                                <a href="#" class="btn small secondary">Sign Up</a>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Install the SDK</h3>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <span class="language">npm</span>
+                                        <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#install-code">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <pre><code id="install-code">npm install techsaas-sdk</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Make Your First API Call</h3>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <span class="language">JavaScript</span>
+                                        <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#first-call-code">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <pre><code id="first-call-code">const { TechSaasClient } = require('techsaas-sdk');
+
+const client = new TechSaasClient({
+  apiKey: 'YOUR_API_KEY'
+});
+
+// Scrape a website
+client.scrape({
+  url: 'https://example.com',
+  method: 'newspaper3k',
+  extract: ['text', 'links', 'images']
+})
+.then(result => {
+  console.log('Scraped content:', result);
+})
+.catch(error => {
+  console.error('Error:', error);
+});</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="code-snippets" class="doc-section">
+                <h2>Code Snippets</h2>
+                <p class="section-description">Ready-to-use code examples for common integrations.</p>
+
+                <div class="tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" data-tab="javascript">JavaScript</button>
+                        <button class="tab-btn" data-tab="python">Python</button>
+                        <button class="tab-btn" data-tab="php">PHP</button>
+                        <button class="tab-btn" data-tab="curl">cURL</button>
+                    </div>
+                    
+                    <div class="tab-content active" data-tab="javascript">
+                        <h3>Web Scraping with JavaScript</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="language">JavaScript</span>
+                                <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#js-scrape-code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code id="js-scrape-code">// Advanced web scraping with proxy rotation
+const { TechSaasClient } = require('techsaas-sdk');
+
+const client = new TechSaasClient({
+  apiKey: 'YOUR_API_KEY'
+});
+
+// Configure advanced scraping options
+const options = {
+  url: 'https://example.com/product-listings',
+  method: 'playwright', // For JavaScript-heavy sites
+  useProxy: true,        // Enable proxy rotation
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+  },
+  extract: ['text', 'links', 'images', 'tables'],
+  waitForSelector: '.product-card', // Wait for dynamic content
+  pagination: {
+    enabled: true,
+    maxPages: 5,
+    nextSelector: '.pagination .next'
+  }
+};
+
+client.scrape(options)
+  .then(result => {
+    console.log(`Scraped ${result.items.length} products`);
+    console.log(`Found ${result.links.length} links`);
+    console.log(`Extracted ${result.images.length} images`);
+    
+    // Save to file
+    const fs = require('fs');
+    fs.writeFileSync('products.json', JSON.stringify(result, null, 2));
+  })
+  .catch(error => {
+    console.error('Scraping error:', error);
+  });</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" data-tab="python">
+                        <h3>Web Scraping with Python</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="language">Python</span>
+                                <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#python-scrape-code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code id="python-scrape-code">import json
+from techsaas import TechSaasClient
+
+# Initialize the client
+client = TechSaasClient(api_key="YOUR_API_KEY")
+
+# Configure scraping options
+options = {
+    "url": "https://example.com/product-listings",
+    "method": "requests_html",  # For sites with some JavaScript
+    "use_proxy": True,
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    },
+    "extract": ["text", "links", "images", "tables"],
+    "pagination": {
+        "enabled": True,
+        "max_pages": 5,
+        "next_selector": ".pagination .next"
+    }
+}
+
+try:
+    # Perform the scrape
+    result = client.scrape(**options)
+    
+    print(f"Scraped {len(result['items'])} products")
+    print(f"Found {len(result['links'])} links")
+    print(f"Extracted {len(result['images'])} images")
+    
+    # Save to file
+    with open("products.json", "w") as f:
+        json.dump(result, f, indent=2)
+        
+except Exception as e:
+    print(f"Scraping error: {e}")</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" data-tab="php">
+                        <h3>Web Scraping with PHP</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="language">PHP</span>
+                                <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#php-scrape-code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code id="php-scrape-code">&lt;?php
+require_once 'vendor/autoload.php';
+
+use TechSaas\Client;
+
+// Initialize the client
+$client = new Client('YOUR_API_KEY');
+
+// Configure scraping options
+$options = [
+    'url' => 'https://example.com/product-listings',
+    'method' => 'playwright',
+    'useProxy' => true,
+    'headers' => [
+        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    ],
+    'extract' => ['text', 'links', 'images', 'tables'],
+    'waitForSelector' => '.product-card',
+    'pagination' => [
+        'enabled' => true,
+        'maxPages' => 5,
+        'nextSelector' => '.pagination .next'
+    ]
+];
+
+try {
+    // Perform the scrape
+    $result = $client->scrape($options);
+    
+    echo "Scraped " . count($result->items) . " products\n";
+    echo "Found " . count($result->links) . " links\n";
+    echo "Extracted " . count($result->images) . " images\n";
+    
+    // Save to file
+    file_put_contents(
+        'products.json', 
+        json_encode($result, JSON_PRETTY_PRINT)
+    );
+} catch (Exception $e) {
+    echo "Scraping error: " . $e->getMessage() . "\n";
+}
+?></code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" data-tab="curl">
+                        <h3>Web Scraping with cURL</h3>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="language">bash</span>
+                                <button class="copy-btn" title="Copy code to clipboard" data-clipboard-target="#curl-scrape-code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code id="curl-scrape-code">curl -X POST https://api.techsaas.tech/v1/scrape \
+  -H "Content-Type: application/json" \
+  -H "X-API-KEY: YOUR_API_KEY" \
+  -d '{
+    "url": "https://example.com/product-listings",
+    "method": "playwright",
+    "useProxy": true,
+    "extract": ["text", "links", "images", "tables"],
+    "waitForSelector": ".product-card",
+    "pagination": {
+      "enabled": true,
+      "maxPages": 5,
+      "nextSelector": ".pagination .next"
+    }
+  }' \
+  --output products.json</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/techsaas-logo.svg" alt="TechSaaS Logo">
+                <span>TechSaaS.Tech</span>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Products</h4>
+                    <a href="index.html#products">TechSaaS Platform</a>
+                    <a href="index.html#products">52Agentic</a>
+                    <a href="index.html#products">SentBot</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Documentation</h4>
+                    <a href="#beginner-guides">Beginner Guides</a>
+                    <a href="#api-monetization">API Monetization</a>
+                    <a href="#code-snippets">Code Snippets</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TechSaaS.Tech. All rights reserved.</p>
+            <p>Last updated: May 9, 2025</p>
+        </div>
+    </footer>
+    
+    <script src="script.js"></script>
+    <script>
+        // Documentation-specific scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    
+                    // Remove active class from all buttons
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Show the selected tab content
+                    document.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
+                });
+            });
+            
+            // Sidebar navigation
+            const sidebarLinks = document.querySelectorAll('.docs-sidebar a');
+            
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Remove active class from all links
+                    sidebarLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                });
+            });
+            
+            // Copy code functionality
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const codeId = this.dataset.clipboardTarget;
+                    const codeElement = document.querySelector(codeId);
+                    
+                    const textArea = document.createElement('textarea');
+                    textArea.value = codeElement.textContent;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    // Show copied indicator
+                    const icon = this.querySelector('i');
+                    icon.classList.remove('fa-copy');
+                    icon.classList.add('fa-check');
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-check');
+                        icon.classList.add('fa-copy');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

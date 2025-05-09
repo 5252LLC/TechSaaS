@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Services - 5252 Cars LLC and Real Estate Consultations">
+    <title>Professional Services - 5252 Cars & Real Estate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        .services-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        
+        .services-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .services-header h1 {
+            font-size: 36px;
+            color: #fff;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .services-header p {
+            font-size: 18px;
+            color: #94a3b8;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .service-card {
+            background-color: #1e293b;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .service-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .service-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(0deg, rgba(30, 41, 59, 1) 0%, rgba(30, 41, 59, 0) 100%);
+        }
+        
+        .service-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .service-card:hover .service-image img {
+            transform: scale(1.05);
+        }
+        
+        .service-content {
+            padding: 30px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -50px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            color: #fff;
+            font-size: 24px;
+        }
+        
+        .service-title {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .service-description {
+            color: #94a3b8;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            flex: 1;
+        }
+        
+        .service-features {
+            margin-bottom: 25px;
+        }
+        
+        .service-feature {
+            display: flex;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+        
+        .service-feature i {
+            color: #60a5fa;
+            margin-right: 10px;
+            min-width: 20px;
+        }
+        
+        .service-cta {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            color: #fff;
+            text-align: center;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .service-cta:hover {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            transform: translateY(-3px);
+        }
+        
+        .testimonials {
+            background-color: #1e293b;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .testimonials h2 {
+            font-size: 28px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .testimonial-card {
+            background-color: #0f172a;
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+        }
+        
+        .testimonial-quote {
+            color: #94a3b8;
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .testimonial-quote::before {
+            content: '"';
+            color: rgba(96, 165, 250, 0.2);
+            font-size: 80px;
+            font-family: Georgia, serif;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            line-height: 0.8;
+            z-index: 0;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+        
+        .author-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .author-info h4 {
+            color: #e2e8f0;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .author-info p {
+            color: #60a5fa;
+            font-size: 14px;
+        }
+        
+        .contact-section {
+            background-color: #1e293b;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .contact-section h2 {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        
+        .contact-section p {
+            color: #94a3b8;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .contact-methods {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-method {
+            background-color: #0f172a;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            min-width: 250px;
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #60a5fa;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .contact-info h4 {
+            color: #e2e8f0;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .contact-info a {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .contact-info a:hover {
+            color: #3b82f6;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .cta-primary {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .cta-primary:hover {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            transform: translateY(-3px);
+        }
+        
+        .cta-secondary {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            text-decoration: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .cta-secondary:hover {
+            background-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Auto service specific colors */
+        .auto-icon {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+        }
+
+        /* Real estate specific colors */
+        .realestate-icon {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        /* Tech specific colors */
+        .tech-icon {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        
+        /* Responsive Adjustments */
+        @media screen and (max-width: 768px) {
+            .services-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-methods {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .contact-method {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="images/techsaas-logo.svg" alt="TechSaaS Logo">
+                    <span>TechSaaS.Tech</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#products">Products</a>
+                <a href="docs.html">Documentation</a>
+                <a href="tools/index.html">Tools</a>
+                <a href="services.html" class="active">Services</a>
+                <a href="contact.html" class="contact-btn">Contact</a>
+            </div>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <main class="services-container">
+        <div class="services-header">
+            <h1>Professional Services</h1>
+            <p>We offer a suite of specialized services ranging from automotive sourcing and transactions to real estate consultations and technology solutions. Our expert team is ready to assist with your specific needs.</p>
+        </div>
+
+        <div class="services-grid">
+            <!-- 5252 Cars LLC Service -->
+            <div class="service-card">
+                <div class="service-image">
+                    <img src="https://via.placeholder.com/500x300/0f172a/60a5fa?text=5252+Cars+LLC" alt="5252 Cars LLC">
+                </div>
+                <div class="service-content">
+                    <div class="service-icon auto-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3 class="service-title">5252 Cars LLC</h3>
+                    <p class="service-description">We help clients find and purchase their ideal vehicles through our direct auction access. No inventory—just personalized sourcing for your specific needs and budget.</p>
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Direct auction access for best prices</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Personalized vehicle sourcing</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Pre-purchase inspection coordination</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Financing assistance available</span>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="service-cta">Schedule Consultation</a>
+                </div>
+            </div>
+
+            <!-- Real Estate Services -->
+            <div class="service-card">
+                <div class="service-image">
+                    <img src="https://via.placeholder.com/500x300/0f172a/60a5fa?text=Real+Estate+Services" alt="Real Estate Services">
+                </div>
+                <div class="service-content">
+                    <div class="service-icon realestate-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3 class="service-title">Real Estate Consultations</h3>
+                    <p class="service-description">Professional real estate services for buyers, sellers, and investors. We provide expert guidance through every step of your real estate journey with personalized attention to your needs.</p>
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Home buying & selling guidance</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Investment property analysis</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Market valuation reports</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Property acquisition strategy</span>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="service-cta">Book Real Estate Consultation</a>
+                </div>
+            </div>
+
+            <!-- Technology Consulting -->
+            <div class="service-card">
+                <div class="service-image">
+                    <img src="https://via.placeholder.com/500x300/0f172a/60a5fa?text=Technology+Consulting" alt="Technology Consulting">
+                </div>
+                <div class="service-content">
+                    <div class="service-icon tech-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3 class="service-title">Technology Consulting</h3>
+                    <p class="service-description">Leverage our technical expertise to solve complex business challenges. We offer custom technology solutions, integration services, and strategic guidance for your digital transformation.</p>
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Custom software development</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Web & mobile application creation</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Data analysis & automation</span>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Digital transformation strategy</span>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="service-cta">Request Tech Consultation</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials">
+            <h2>What Our Clients Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">Working with 5252 Cars LLC saved me thousands on my truck purchase. Their auction access found me exactly what I wanted at a price I couldn't have gotten anywhere else.</p>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="https://via.placeholder.com/100x100/1e293b/94a3b8?text=M" alt="Client">
+                        </div>
+                        <div class="author-info">
+                            <h4>Michael T.</h4>
+                            <p>Vehicle Purchase Client</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">The real estate consultation was eye-opening. They identified potential issues with the property I was considering and helped me negotiate a much better deal than I would have on my own.</p>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="https://via.placeholder.com/100x100/1e293b/94a3b8?text=J" alt="Client">
+                        </div>
+                        <div class="author-info">
+                            <h4>Jennifer K.</h4>
+                            <p>Real Estate Client</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">The technology consulting team built us a custom data extraction system that's transformed our research capabilities. The ROI on this project was immediate and significant.</p>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="https://via.placeholder.com/100x100/1e293b/94a3b8?text=D" alt="Client">
+                        </div>
+                        <div class="author-info">
+                            <h4>David W.</h4>
+                            <p>Technology Client</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <h2>Ready to Get Started?</h2>
+            <p>Whether you're looking for your dream car, need real estate guidance, or require technological solutions, our team is ready to assist you. Schedule a consultation today to discuss your specific needs.</p>
+            
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-info">
+                        <h4>Call Us</h4>
+                        <a href="tel:+15554321234">555-432-1234</a>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-info">
+                        <h4>Email Us</h4>
+                        <a href="mailto:525277x@gmail.com">525277x@gmail.com</a>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <div class="contact-icon">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <div class="contact-info">
+                        <h4>Twitter</h4>
+                        <a href="https://twitter.com/525277x" target="_blank" rel="noopener noreferrer">@525277x</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cta-buttons">
+                <a href="contact.html" class="cta-primary">Schedule a Consultation</a>
+                <a href="tools/vehicle-estimator.html" class="cta-secondary">Try Our Free Vehicle Estimator</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/techsaas-logo.svg" alt="TechSaaS Logo">
+                <span>TechSaaS.Tech</span>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Services</h4>
+                    <a href="services.html">5252 Cars LLC</a>
+                    <a href="services.html">Real Estate</a>
+                    <a href="services.html">Technology</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Tools</h4>
+                    <a href="tools/scrape-checker.html">Scrape Checker</a>
+                    <a href="tools/vehicle-estimator.html">Vehicle Estimator</a>
+                    <a href="tools/index.html">All Tools</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TechSaaS.Tech | 5252 Cars LLC. All rights reserved.</p>
+            <p>Last updated: May 9, 2025</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

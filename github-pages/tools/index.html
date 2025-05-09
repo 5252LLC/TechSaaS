@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechSaaS Free Tools - Powerful utilities for web research, sentiment analysis, vehicle valuation and more">
+    <title>TechSaaS - Free Tools & Utilities</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="tool-styles.css">
+    <link rel="icon" href="../images/favicon.ico" type="image/x-icon">
+    <style>
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .tool-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .tool-card-item {
+            background-color: #1e293b;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tool-card-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tool-card-header {
+            background-color: #0f172a;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card-header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(16, 185, 129, 0));
+            z-index: 1;
+        }
+        
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .tool-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+        
+        .tool-badge.popular {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .tool-badge.new {
+            background-color: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+        
+        .tool-badge.auto {
+            background-color: rgba(236, 72, 153, 0.2);
+            color: #ec4899;
+        }
+        
+        .tool-card-title {
+            font-size: 22px;
+            color: #fff;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .tool-card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tool-card-description {
+            color: #94a3b8;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            flex: 1;
+        }
+        
+        .tool-features {
+            margin-bottom: 20px;
+        }
+        
+        .tool-feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+        }
+        
+        .tool-feature i {
+            color: #60a5fa;
+            margin-right: 10px;
+            font-size: 14px;
+            width: 16px;
+        }
+        
+        .tool-cta {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .tool-cta:hover {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            transform: translateY(-2px);
+        }
+        
+        .landing-page-tools-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        .landing-page-tools-section h2 {
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .landing-page-tools-section p {
+            color: #94a3b8;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.5), transparent);
+            margin: 60px 0;
+        }
+        
+        .integrations-container {
+            padding: 40px;
+            background-color: #1e293b;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .integrations-container h2 {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 30px;
+        }
+        
+        .integration-card {
+            background-color: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid #334155;
+        }
+        
+        .integration-card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+        }
+        
+        .integration-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 28px;
+        }
+        
+        .integration-name {
+            color: #cbd5e1;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        /* Specific tool icon gradients */
+        .icon-gradient-blue {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        
+        .icon-gradient-purple {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+        
+        .icon-gradient-pink {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+        }
+        
+        .icon-gradient-green {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+        
+        .icon-gradient-orange {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+        }
+        
+        .icon-gradient-red {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="../index.html">
+                    <img src="../images/techsaas-logo.svg" alt="TechSaaS Logo">
+                    <span>TechSaaS.Tech</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../index.html#products">Products</a>
+                <a href="../docs.html">Documentation</a>
+                <a href="index.html" class="active">Tools</a>
+                <a href="../contact.html" class="contact-btn">Contact</a>
+            </div>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <main class="tool-container">
+        <div class="landing-page-tools-section">
+            <h2>Free Professional Tools</h2>
+            <p>Explore our collection of powerful utilities designed to help researchers, developers, auto industry professionals, and individuals make better decisions with data.</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Scraping Tool -->
+            <a href="scrape-checker.html" class="tool-card-link">
+                <div class="tool-card-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon icon-gradient-blue">
+                            <i class="fas fa-spider"></i>
+                        </div>
+                        <span class="tool-badge popular">Popular</span>
+                        <h3 class="tool-card-title">Web Scraping Checker</h3>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-card-description">
+                            Analyze any website to determine how scraper-friendly it is and get personalized recommendations on the best approach and tools to use.
+                        </p>
+                        <div class="tool-features">
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Scraping difficulty score</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Detection of anti-scraping measures</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Tool recommendations</span>
+                            </div>
+                        </div>
+                        <div class="tool-cta">Check Website Now</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Sentiment Analyzer -->
+            <a href="#" class="tool-card-link">
+                <div class="tool-card-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon icon-gradient-purple">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <span class="tool-badge new">New</span>
+                        <h3 class="tool-card-title">Sentiment Analyzer</h3>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-card-description">
+                            Analyze the sentiment of any text or social media content to understand the emotional tone and potential market impact of communications.
+                        </p>
+                        <div class="tool-features">
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Sentiment score and breakdown</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Emotion detection</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Improvement suggestions</span>
+                            </div>
+                        </div>
+                        <div class="tool-cta">Analyze Sentiment</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Vehicle Value Estimator -->
+            <a href="#" class="tool-card-link">
+                <div class="tool-card-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon icon-gradient-orange">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <span class="tool-badge auto">Auto</span>
+                        <h3 class="tool-card-title">Vehicle Value Estimator</h3>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-card-description">
+                            Get an instant estimate of any vehicle's market value based on make, model, year, condition, and location - powered by our AI market analysis system.
+                        </p>
+                        <div class="tool-features">
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Real-time market data</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Trade-in & private sale values</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Market trend analysis</span>
+                            </div>
+                        </div>
+                        <div class="tool-cta">Estimate Vehicle Value</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Market Trend Analyzer -->
+            <a href="#" class="tool-card-link">
+                <div class="tool-card-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon icon-gradient-green">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="tool-card-title">Market Trend Analyzer</h3>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-card-description">
+                            Analyze current market trends across industries with our AI-powered sentiment aggregator that combines news, social media, and financial data.
+                        </p>
+                        <div class="tool-features">
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Industry-specific insights</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Sentiment scoring</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Emerging trend alerts</span>
+                            </div>
+                        </div>
+                        <div class="tool-cta">Analyze Trends</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Auto Loan Calculator -->
+            <a href="#" class="tool-card-link">
+                <div class="tool-card-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon icon-gradient-red">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <span class="tool-badge auto">Auto</span>
+                        <h3 class="tool-card-title">AI Auto Loan Calculator</h3>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-card-description">
+                            Our AI-enhanced auto loan calculator not only computes payments but suggests optimal loan terms based on your financial situation and vehicle choice.
+                        </p>
+                        <div class="tool-features">
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>AI loan optimization</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Compare multiple scenarios</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Total cost visualization</span>
+                            </div>
+                        </div>
+                        <div class="tool-cta">Calculate Payments</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Social Reputation Checker -->
+            <a href="#" class="tool-card-link">
+                <div class="tool-card-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon icon-gradient-pink">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3 class="tool-card-title">Social Reputation Checker</h3>
+                    </div>
+                    <div class="tool-card-body">
+                        <p class="tool-card-description">
+                            Check how you or your brand appears online with our comprehensive social media and web presence analyzer that identifies reputation risks and opportunities.
+                        </p>
+                        <div class="tool-features">
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Cross-platform analysis</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Sentiment tracking</span>
+                            </div>
+                            <div class="tool-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Improvement recommendations</span>
+                            </div>
+                        </div>
+                        <div class="tool-cta">Check Reputation</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="landing-page-tools-section">
+            <h2>Coming Soon</h2>
+            <p>We're constantly developing new tools to help you extract more value from data. Here's what's coming next:</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Maintenance Cost Predictor -->
+            <div class="tool-card-item">
+                <div class="tool-card-header">
+                    <div class="tool-icon icon-gradient-orange">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <span class="tool-badge auto">Auto</span>
+                    <h3 class="tool-card-title">Maintenance Cost Predictor</h3>
+                </div>
+                <div class="tool-card-body">
+                    <p class="tool-card-description">
+                        Predict future maintenance costs for any vehicle based on make, model, year, and your driving patterns using our comprehensive maintenance database.
+                    </p>
+                    <div class="tool-features">
+                        <div class="tool-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>5-year cost projection</span>
+                        </div>
+                        <div class="tool-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Common repairs timeline</span>
+                        </div>
+                        <div class="tool-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Model-specific insights</span>
+                        </div>
+                    </div>
+                    <div class="tool-cta coming-soon-button">Coming May 20th</div>
+                </div>
+            </div>
+            
+            <!-- AI Content Detector -->
+            <div class="tool-card-item">
+                <div class="tool-card-header">
+                    <div class="tool-icon icon-gradient-purple">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="tool-card-title">AI Content Detector</h3>
+                </div>
+                <div class="tool-card-body">
+                    <p class="tool-card-description">
+                        Analyze any text to determine the likelihood it was written by AI, including which model was potentially used and how to improve content authenticity.
+                    </p>
+                    <div class="tool-features">
+                        <div class="tool-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>AI probability score</span>
+                        </div>
+                        <div class="tool-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Model detection</span>
+                        </div>
+                        <div class="tool-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Humanizing suggestions</span>
+                        </div>
+                    </div>
+                    <div class="tool-cta coming-soon-button">Coming June 2025</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="integrations-container">
+            <h2>Integrates With Your Favorite Tools</h2>
+            <div class="integrations-grid">
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <div class="integration-name">Twitter</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                    <div class="integration-name">YouTube</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="integration-name">Email</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="integration-name">CRM</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fab fa-wordpress"></i>
+                    </div>
+                    <div class="integration-name">WordPress</div>
+                </div>
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fab fa-shopify"></i>
+                    </div>
+                    <div class="integration-name">Shopify</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="../images/techsaas-logo.svg" alt="TechSaaS Logo">
+                <span>TechSaaS.Tech</span>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Products</h4>
+                    <a href="../index.html#products">TechSaaS Platform</a>
+                    <a href="../index.html#products">52Agentic</a>
+                    <a href="../index.html#products">SentBot</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Tools</h4>
+                    <a href="scrape-checker.html">Scrape Checker</a>
+                    <a href="#">Sentiment Analyzer</a>
+                    <a href="#">Vehicle Value Estimator</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TechSaaS.Tech. All rights reserved.</p>
+            <p>Last updated: May 9, 2025</p>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>

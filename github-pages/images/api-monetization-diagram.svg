@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="300" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="300" fill="#1e293b" rx="10" ry="10"/>
+  
+  <!-- Server/API Gateway -->
+  <rect x="200" y="30" width="100" height="60" rx="5" ry="5" fill="#334155" stroke="#60a5fa" stroke-width="2"/>
+  <text x="250" y="65" font-family="Inter, sans-serif" font-size="14" fill="#e2e8f0" text-anchor="middle">API Gateway</text>
+  
+  <!-- Endpoints -->
+  <rect x="80" y="150" width="80" height="40" rx="5" ry="5" fill="#334155" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="120" y="175" font-family="Inter, sans-serif" font-size="12" fill="#e2e8f0" text-anchor="middle">Web Scraping</text>
+  
+  <rect x="210" y="150" width="80" height="40" rx="5" ry="5" fill="#334155" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="250" y="175" font-family="Inter, sans-serif" font-size="12" fill="#e2e8f0" text-anchor="middle">Video Extract</text>
+  
+  <rect x="340" y="150" width="80" height="40" rx="5" ry="5" fill="#334155" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="380" y="175" font-family="Inter, sans-serif" font-size="12" fill="#e2e8f0" text-anchor="middle">Sentiment API</text>
+  
+  <!-- Billing System -->
+  <rect x="200" y="240" width="100" height="40" rx="5" ry="5" fill="#334155" stroke="#10b981" stroke-width="2"/>
+  <text x="250" y="265" font-family="Inter, sans-serif" font-size="14" fill="#e2e8f0" text-anchor="middle">Billing System</text>
+  
+  <!-- Connection Lines -->
+  <line x1="250" y1="90" x2="120" y2="150" stroke="#60a5fa" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="250" y1="90" x2="250" y2="150" stroke="#60a5fa" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="250" y1="90" x2="380" y2="150" stroke="#60a5fa" stroke-width="2" stroke-dasharray="5,3"/>
+  
+  <line x1="120" y1="190" x2="220" y2="240" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="250" y1="190" x2="250" y2="240" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="380" y1="190" x2="280" y2="240" stroke="#10b981" stroke-width="2" stroke-dasharray="5,3"/>
+  
+  <!-- Icons -->
+  <circle cx="250" cy="30" r="10" fill="#60a5fa"/>
+  <text x="250" y="35" font-family="Inter, sans-serif" font-size="12" fill="#fff" text-anchor="middle">$</text>
+  
+  <!-- Tier Labels -->
+  <rect x="25" y="110" width="60" height="25" rx="12.5" ry="12.5" fill="rgba(16, 185, 129, 0.2)"/>
+  <text x="55" y="127" font-family="Inter, sans-serif" font-size="12" fill="#10b981" text-anchor="middle">Basic</text>
+  
+  <rect x="175" y="110" width="60" height="25" rx="12.5" ry="12.5" fill="rgba(96, 165, 250, 0.2)"/>
+  <text x="205" y="127" font-family="Inter, sans-serif" font-size="12" fill="#60a5fa" text-anchor="middle">Premium</text>
+  
+  <rect x="415" y="110" width="60" height="25" rx="12.5" ry="12.5" fill="rgba(167, 139, 250, 0.2)"/>
+  <text x="445" y="127" font-family="Inter, sans-serif" font-size="12" fill="#a78bfa" text-anchor="middle">Enterprise</text>
+  
+  <!-- Dollar Icons -->
+  <circle cx="50" y="195" r="15" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="1"/>
+  <text x="50" y="200" font-family="Inter, sans-serif" font-size="14" fill="#10b981" text-anchor="middle">$</text>
+  
+  <circle cx="180" y="195" r="15" fill="rgba(96, 165, 250, 0.2)" stroke="#60a5fa" stroke-width="1"/>
+  <text x="180" y="200" font-family="Inter, sans-serif" font-size="14" fill="#60a5fa" text-anchor="middle">$$</text>
+  
+  <circle cx="450" y="195" r="15" fill="rgba(167, 139, 250, 0.2)" stroke="#a78bfa" stroke-width="1"/>
+  <text x="450" y="200" font-family="Inter, sans-serif" font-size="14" fill="#a78bfa" text-anchor="middle">$$$</text>
+</svg>

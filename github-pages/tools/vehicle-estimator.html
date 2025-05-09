@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Vehicle Value Estimator - Get instant and accurate market valuations for any vehicle">
+    <title>TechSaaS - AI Vehicle Value Estimator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="tool-styles.css">
+    <link rel="stylesheet" href="tool-styles-additional.css">
+    <link rel="icon" href="../images/favicon.ico" type="image/x-icon">
+    <style>
+        .vehicle-form {
+            margin: 0 auto 30px;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            grid-column: 1 / -1;
+        }
+        
+        .estimate-button {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            color: #fff;
+            font-weight: 600;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .estimate-button:hover {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            transform: translateY(-2px);
+        }
+        
+        .estimate-button i {
+            margin-right: 10px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .value-card {
+            background-color: #0f172a;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #334155;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .value-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-5px);
+        }
+        
+        .value-type {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+        
+        .value-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .value-range {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .value-description {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .market-trends {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 40px;
+        }
+        
+        .market-trends h3 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .trend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .trend-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .trend-icon.up {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .trend-icon.down {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .trend-icon.stable {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .trend-content h4 {
+            font-size: 16px;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+        
+        .trend-content p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin: 0;
+        }
+        
+        .featured-vehicles {
+            margin-top: 60px;
+        }
+        
+        .featured-vehicles h3 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .vehicle-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .vehicle-card {
+            background-color: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .vehicle-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .vehicle-image {
+            width: 100%;
+            height: 200px;
+            background-color: #0f172a;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .vehicle-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .vehicle-card:hover .vehicle-image img {
+            transform: scale(1.05);
+        }
+        
+        .vehicle-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(59, 130, 246, 0.8);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .vehicle-info {
+            padding: 20px;
+        }
+        
+        .vehicle-title {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .vehicle-price {
+            font-size: 22px;
+            color: #60a5fa;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .vehicle-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .vehicle-spec {
+            display: flex;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .vehicle-spec i {
+            margin-right: 8px;
+            color: #60a5fa;
+        }
+        
+        .vehicle-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .vehicle-action-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-secondary {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="../index.html">
+                    <img src="../images/techsaas-logo.svg" alt="TechSaaS Logo">
+                    <span>TechSaaS.Tech</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../index.html#products">Products</a>
+                <a href="../docs.html">Documentation</a>
+                <a href="index.html" class="active">Tools</a>
+                <a href="../contact.html" class="contact-btn">Contact</a>
+            </div>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <main class="tool-container">
+        <div class="tool-header">
+            <h1>AI Vehicle Value Estimator</h1>
+            <p>Get an accurate, real-time estimate of any vehicle's market value using advanced AI market analysis.</p>
+        </div>
+
+        <div class="tool-card">
+            <div class="input-section">
+                <h2>Enter Vehicle Details</h2>
+                <p>Fill in the information below to get a comprehensive valuation report.</p>
+            </div>
+
+            <form id="vehicleForm" class="vehicle-form">
+                <div class="form-group">
+                    <label for="make">Make</label>
+                    <select id="make" class="form-control" required>
+                        <option value="">Select Make</option>
+                        <option value="toyota">Toyota</option>
+                        <option value="honda">Honda</option>
+                        <option value="ford">Ford</option>
+                        <option value="chevrolet">Chevrolet</option>
+                        <option value="nissan">Nissan</option>
+                        <option value="bmw">BMW</option>
+                        <option value="mercedes">Mercedes-Benz</option>
+                        <option value="audi">Audi</option>
+                        <option value="tesla">Tesla</option>
+                        <option value="hyundai">Hyundai</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <select id="model" class="form-control" required>
+                        <option value="">Select Model</option>
+                        <option value="camry">Camry</option>
+                        <option value="corolla">Corolla</option>
+                        <option value="accord">Accord</option>
+                        <option value="civic">Civic</option>
+                        <option value="f150">F-150</option>
+                        <option value="silverado">Silverado</option>
+                        <option value="model3">Model 3</option>
+                        <option value="modelY">Model Y</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <select id="year" class="form-control" required>
+                        <option value="">Select Year</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="trim">Trim Level</label>
+                    <select id="trim" class="form-control">
+                        <option value="">Select Trim (Optional)</option>
+                        <option value="base">Base</option>
+                        <option value="sport">Sport</option>
+                        <option value="ex">EX</option>
+                        <option value="exl">EX-L</option>
+                        <option value="touring">Touring</option>
+                        <option value="limited">Limited</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mileage">Mileage</label>
+                    <input type="number" id="mileage" class="form-control" placeholder="e.g. 35000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="condition">Condition</label>
+                    <select id="condition" class="form-control" required>
+                        <option value="">Select Condition</option>
+                        <option value="excellent">Excellent</option>
+                        <option value="verygood">Very Good</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="zipcode">ZIP Code</label>
+                    <input type="text" id="zipcode" class="form-control" placeholder="For local market data" pattern="[0-9]{5}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="color">Color</label>
+                    <select id="color" class="form-control">
+                        <option value="">Select Color</option>
+                        <option value="black">Black</option>
+                        <option value="white">White</option>
+                        <option value="silver">Silver</option>
+                        <option value="gray">Gray</option>
+                        <option value="red">Red</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                    </select>
+                </div>
+                
+                <div class="button-container">
+                    <button type="submit" class="estimate-button">
+                        <i class="fas fa-calculator"></i>
+                        Get Value Estimate
+                    </button>
+                </div>
+            </form>
+
+            <div id="loadingIndicator" class="loading-indicator hidden">
+                <div class="loading-spinner"></div>
+                <p>Analyzing market data... Please wait.</p>
+            </div>
+
+            <div id="resultsContainer" class="results-container hidden">
+                <div class="results-grid">
+                    <div class="value-card">
+                        <div class="value-type">Trade-In Value</div>
+                        <div id="tradeInValue" class="value-amount">$28,750</div>
+                        <div id="tradeInRange" class="value-range">Range: $27,500 - $30,000</div>
+                        <div class="value-description">What you can expect to receive when trading in at a dealership. This is typically lower than private party value.</div>
+                    </div>
+                    
+                    <div class="value-card">
+                        <div class="value-type">Private Party Value</div>
+                        <div id="privateValue" class="value-amount">$31,250</div>
+                        <div id="privateRange" class="value-range">Range: $30,000 - $32,500</div>
+                        <div class="value-description">What you can expect to receive when selling to another individual. This is usually higher than trade-in value.</div>
+                    </div>
+                    
+                    <div class="value-card">
+                        <div class="value-type">Retail Value</div>
+                        <div id="retailValue" class="value-amount">$34,500</div>
+                        <div id="retailRange" class="value-range">Range: $33,000 - $36,000</div>
+                        <div class="value-description">What you can expect to pay at a dealership. This includes dealer preparation, warranty, and other value-adds.</div>
+                    </div>
+                </div>
+                
+                <div class="market-trends">
+                    <h3>Market Insights</h3>
+                    <div id="trendsContainer">
+                        <div class="trend-item">
+                            <div class="trend-icon up">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="trend-content">
+                                <h4>Values Rising</h4>
+                                <p>This model has seen a 3.2% increase in value over the last 90 days.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="trend-item">
+                            <div class="trend-icon stable">
+                                <i class="fas fa-equals"></i>
+                            </div>
+                            <div class="trend-content">
+                                <h4>Seasonal Demand</h4>
+                                <p>Demand typically increases by 8% during spring and early summer.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="trend-item">
+                            <div class="trend-icon down">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="trend-content">
+                                <h4>Color Impact</h4>
+                                <p>This color choice is reducing value by approximately 1.5% compared to more popular colors.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="featured-vehicles">
+                    <h3>Similar Vehicles Available Now</h3>
+                    <div class="vehicle-cards">
+                        <div class="vehicle-card">
+                            <div class="vehicle-image">
+                                <img src="https://via.placeholder.com/300x200/0f172a/60a5fa?text=Vehicle" alt="2023 Toyota Camry">
+                                <div class="vehicle-badge">Featured</div>
+                            </div>
+                            <div class="vehicle-info">
+                                <h4 class="vehicle-title">2023 Toyota Camry XSE</h4>
+                                <div class="vehicle-price">$32,995</div>
+                                <div class="vehicle-specs">
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>18,432 miles</span>
+                                    </div>
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-gas-pump"></i>
+                                        <span>28/39 MPG</span>
+                                    </div>
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-palette"></i>
+                                        <span>Pearl White</span>
+                                    </div>
+                                </div>
+                                <div class="vehicle-actions">
+                                    <a href="#" class="vehicle-action-btn btn-primary">View Details</a>
+                                    <a href="#" class="vehicle-action-btn btn-secondary">Contact</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="vehicle-card">
+                            <div class="vehicle-image">
+                                <img src="https://via.placeholder.com/300x200/0f172a/60a5fa?text=Vehicle" alt="2022 Toyota Camry">
+                                <div class="vehicle-badge">Great Value</div>
+                            </div>
+                            <div class="vehicle-info">
+                                <h4 class="vehicle-title">2022 Toyota Camry SE</h4>
+                                <div class="vehicle-price">$29,750</div>
+                                <div class="vehicle-specs">
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>26,840 miles</span>
+                                    </div>
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-gas-pump"></i>
+                                        <span>28/39 MPG</span>
+                                    </div>
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-palette"></i>
+                                        <span>Midnight Black</span>
+                                    </div>
+                                </div>
+                                <div class="vehicle-actions">
+                                    <a href="#" class="vehicle-action-btn btn-primary">View Details</a>
+                                    <a href="#" class="vehicle-action-btn btn-secondary">Contact</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="vehicle-card">
+                            <div class="vehicle-image">
+                                <img src="https://via.placeholder.com/300x200/0f172a/60a5fa?text=Vehicle" alt="2023 Toyota Camry">
+                                <div class="vehicle-badge">Low Miles</div>
+                            </div>
+                            <div class="vehicle-info">
+                                <h4 class="vehicle-title">2023 Toyota Camry LE</h4>
+                                <div class="vehicle-price">$30,495</div>
+                                <div class="vehicle-specs">
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>12,354 miles</span>
+                                    </div>
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-gas-pump"></i>
+                                        <span>28/39 MPG</span>
+                                    </div>
+                                    <div class="vehicle-spec">
+                                        <i class="fas fa-palette"></i>
+                                        <span>Silver</span>
+                                    </div>
+                                </div>
+                                <div class="vehicle-actions">
+                                    <a href="#" class="vehicle-action-btn btn-primary">View Details</a>
+                                    <a href="#" class="vehicle-action-btn btn-secondary">Contact</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="../images/techsaas-logo.svg" alt="TechSaaS Logo">
+                <span>TechSaaS.Tech</span>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Products</h4>
+                    <a href="../index.html#products">TechSaaS Platform</a>
+                    <a href="../index.html#products">52Agentic</a>
+                    <a href="../index.html#products">SentBot</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Tools</h4>
+                    <a href="scrape-checker.html">Scrape Checker</a>
+                    <a href="index.html">All Tools</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TechSaaS.Tech. All rights reserved.</p>
+            <p>Last updated: May 9, 2025</p>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const vehicleForm = document.getElementById('vehicleForm');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            // Add form submission handler
+            vehicleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                loadingIndicator.classList.remove('hidden');
+                resultsContainer.classList.add('hidden');
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Hide loading indicator
+                    loadingIndicator.classList.add('hidden');
+                    
+                    // Get form values
+                    const make = document.getElementById('make').value;
+                    const model = document.getElementById('model').value;
+                    const year = document.getElementById('year').value;
+                    const condition = document.getElementById('condition').value;
+                    const mileage = document.getElementById('mileage').value;
+                    
+                    // Calculate values (in a real app, this would come from an API)
+                    const baseValue = calculateBaseValue(make, model, year);
+                    const mileageAdjustment = calculateMileageAdjustment(mileage, year);
+                    const conditionAdjustment = calculateConditionAdjustment(condition);
+                    
+                    const adjustedValue = baseValue + mileageAdjustment + conditionAdjustment;
+                    
+                    // Set values
+                    const tradeInValue = Math.round(adjustedValue * 0.85);
+                    const privateValue = Math.round(adjustedValue * 0.92);
+                    const retailValue = Math.round(adjustedValue * 1.05);
+                    
+                    // Update DOM
+                    document.getElementById('tradeInValue').textContent = formatCurrency(tradeInValue);
+                    document.getElementById('privateValue').textContent = formatCurrency(privateValue);
+                    document.getElementById('retailValue').textContent = formatCurrency(retailValue);
+                    
+                    document.getElementById('tradeInRange').textContent = `Range: ${formatCurrency(Math.round(tradeInValue * 0.96))} - ${formatCurrency(Math.round(tradeInValue * 1.04))}`;
+                    document.getElementById('privateRange').textContent = `Range: ${formatCurrency(Math.round(privateValue * 0.96))} - ${formatCurrency(Math.round(privateValue * 1.04))}`;
+                    document.getElementById('retailRange').textContent = `Range: ${formatCurrency(Math.round(retailValue * 0.96))} - ${formatCurrency(Math.round(retailValue * 1.04))}`;
+                    
+                    // Show results
+                    resultsContainer.classList.remove('hidden');
+                    
+                    // Scroll to results with smooth animation
+                    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 2000);
+            });
+            
+            // Calculate base value based on make, model, and year
+            function calculateBaseValue(make, model, year) {
+                // This would be a more complex calculation in a real app
+                // Using a simplified model for demo purposes
+                
+                const currentYear = 2025;
+                const yearFactor = (currentYear - parseInt(year)) * 0.08;
+                
+                let baseValue;
+                
+                // Different base values based on make and model
+                if (make === 'toyota' && model === 'camry') {
+                    baseValue = 35000;
+                } else if (make === 'honda' && model === 'accord') {
+                    baseValue = 34000;
+                } else if (make === 'tesla' && model === 'model3') {
+                    baseValue = 48000;
+                } else if (make === 'ford' && model === 'f150') {
+                    baseValue = 52000;
+                } else {
+                    baseValue = 30000; // Default value
+                }
+                
+                // Apply year depreciation
+                return baseValue * (1 - yearFactor);
+            }
+            
+            // Calculate mileage adjustment
+            function calculateMileageAdjustment(mileage, year) {
+                const avgMileagePerYear = 12000;
+                const currentYear = 2025;
+                const expectedMileage = avgMileagePerYear * (currentYear - parseInt(year));
+                
+                const mileageDiff = expectedMileage - parseInt(mileage);
+                
+                // Adjust value based on mileage difference
+                return mileageDiff * 0.08;
+            }
+            
+            // Calculate condition adjustment
+            function calculateConditionAdjustment(condition) {
+                // Adjust value based on condition
+                switch(condition) {
+                    case 'excellent':
+                        return 2000;
+                    case 'verygood':
+                        return 1000;
+                    case 'good':
+                        return 0;
+                    case 'fair':
+                        return -1000;
+                    case 'poor':
+                        return -3000;
+                    default:
+                        return 0;
+                }
+            }
+            
+            // Format currency
+            function formatCurrency(value) {
+                return '$' + value.toLocaleString();
+            }
+        });
+    </script>
+</body>
+</html>

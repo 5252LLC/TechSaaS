@@ -1,0 +1,36 @@
+/* Additional styles for tools pages that were previously inline */
+
+/* Coming soon buttons styling */
+.coming-soon-button {
+    background: #334155;
+    cursor: default;
+}
+
+/* SVG circle styling */
+.score-progress {
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 1.5s ease-in-out;
+}
+
+/* Class for each percentage value */
+.percent-0 { stroke-dashoffset: calc(283 - (283 * 0) / 100); }
+.percent-5 { stroke-dashoffset: calc(283 - (283 * 5) / 100); }
+.percent-10 { stroke-dashoffset: calc(283 - (283 * 10) / 100); }
+.percent-15 { stroke-dashoffset: calc(283 - (283 * 15) / 100); }
+.percent-20 { stroke-dashoffset: calc(283 - (283 * 20) / 100); }
+.percent-25 { stroke-dashoffset: calc(283 - (283 * 25) / 100); }
+.percent-30 { stroke-dashoffset: calc(283 - (283 * 30) / 100); }
+.percent-35 { stroke-dashoffset: calc(283 - (283 * 35) / 100); }
+.percent-40 { stroke-dashoffset: calc(283 - (283 * 40) / 100); }
+.percent-45 { stroke-dashoffset: calc(283 - (283 * 45) / 100); }
+.percent-50 { stroke-dashoffset: calc(283 - (283 * 50) / 100); }
+.percent-55 { stroke-dashoffset: calc(283 - (283 * 55) / 100); }
+.percent-60 { stroke-dashoffset: calc(283 - (283 * 60) / 100); }
+.percent-65 { stroke-dashoffset: calc(283 - (283 * 65) / 100); }
+.percent-70 { stroke-dashoffset: calc(283 - (283 * 70) / 100); }
+.percent-75 { stroke-dashoffset: calc(283 - (283 * 75) / 100); }
+.percent-80 { stroke-dashoffset: calc(283 - (283 * 80) / 100); }
+.percent-85 { stroke-dashoffset: calc(283 - (283 * 85) / 100); }
+.percent-90 { stroke-dashoffset: calc(283 - (283 * 90) / 100); }
+.percent-95 { stroke-dashoffset: calc(283 - (283 * 95) / 100); }
+.percent-100 { stroke-dashoffset: calc(283 - (283 * 100) / 100); }
